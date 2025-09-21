@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dev": "node dev-server.js"
+  },
+  "dependencies": {
+    "echarts": "^6.0.0",
+    "ts-node": "^10.9.2"
+  }
+}

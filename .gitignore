@@ -1,0 +1,7 @@
+.idea
+.vscode
+config.toml
+storage/logs/app.log
+public/upload
+node_modules
+*.pid
