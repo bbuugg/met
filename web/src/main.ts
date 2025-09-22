@@ -11,19 +11,19 @@ import ArcoVue from '@arco-design/web-vue'
 import '@arco-design/web-vue/dist/arco.css'
 import '@/api/interceptors'
 
-if (import.meta.env.MODE !== 'development') {
-  try {
-    setInterval(() => {
-      ;(function () {
-        return false
-      })
-        ['constructor']('debugger')
-        ['call']()
-    }, 50)
-  } catch (e) {
-    //
-  }
-}
+// if (import.meta.env.MODE !== 'development') {
+//   try {
+//     setInterval(() => {
+//       ;(function () {
+//         return false
+//       })
+//         ['constructor']('debugger')
+//         ['call']()
+//     }, 50)
+//   } catch (e) {
+//     //
+//   }
+// }
 
 // 监听主题变化并应用到Arco Design
 const updateArcoTheme = () => {
