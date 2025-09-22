@@ -2,9 +2,11 @@ package config
 
 import (
 	"errors"
-	"github.com/BurntSushi/toml"
+	"net/http"
 	"os"
 	"sync"
+
+	"github.com/BurntSushi/toml"
 )
 
 // 保持向后兼容的全局函数
@@ -17,6 +19,11 @@ type TomlConfig struct {
 	}
 	Mysql struct {
 		DSN string
+	}
+	Session struct {
+		Samesite     string
+		SamesiteMode http.SameSite
+		Secure       bool
 	}
 	Passport struct {
 		URL          string
@@ -49,6 +56,16 @@ func initializeWithDefaults() {
 	}
 	if globalConfig.Mysql.DSN == "" {
 		globalConfig.Mysql.DSN = "root:root@tcp(127.0.0.1:3306)/met?charset=utf8mb4&parseTime=True&loc=Local"
+	}
+	switch globalConfig.Session.Samesite {
+	case "lax":
+		globalConfig.Session.SamesiteMode = http.SameSiteLaxMode
+	case "strict":
+		globalConfig.Session.SamesiteMode = http.SameSiteStrictMode
+	case "none":
+		globalConfig.Session.SamesiteMode = http.SameSiteNoneMode
+	default:
+		globalConfig.Session.SamesiteMode = http.SameSiteDefaultMode
 	}
 }
 

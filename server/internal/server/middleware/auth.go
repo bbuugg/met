@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"errors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"meeting/internal/model/entity"
 	"meeting/internal/server/constants"
 	"meeting/pkg/api"
 	"meeting/pkg/database"
 	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Authentication() gin.HandlerFunc {
@@ -24,7 +25,7 @@ func Authentication() gin.HandlerFunc {
 
 		var user *entity.User
 		if tx := database.DB(ctx).Where("id=?", userId).Find(&user); tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			ctx.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("用户不存在")))
+			ctx.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("Unauthorized")))
 			ctx.Abort()
 			return
 		}

@@ -2,13 +2,14 @@ package server
 
 import (
 	"fmt"
+	"meeting/internal/server/controller"
+	"meeting/internal/server/middleware"
+	"meeting/internal/webrtc"
+
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"meeting/internal/server/controller"
-	"meeting/internal/server/middleware"
-	"meeting/internal/webrtc"
 )
 
 type Server struct {
@@ -30,10 +31,10 @@ func NewServer() *Server {
 	//r.StaticFile("/swagger.json", "./public/swagger.json")
 
 	store := cookie.NewStore([]byte("secret"))
-	//store.Options(sessions.Options{
-	//	SameSite: http.SameSiteLaxMode,
-	//	Secure:   false,
-	//})
+	// store.Options(sessions.Options{
+	// 	SameSite: config.GetConfig().Session.SamesiteMode,
+	// 	Secure:   config.GetConfig().Session.Secure,
+	// })
 	r.Use(sessions.Sessions("session", store))
 	r.Use(middleware.CORS())
 
