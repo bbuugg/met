@@ -1,6 +1,7 @@
 package webrtc
 
 import (
+	"sort"
 	"sync"
 	"time"
 )
@@ -36,20 +37,22 @@ type Room struct {
 func (r *Room) FindClient(clientId string) *Client {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	targetClient, _ := r.clients[clientId]
-
-	return targetClient
+	return r.clients[clientId]
 }
 
-func (r *Room) AllClients() []string {
-	var ids []string
+func (r *Room) AllClients() []*Client {
+	var clients = make([]*Client, 0)
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	for id := range r.clients {
-		ids = append(ids, id)
+	for _, client := range r.clients {
+		clients = append(clients, client)
 	}
 
-	return ids
+	sort.Slice(clients, func(i, j int) bool {
+		return clients[i].joinTime.Before(clients[j].joinTime)
+	})
+
+	return clients
 }
 
 // Run starts the room's main loop
@@ -62,6 +65,7 @@ func (r *Room) Run() {
 		select {
 		case client := <-r.register:
 			client.room = r
+			client.joinTime = time.Now()
 			r.mu.Lock()
 			if c, ok := r.clients[client.Id]; ok {
 				c.handleLeave()

@@ -5,7 +5,7 @@ export enum MessageType {
   Leave = 'leave',
   AllClients = 'all-clients',
   WebRTCEvent = 'webrtc-event',
-  Kick = 'kick',
+  Kick = 'kick'
 }
 
 export enum WebRTCEventType {
@@ -16,9 +16,7 @@ export enum WebRTCEventType {
 
 export interface SignalMessage {
   type: MessageType
-  from?: {
-    id: string
-  }
+  from?: Peer
   to?: {
     id: string
   }
@@ -64,9 +62,10 @@ export interface MediaState {
   screen: boolean
 }
 
-export interface Participant {
+export interface Peer {
   id: string
   name: string
+  avatar?: string
   mediaState: MediaState
   stream?: MediaStream
 }

@@ -38,15 +38,7 @@ func (c *Client) handleChat(message *Message) {
 }
 
 func (c *Client) handleAllClients(message *Message) {
-	// Send all existing clients to the new client (excluding self)
-	allClients := c.room.AllClients()
-	var otherClients []string
-	for _, clientId := range allClients {
-		if clientId != c.Id {
-			otherClients = append(otherClients, clientId)
-		}
-	}
-	c.Send(c.newMessage(MessageTypeAllClients, otherClients, nil))
+	c.Send(c.newMessage(MessageTypeAllClients, c.room.AllClients(), nil))
 }
 
 func (c *Client) handleWebRTCEvent(message *Message) {

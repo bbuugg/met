@@ -59,6 +59,7 @@ type User struct {
 type Client struct {
 	*User
 
+	joinTime time.Time
 	// We'll use an interface to avoid import cycles
 	room *Room
 

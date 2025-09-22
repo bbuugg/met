@@ -1,12 +1,12 @@
 import { WebRTCService } from '@/services/WebRTCService'
-import type { ChatMessage, FileTransfer, MediaState, Participant } from '@/types/webrtc'
+import type { ChatMessage, FileTransfer, MediaState, Peer } from '@/types/webrtc'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useMeetingStore = defineStore('meeting', () => {
   // State
   const webrtcService = ref<WebRTCService | null>(null)
-  const participants = ref<Map<string, Participant>>(new Map())
+  const participants = ref<Map<string, Peer>>(new Map())
   const chatMessages = ref<ChatMessage[]>([])
   const fileTransfers = ref<FileTransfer[]>([])
   const localStream = ref<MediaStream | null>(null)
@@ -14,7 +14,7 @@ export const useMeetingStore = defineStore('meeting', () => {
   const remoteStreams = ref<Map<string, MediaStream>>(new Map())
   const isConnected = ref(false)
   const isJoining = ref(false)
-  const currentUser = ref<Participant | null>(null)
+  const currentUser = ref<Peer | null>(null)
   const roomId = ref('')
   const clientId = ref('')
 
@@ -75,7 +75,7 @@ export const useMeetingStore = defineStore('meeting', () => {
   function setupEventHandlers() {
     if (!webrtcService.value) return
 
-    webrtcService.value.onParticipantJoined = (participant: Participant) => {
+    webrtcService.value.onParticipantJoined = (participant: Peer) => {
       participants.value.set(participant.id, participant)
     }
 

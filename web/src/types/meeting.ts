@@ -10,6 +10,7 @@ export interface Meeting {
 export interface Participant {
   id: string
   name: string
+  avatar?: string
   role: 'host' | 'member'
   mediaState: MediaState
   connectionState: 'connecting' | 'connected' | 'disconnected'

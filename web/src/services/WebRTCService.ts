@@ -5,7 +5,7 @@ import {
   type ChatMessage,
   type FileTransfer,
   type MediaState,
-  type Participant,
+  type Peer,
   type PeerConnection,
   type SignalMessage
 } from '@/types/webrtc'
@@ -30,14 +30,16 @@ export class WebRTCService {
   private isManuallyDisconnected: boolean = false
 
   // Event callbacks
-  public onParticipantJoined?: (participant: Participant) => void
-  public onParticipantLeft?: (participantId: string) => void
-  public onRemoteStream?: (participantId: string, stream: MediaStream) => void
+  public onParticipantJoined?: (peer: Peer) => void
+  public onParticipantLeft?: (peerId: string) => void
+  public onRemoteStream?: (peerId: string, stream: MediaStream) => void
   public onChatMessage?: (message: ChatMessage) => void
   public onFileReceived?: (file: File) => void
   public onFileProgress?: (transfer: FileTransfer) => void
-  public onMediaStateChanged?: (participantId: string, mediaState: MediaState) => void
-  public onConnectionStateChanged?: (state: 'connecting' | 'connected' | 'disconnected' | 'reconnecting') => void
+  public onMediaStateChanged?: (peerId: string, mediaState: MediaState) => void
+  public onConnectionStateChanged?: (
+    state: 'connecting' | 'connected' | 'disconnected' | 'reconnecting'
+  ) => void
 
   private fileTransfers: Map<string, FileTransfer> = new Map()
   private readonly CHUNK_SIZE = 16384 // 16KB chunks
@@ -54,7 +56,7 @@ export class WebRTCService {
     this.onConnectionStateChanged?.('connecting')
 
     return new Promise((resolve, reject) => {
-      let query = new URLSearchParams(this.signedData)
+      const query = new URLSearchParams(this.signedData)
       this.ws = new WebSocket(`${wsUrl}?${query.toString()}`)
 
       this.ws.onopen = () => {
@@ -105,41 +107,37 @@ export class WebRTCService {
 
   private async handleSignalMessage(message: SignalMessage): Promise<void> {
     const { type, from, data } = message
-    console.log('Received signal message:', type, 'from:', from?.id, 'data:', data)
 
     switch (type) {
       case MessageType.Join:
         if (from?.id !== this.clientId) {
           console.log('Peer joined:', from?.id)
-          await this.handlePeerJoined(from!.id)
+          await this.handlePeerJoined(from!)
         }
         break
 
       case MessageType.Leave:
         console.log('Peer left:', from?.id)
-        this.handlePeerLeft(from!.id)
+        this.handlePeerLeft(from!)
         break
 
       case MessageType.Kick:
         window.location.href = '/'
         break
 
-      // todo 可能存在重复连接
       case MessageType.AllClients:
-        if (Array.isArray(data)) {
-          console.log('All clients:', data)
-          for (const clientId of data) {
-            if (clientId !== this.clientId) {
-              this.onParticipantJoined?.({
-                id: clientId,
-                name: `${clientId.slice(0, 8)}`,
-                mediaState: { video: false, audio: false, screen: false }
-              })
+        for (const client of data) {
+          if (client.id !== this.clientId) {
+            this.onParticipantJoined?.({
+              id: client.id,
+              name: client.name,
+              avatar: client.avatar,
+              mediaState: { video: false, audio: false, screen: false }
+            })
 
-              // 如果是重连后收到的all-clients消息，需要重新建立连接
-              if (this.reconnectAttempts > 0) {
-                await this.handlePeerJoined(clientId)
-              }
+            // 如果是重连后收到的all-clients消息，需要重新建立连接
+            if (this.reconnectAttempts > 0) {
+              await this.handlePeerJoined(client)
             }
           }
         }
@@ -163,23 +161,23 @@ export class WebRTCService {
     }
   }
 
-  private async handlePeerJoined(peerId: string): Promise<void> {
-    if (this.peers.has(peerId)) {
+  private async handlePeerJoined(peer: Peer): Promise<void> {
+    if (this.peers.has(peer.id)) {
       return
     }
-    const peerConnection = await this.createPeerConnection(peerId)
+    const peerConnection = await this.createPeerConnection(peer.id)
 
     // Tracks are already added in createPeerConnection, no need to add again
 
     // Only create offer if this client's ID is lexicographically smaller
     // This prevents both peers from creating offers simultaneously
-    if (this.clientId != peerId) {
+    if (this.clientId != peer.id) {
       const offer = await peerConnection.connection.createOffer()
       await peerConnection.connection.setLocalDescription(offer)
 
       this.sendMessage({
         type: MessageType.WebRTCEvent,
-        to: { id: peerId },
+        to: { id: peer.id },
         data: {
           type: WebRTCEventType.Offer,
           data: offer
@@ -188,19 +186,20 @@ export class WebRTCService {
     }
 
     this.onParticipantJoined?.({
-      id: peerId,
-      name: `${peerId.slice(0, 8)}`,
+      id: peer.id,
+      name: peer.name,
+      avatar: peer.avatar,
       mediaState: { video: false, audio: false, screen: false }
     })
   }
 
-  private handlePeerLeft(peerId: string): void {
-    const peer = this.peers.get(peerId)
-    if (peer) {
-      peer.connection.close()
-      peer.dataChannel?.close()
-      this.onParticipantLeft?.(peerId)
-      this.peers.delete(peerId)
+  private handlePeerLeft(peer: Peer): void {
+    const pc = this.peers.get(peer.id)
+    if (pc) {
+      pc.connection.close()
+      pc.dataChannel?.close()
+      this.onParticipantLeft?.(peer.id)
+      this.peers.delete(peer.id)
     }
   }
 
@@ -280,7 +279,7 @@ export class WebRTCService {
     const configuration: RTCConfiguration = {
       iceServers,
       // 添加ICE传输策略来优化连接
-      iceCandidatePoolSize: 10,
+      iceCandidatePoolSize: 10
     }
 
     const connection = new RTCPeerConnection(configuration)
@@ -291,14 +290,14 @@ export class WebRTCService {
         // 为音频添加transceiver并设置编码参数
         const audioTransceiver = connection.addTransceiver('audio', {
           direction: 'sendrecv'
-        });
+        })
 
         // 获取发送编码参数并优化
-        const audioSender = audioTransceiver.sender;
-        const audioParams = audioSender.getParameters();
+        const audioSender = audioTransceiver.sender
+        const audioParams = audioSender.getParameters()
 
         if (!audioParams.encodings) {
-          audioParams.encodings = [{}];
+          audioParams.encodings = [{}]
         }
 
         // 设置音频编码参数来优化质量
@@ -307,19 +306,19 @@ export class WebRTCService {
           // 限制音频带宽以减少回音
           maxBitrate: 64000, // 64 kbps
           // 添加冗余以提高音频质量
-          maxFramerate: 50,
-        };
+          maxFramerate: 50
+        }
 
-        audioSender.setParameters(audioParams).catch(err => {
-          console.warn('Failed to set audio parameters:', err);
-        });
+        audioSender.setParameters(audioParams).catch((err) => {
+          console.warn('Failed to set audio parameters:', err)
+        })
 
         // 为视频添加transceiver
         connection.addTransceiver('video', {
           direction: 'sendrecv'
-        });
+        })
       } catch (err) {
-        console.warn('Failed to add transceivers:', err);
+        console.warn('Failed to add transceivers:', err)
       }
     }
 
@@ -375,18 +374,20 @@ export class WebRTCService {
 
           // 为音频轨道添加额外的处理选项
           if (track.kind === 'audio' && 'applyConstraints' in track) {
-            (track as MediaStreamTrack).applyConstraints({
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true,
-            }).catch(err => {
-              console.warn('Failed to apply audio constraints:', err);
-            });
+            ;(track as MediaStreamTrack)
+              .applyConstraints({
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+              })
+              .catch((err) => {
+                console.warn('Failed to apply audio constraints:', err)
+              })
           }
 
           // 确保音频轨道的初始状态与mediaState一致
           if (track.kind === 'audio') {
-            track.enabled = this.mediaState.audio;
+            track.enabled = this.mediaState.audio
           }
 
           connection.addTrack(track, streamToUse)
@@ -462,22 +463,28 @@ export class WebRTCService {
     }
   }
 
-  async startCamera(videoDeviceId?: string, audioDeviceId?: string, enableEchoCancellation: boolean = true): Promise<MediaStream> {
+  async startCamera(
+    videoDeviceId?: string,
+    audioDeviceId?: string,
+    enableEchoCancellation: boolean = true
+  ): Promise<MediaStream> {
     try {
       // 添加音频约束以启用回音消除和噪声抑制
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
-        audio: audioDeviceId ? {
-          deviceId: { exact: audioDeviceId },
-          // 根据参数决定是否启用回音消除和其他音频处理功能
-          echoCancellation: enableEchoCancellation,
-          noiseSuppression: true,
-          autoGainControl: true,
-        } : {
-          echoCancellation: enableEchoCancellation,
-          noiseSuppression: true,
-          autoGainControl: true,
-        }
+        audio: audioDeviceId
+          ? {
+              deviceId: { exact: audioDeviceId },
+              // 根据参数决定是否启用回音消除和其他音频处理功能
+              echoCancellation: enableEchoCancellation,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          : {
+              echoCancellation: enableEchoCancellation,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
       }
 
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints)
@@ -511,10 +518,10 @@ export class WebRTCService {
 
       // 同步音频状态 - 如果本地音频当前是静音的，屏幕共享音频也应该静音
       if (this.screenStream && !this.mediaState.audio) {
-        const screenAudioTracks = this.screenStream.getAudioTracks();
-        screenAudioTracks.forEach(track => {
-          track.enabled = false;
-        });
+        const screenAudioTracks = this.screenStream.getAudioTracks()
+        screenAudioTracks.forEach((track) => {
+          track.enabled = false
+        })
       }
 
       this.broadcastMediaState()
@@ -553,28 +560,28 @@ export class WebRTCService {
   }
 
   toggleAudio(): boolean {
-    let audioEnabled = false;
+    let audioEnabled = false
 
     // 控制本地摄像头音频
     if (this.localStream) {
-      const audioTracks = this.localStream.getAudioTracks();
+      const audioTracks = this.localStream.getAudioTracks()
       if (audioTracks.length > 0) {
-        audioTracks[0].enabled = !audioTracks[0].enabled;
-        audioEnabled = audioTracks[0].enabled;
+        audioTracks[0].enabled = !audioTracks[0].enabled
+        audioEnabled = audioTracks[0].enabled
       }
     }
 
     // 控制屏幕共享音频
     if (this.screenStream) {
-      const screenAudioTracks = this.screenStream.getAudioTracks();
-      screenAudioTracks.forEach(track => {
-        track.enabled = audioEnabled; // 与摄像头音频状态保持一致
-      });
+      const screenAudioTracks = this.screenStream.getAudioTracks()
+      screenAudioTracks.forEach((track) => {
+        track.enabled = audioEnabled // 与摄像头音频状态保持一致
+      })
     }
 
-    this.mediaState.audio = audioEnabled;
-    this.broadcastMediaState();
-    return audioEnabled;
+    this.mediaState.audio = audioEnabled
+    this.broadcastMediaState()
+    return audioEnabled
   }
 
   toggleVideo(): boolean {
@@ -814,7 +821,7 @@ export class WebRTCService {
           console.log(`Adding ${track.kind} track during renegotiation with peer ${peerId}`)
           // 确保音频轨道的初始状态与mediaState一致
           if (track.kind === 'audio') {
-            track.enabled = this.mediaState.audio;
+            track.enabled = this.mediaState.audio
           }
           peer.connection.addTrack(track, currentStream)
         })

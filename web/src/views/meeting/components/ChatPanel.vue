@@ -17,6 +17,7 @@
           >
             <div class="flex flex-col items-center justify-center h-full">
               <div
+                :style="{ backgroundImage: `url(${participant.avatar})` }"
                 class="relative w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center mx-auto dark:bg-gray-200 dark:text-black"
                 :class="{ 'ring-4 ring-indigo-500': participant.id === clientId }"
               >
