@@ -46,7 +46,7 @@
           <div class="flex flex-col gap-2">
             <label for="displayName" class="font-semibold text-gray-700 dark:text-gray-300">{{
               t('tools.webRtcMeeting.entry.displayName')
-            }}</label>
+              }}</label>
             <input id="displayName" v-model="displayName"
               :placeholder="t('tools.webRtcMeeting.entry.displayNamePlaceholder')" class="input-field"
               @keyup.enter="handleJoin" />
@@ -55,7 +55,7 @@
           <div class="flex flex-col gap-2">
             <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">{{
               t('tools.webRtcMeeting.entry.meetingId')
-            }}</label>
+              }}</label>
             <input id="meetingId" v-model="meetingId" :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
               class="input-field" @keyup.enter="handleJoin" />
           </div>
@@ -106,7 +106,7 @@ const userStore = useUserStore()
 const { t, locale } = useI18n()
 
 // 表单数据
-const displayName = ref(userStore.info.name)
+const displayName = ref(userStore.info.name || "")
 const meetingId = ref((route.query.roomId as string) || '')
 
 // Reactive variable to track current language
