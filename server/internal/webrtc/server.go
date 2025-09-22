@@ -1,13 +1,17 @@
 package webrtc
 
 import (
+	"errors"
 	"log"
+	"meeting/internal/model/entity"
 	"meeting/pkg/api"
+	"meeting/pkg/database"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type Server struct {
@@ -67,6 +71,12 @@ func (s *Server) HandleWebSocket(c *gin.Context) {
 		return
 	}
 
+	var user entity.User
+	if tx := database.DB(c).Where("uuid = ?", req.UserId).Find(&user); tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("Unauthorized")))
+		return
+	}
+
 	role := RoleUser
 	r, isNew := s.startRoom(req.RoomId)
 	if isNew {
@@ -79,7 +89,12 @@ func (s *Server) HandleWebSocket(c *gin.Context) {
 		return
 	}
 	// Create client with Role and add to room
-	client := newClient(conn, req.UserId, role)
+	client := newClient(conn, &User{
+		Id:     user.Uuid,
+		Name:   user.Name,
+		Avatar: user.Avatar,
+		Role:   role,
+	})
 	r.RegisterClient(client)
 
 	// Start client message handling
