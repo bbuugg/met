@@ -124,7 +124,7 @@ const userStore = useUserStore()
 const { t, locale } = useI18n()
 
 // 表单数据
-const displayName = ref('')
+const displayName = ref(userStore.info?.name || '')
 const meetingId = ref((route.query.roomId as string) || '')
 
 // Reactive variable to track current language
