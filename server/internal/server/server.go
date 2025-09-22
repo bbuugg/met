@@ -9,7 +9,6 @@ import (
 	"meeting/internal/server/controller"
 	"meeting/internal/server/middleware"
 	"meeting/internal/webrtc"
-	"net/http"
 )
 
 type Server struct {
@@ -31,10 +30,10 @@ func NewServer() *Server {
 	//r.StaticFile("/swagger.json", "./public/swagger.json")
 
 	store := cookie.NewStore([]byte("secret"))
-	store.Options(sessions.Options{
-		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
-	})
+	//store.Options(sessions.Options{
+	//	SameSite: http.SameSiteLaxMode,
+	//	Secure:   false,
+	//})
 	r.Use(sessions.Sessions("session", store))
 	r.Use(middleware.CORS())
 
