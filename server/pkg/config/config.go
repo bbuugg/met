@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/BurntSushi/toml"
@@ -57,7 +58,7 @@ func initializeWithDefaults() {
 	if globalConfig.Mysql.DSN == "" {
 		globalConfig.Mysql.DSN = "root:root@tcp(127.0.0.1:3306)/met?charset=utf8mb4&parseTime=True&loc=Local"
 	}
-	switch globalConfig.Session.Samesite {
+	switch strings.ToLower(globalConfig.Session.Samesite) {
 	case "lax":
 		globalConfig.Session.SamesiteMode = http.SameSiteLaxMode
 	case "strict":
