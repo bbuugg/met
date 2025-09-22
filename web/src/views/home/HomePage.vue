@@ -154,6 +154,7 @@ const themeChangeListener = (newTheme: 'light' | 'dark') => {
 }
 
 onMounted(() => {
+  userStore.updateInfo().then(() => (displayName.value = userStore.info?.name))
   // 设置初始主题
   currentTheme.value = theme.getCurrentTheme()
 
