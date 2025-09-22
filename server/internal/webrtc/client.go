@@ -75,7 +75,7 @@ func newClient(conn *websocket.Conn, clientID string, role Role) *Client {
 	return &Client{
 		User: &User{
 			ID:   clientID,
-			Name: clientID, // 设置默认用户名
+			Name: clientID,
 			Role: role,
 		},
 		conn:            conn,

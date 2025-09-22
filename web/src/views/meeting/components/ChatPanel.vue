@@ -2,9 +2,7 @@
   <div class="w-full md:w-96 h-full bg-white dark:bg-gray-800 flex flex-col">
     <!-- Participants List -->
     <div class="h-1/4 flex flex-col bg-white dark:bg-gray-800">
-      <div
-        class="px-6 py-3 flex items-center justify-between dark:border-gray-700 h-14"
-      >
+      <div class="px-6 py-3 flex items-center justify-between dark:border-gray-700 h-14">
         <h4 class="m-0 font-semibold text-gray-700 dark:text-gray-300">
           {{ t('tools.webRtcMeeting.participants.title') }} ({{ participantsList.length }})
         </h4>
@@ -12,7 +10,11 @@
 
       <div class="flex-1 overflow-y-auto p-4">
         <div class="flex flex-wrap gap-4">
-          <div v-for="participant in participantsList" :key="participant.id" class="flex cursor-pointer">
+          <div
+            v-for="participant in participantsList"
+            :key="participant.id"
+            class="flex cursor-pointer"
+          >
             <div class="flex flex-col items-center justify-center h-full">
               <div
                 class="relative w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center mx-auto dark:bg-gray-200 dark:text-black"
@@ -72,7 +74,7 @@
             class="w-fit px-4 py-3 rounded-2xl break-words flex items-center gap-2 shadow-md"
             :class="
               message.senderId === clientId
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                ? 'bg-black text-white'
                 : message.type === 'file'
                   ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white'
@@ -202,8 +204,8 @@
 
 <script setup lang="ts">
 import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
-import toast from '@/services/toast'
 import { useMeetingStore } from '@/stores/meeting'
+import { Message } from '@arco-design/web-vue'
 import {
   ArrowDownTrayIcon,
   ChatBubbleLeftRightIcon,
@@ -258,9 +260,9 @@ async function handleFileSelect(event: Event) {
     for (const file of Array.from(files)) {
       try {
         await meetingStore.sendFile(file)
-        toast.success(t('tools.webRtcMeeting.chat.sendFile'), `${file.name} is being sent`, 3000)
+        Message.success(t('tools.webRtcMeeting.chat.sendFile'))
       } catch (error) {
-        toast.error(t('tools.webRtcMeeting.chat.sendFile'), `Failed to send ${file.name}`, 3000)
+        Message.error(t('tools.webRtcMeeting.chat.sendFile'))
       }
     }
 
@@ -274,12 +276,7 @@ function downloadFile(url: string, fileName?: string) {
     // Fallback to old method for non-preview files
     const content = typeof url === 'string' ? url : ''
     const fileNameFromContent = content.replace('File received: ', '')
-
-    toast.info(
-      t('tools.webRtcMeeting.chat.download'),
-      `File download would start for: ${fileNameFromContent}`,
-      3000
-    )
+    Message.info(t('tools.webRtcMeeting.chat.download'))
     return
   }
 
@@ -298,11 +295,7 @@ function downloadFileFromMessage(message: any) {
 
   // In a real implementation, you would need to have the actual file data
   // For now, we'll just show a message
-  toast.info(
-    t('tools.webRtcMeeting.chat.download'),
-    `File download would start for: ${fileName}`,
-    3000
-  )
+  Message.info(t('tools.webRtcMeeting.chat.download'))
 }
 
 function formatTime(timestamp: number): string {

@@ -1,5 +1,5 @@
 import { useUserStore } from '@/stores/user'
-import { apiBaseURI } from '@/config'
+import { apiUrl } from '@/config'
 
 const tokenKey = 'token'
 
@@ -15,11 +15,11 @@ export function logout() {
   const userStore = useUserStore()
   setToken('')
   userStore.updateInfo({})
-  window.location.href = `${apiBaseURI}/logout?redirect_uri=${encodeURIComponent(window.location.href)}`
+  window.location.href = `${apiUrl}/logout?redirect_uri=${encodeURIComponent(window.location.href)}`
 }
 
 export function login(redirectURI: string = '') {
-  window.location.href = `${apiBaseURI}/login?redirect_uri=${encodeURIComponent(redirectURI || window.location.origin)}`
+  window.location.href = `${apiUrl}/login?redirect_uri=${encodeURIComponent(redirectURI || window.location.origin)}`
 }
 
 export async function getMediaDevices() {

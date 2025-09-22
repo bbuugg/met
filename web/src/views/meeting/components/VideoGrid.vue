@@ -1,9 +1,23 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- 添加工具栏 -->
-    <MeetingToolbar />
-
     <div class="h-72 md:h-full">
+      <!-- 当没有任何流时显示提示 -->
+      <div 
+        v-show="!localStream && participantsWithStreams.length === 0" 
+        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl"
+      >
+        <div class="text-center p-8">
+          <VideoCameraIcon class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+          <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            {{ t('tools.webRtcMeeting.video.waitingForParticipant') }}
+          </h3>
+          <p class="text-gray-500 dark:text-gray-400 max-w-md">
+            {{ t('tools.webRtcMeeting.meeting.invitedToMeeting') }}
+          </p>
+        </div>
+      </div>
+      
+      <!-- 视频网格 -->
       <div
         class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-2 rounded-xl"
         :class="gridClass"
@@ -201,16 +215,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
 import { useMeetingStore } from '@/stores/meeting'
-import MeetingToolbar from './MeetingToolbar.vue'
-import { useI18n } from 'vue-i18n'
 import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   ComputerDesktopIcon,
-  SpeakerWaveIcon
+  SpeakerWaveIcon,
+  VideoCameraIcon
 } from '@heroicons/vue/24/outline'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const meetingStore = useMeetingStore()

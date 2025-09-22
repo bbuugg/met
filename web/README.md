@@ -43,3 +43,24 @@ npm run test:unit
 ```sh
 npm run lint
 ```
+
+## Arco Design Theme Customization
+
+This project customizes the Arco Design theme to match the MeetingPage.vue style:
+
+- Custom CSS variables in `src/assets/arco-theme.css`
+- Theme switching support for both light and dark modes
+- Custom component styles that match the overall design language
+- Automatic theme synchronization with the application's theme service
+
+To modify the Arco Design theme:
+
+1. Edit `src/assets/arco-theme.css` to adjust CSS variables
+2. The theme automatically syncs with the application's light/dark mode
+3. Custom component styles are applied through CSS classes
+
+The customization includes:
+- Primary, success, warning, and error color palettes
+- Background, text, and border colors for both light and dark themes
+- Custom styling for buttons, inputs, cards, and modals
+- Smooth transitions and hover effects that match the MeetingPage.vue design

@@ -52,7 +52,7 @@ export class WebRTCService {
     this.onConnectionStateChanged?.('connecting')
     
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(`${wsUrl}?client_id=${this.clientId}&room_id=${this.roomId}`)
+      this.ws = new WebSocket(`${wsUrl}?client_id=${this.clientId}&rid=${this.roomId}`)
 
       this.ws.onopen = () => {
         console.log('WebSocket connected')

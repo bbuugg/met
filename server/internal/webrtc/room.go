@@ -10,10 +10,16 @@ type Room struct {
 	// Room ID
 	ID        string
 	StartTime time.Time
+	MaxOnline int
+
+	// 用来存储房间最后一次检测的时间
+	lastAlive time.Time
 	// Registered clients.
 	clients map[string]*Client
 
-	mutex sync.RWMutex
+	server *Server
+
+	mu sync.RWMutex
 
 	// Inbound messages from the clients.
 	broadcast chan *Message
@@ -27,22 +33,9 @@ type Room struct {
 	close chan struct{}
 }
 
-// newRoom creates a new room
-func newRoom(id string) *Room {
-	return &Room{
-		ID:         id,
-		broadcast:  make(chan *Message, 100), // Buffered channel
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[string]*Client),
-		close:      make(chan struct{}),
-		StartTime:  time.Now(),
-	}
-}
-
 func (r *Room) FindClient(clientId string) *Client {
-	r.mutex.RLock()
-	defer r.mutex.RUnlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	targetClient, _ := r.clients[clientId]
 
 	return targetClient
@@ -50,8 +43,8 @@ func (r *Room) FindClient(clientId string) *Client {
 
 func (r *Room) AllClients() []string {
 	var ids []string
-	r.mutex.RLock()
-	defer r.mutex.RUnlock()
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 	for id := range r.clients {
 		ids = append(ids, id)
 	}
@@ -61,39 +54,57 @@ func (r *Room) AllClients() []string {
 
 // Run starts the room's main loop
 func (r *Room) Run() {
+	ticker := time.NewTicker(10 * time.Second)
+	defer func() {
+		ticker.Stop()
+	}()
 	for {
 		select {
 		case client := <-r.register:
 			client.room = r
-			client.handleJoin()
-			r.mutex.Lock()
+			r.mu.Lock()
 			if c, ok := r.clients[client.ID]; ok {
 				c.handleLeave()
 				c.handleKick()
 				c.room = nil
 			}
 			r.clients[client.ID] = client
-			r.mutex.Unlock()
+			clientsCount := len(r.clients)
+			if clientsCount > r.MaxOnline {
+				r.MaxOnline = clientsCount
+			}
+			client.handleJoin()
+			r.mu.Unlock()
 		case client := <-r.unregister:
-			r.mutex.Lock()
+			r.mu.Lock()
 			client.handleLeave()
 			if _, ok := r.clients[client.ID]; ok {
 				delete(r.clients, client.ID)
 				//close(client.send)
 			}
-			r.mutex.Unlock()
+			r.mu.Unlock()
 		case msg := <-r.broadcast:
 			if msg.From == nil {
 				continue
 			}
-			r.mutex.RLock()
+			r.mu.RLock()
 			for _, c := range r.clients {
 				// Don't send message back to sender
 				if c.ID != msg.From.ID {
 					c.Send(msg)
 				}
 			}
-			r.mutex.RUnlock()
+			r.mu.RUnlock()
+		case <-ticker.C:
+			r.mu.RLock()
+			if len(r.clients) > 0 {
+				r.lastAlive = time.Now()
+			}
+			r.mu.RUnlock()
+			if r.lastAlive.Add(time.Minute * 5).Before(time.Now()) {
+				r.server.RemoveRoom(r.ID)
+				return
+			}
 		case <-r.close:
 			// todo 是否需要关闭通道
 			close(r.register)

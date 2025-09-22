@@ -215,6 +215,124 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
   }
 
+  // 新增方法：启动仅音频流
+  async function startAudioOnly(audioDeviceId?: string) {
+    if (!webrtcService.value) return
+
+    try {
+      // 创建仅音频约束
+      const constraints: MediaStreamConstraints = {
+        video: false,
+        audio: audioDeviceId ? { 
+          deviceId: { exact: audioDeviceId },
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        } : {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      }
+
+      // 获取音频流
+      const audioStream = await navigator.mediaDevices.getUserMedia(constraints)
+      
+      // 将音频流设置为本地流
+      localStream.value = audioStream
+      
+      // 更新WebRTC服务中的媒体状态
+      if (webrtcService.value) {
+        // 更新媒体状态
+        if (currentUser.value) {
+          currentUser.value.mediaState.audio = true
+          currentUser.value.mediaState.video = false
+          currentUser.value.mediaState.screen = false
+          currentUser.value.stream = audioStream
+        }
+        
+        // 如果有现有的对等连接，重新协商以添加音频轨道
+        // 通过反射访问WebRTCService的私有属性和方法
+        const service: any = webrtcService.value;
+        if (service.peers && service.peers.size > 0) {
+          console.log('Renegotiating connections to add audio-only tracks')
+          // 调用重新协商方法
+          if (typeof service.renegotiateAllConnections === 'function') {
+            await service.renegotiateAllConnections.call(service)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to start audio only stream:', error)
+      throw error
+    }
+  }
+
+  // 新增方法：使用指定音频设备启动屏幕共享
+  async function startScreenShareWithAudio(audioDeviceId?: string) {
+    if (!webrtcService.value) return
+
+    try {
+      // 先获取屏幕共享流
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+      })
+
+      // 如果指定了音频设备，获取该设备的音频流
+      let audioStream: MediaStream | null = null
+      if (audioDeviceId) {
+        const audioConstraints: MediaStreamConstraints = {
+          video: false,
+          audio: { 
+            deviceId: { exact: audioDeviceId },
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          }
+        }
+        audioStream = await navigator.mediaDevices.getUserMedia(audioConstraints)
+      }
+
+      // 合并屏幕和音频流
+      const combinedStream = new MediaStream()
+      
+      // 添加屏幕视频轨道
+      displayStream.getVideoTracks().forEach(track => {
+        combinedStream.addTrack(track)
+      })
+      
+      // 添加音频轨道（优先使用指定设备的音频，否则使用屏幕共享的音频）
+      if (audioStream) {
+        audioStream.getAudioTracks().forEach(track => {
+          combinedStream.addTrack(track)
+        })
+        // 停止屏幕共享的音频轨道
+        displayStream.getAudioTracks().forEach(track => track.stop())
+      } else {
+        displayStream.getAudioTracks().forEach(track => {
+          combinedStream.addTrack(track)
+        })
+      }
+
+      // 更新状态
+      screenStream.value = combinedStream
+      if (currentUser.value) {
+        currentUser.value.mediaState.screen = true
+        currentUser.value.mediaState.audio = true
+        currentUser.value.stream = combinedStream
+      }
+
+      // 处理屏幕共享结束事件
+      displayStream.getVideoTracks()[0].onended = () => {
+        stopScreenShare()
+      }
+    } catch (error) {
+      console.error('Failed to start screen share with audio:', error)
+      throw error
+    }
+  }
+
   function toggleAudio() {
     if (!webrtcService.value || !currentUser.value) return false
 
@@ -398,6 +516,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     currentUser,
     roomId,
     clientId,
+    webrtcService, // 导出webrtcService
 
     // Additional state
     inMeeting,
@@ -422,6 +541,8 @@ export const useMeetingStore = defineStore('meeting', () => {
     stopCamera,
     startScreenShare,
     stopScreenShare,
+    startScreenShareWithAudio, // 导出新方法
+    startAudioOnly, // 导出新方法
     toggleAudio,
     toggleVideo,
     sendChatMessage,

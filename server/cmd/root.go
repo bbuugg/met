@@ -1,25 +1,26 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"meeting/webrtc"
+	"meeting/internal/model/entity"
+	"meeting/internal/server"
+	"meeting/pkg/config"
+	"meeting/pkg/database"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
 
-	"github.com/gin-contrib/pprof"
-	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
 var (
-	port uint16
+	cfgPath string
 )
 
 func init() {
-	rootCmd.PersistentFlags().Uint16VarP(&port, "port", "p", 8080, "server port")
+	rootCmd.PersistentFlags().StringVarP(&cfgPath, "config", "c", "./config.toml", "config path")
 }
 
 var rootCmd = &cobra.Command{
@@ -27,23 +28,15 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runtime.SetMutexProfileFraction(1) // (非必需)开启对锁调用的跟踪
 		runtime.SetBlockProfileRate(1)     // (非必需)开启对阻塞操作的跟踪
+		config.InitializeConfig(cfgPath)
+		database.InitializeDB()
 
-		r := gin.Default()
-		r.MaxMultipartMemory = 8 << 20 // 8MiB
-		r.UseH2C = true                // gin.UseH2C 开启http2
-		pprof.Register(r)
-		// r.LoadHTMLGlob("./storage/views/*")
-		//r.StaticFS("/swagger", http.Dir("public/swagger"))
-		//r.StaticFile("/swagger.json", "./public/swagger.json")
+		database.DB(context.Background()).AutoMigrate(&entity.User{})
 
-		r.Use(webrtc.CORS())
-		s := webrtc.NewServer()
-		r.GET("/api/signature", s.GenerateSignature)
-		r.GET("/api/websocket", s.HandleWebSocket)
-		r.GET("/api/monitoring", s.GetMonitoringData) // 添加监控接口路由
+		s := server.NewServer()
 
 		go func() {
-			log.Fatalln(r.Run(fmt.Sprintf(":%d", port)))
+			log.Fatalln(s.Run(config.GetConfig().App.Port))
 		}()
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

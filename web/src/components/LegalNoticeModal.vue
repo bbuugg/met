@@ -1,40 +1,52 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ t('legalNotice.title') }}
-          </h3>
-        </div>
-        <div class="mb-6">
-          <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-            {{ t('legalNotice.content') }}
-          </p>
-        </div>
-        <div class="flex justify-end">
-          <button
-            @click="onAccept"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-          >
-            {{ t('legalNotice.accept') }}
-          </button>
-        </div>
-      </div>
+  <a-modal
+    v-model:visible="visible"
+    :title="t('legalNotice.title')"
+    :ok-text="t('legalNotice.accept')"
+    :cancel-text="t('legalNotice.decline')"
+    :closable="false"
+    :mask-closable="false"
+    @ok="onAccept"
+    @cancel="onDecline"
+    :width="400"
+  >
+    <div class="mb-6">
+      <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+        {{ t('legalNotice.content') }}
+      </p>
     </div>
-  </div>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { Modal as AModal } from '@arco-design/web-vue'
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const emit = defineEmits<{
   (e: 'accept'): void
 }>()
 
+// 控制Modal显示的响应式变量
+const visible = ref(true)
+
+// 监听visible变化，如果Modal被关闭，则触发accept事件
+watch(visible, (newVal) => {
+  if (!newVal) {
+    emit('accept')
+  }
+})
+
 const onAccept = () => {
-  emit('accept')
+  visible.value = false
+}
+
+const onDecline = () => {
+  // 用户拒绝法律声明，返回首页
+  router.push('/')
 }
 </script>

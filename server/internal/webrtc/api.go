@@ -13,6 +13,8 @@ type RoomInfo struct {
 	ID          string    `json:"id"`
 	ClientCount int       `json:"clientCount"`
 	StartTime   time.Time `json:"startTime"`
+	MaxOnline   int       `json:"maxOnline"`
+	LastActive  time.Time `json:"lastActive"`
 	Clients     []*Client `json:"clients"`
 }
 
@@ -23,18 +25,20 @@ func (s *Server) GetMonitoringData(c *gin.Context) {
 
 	var rooms = make([]RoomInfo, 0)
 	for _, room := range s.rooms {
-		room.mutex.RLock()
+		room.mu.RLock()
 		clientCount := len(room.clients)
 		var clients = make([]*Client, 0)
 		for _, client := range room.clients {
 			clients = append(clients, client)
 		}
-		room.mutex.RUnlock()
+		room.mu.RUnlock()
 
 		rooms = append(rooms, RoomInfo{
 			ID:          room.ID,
 			ClientCount: clientCount,
 			StartTime:   room.StartTime,
+			MaxOnline:   room.MaxOnline,
+			LastActive:  room.lastAlive,
 			Clients:     clients,
 		})
 	}
