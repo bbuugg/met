@@ -3,8 +3,13 @@ package server
 import (
 	"fmt"
 	"github.com/gin-contrib/pprof"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"meeting/internal/server/controller"
+	"meeting/internal/server/middleware"
 	"meeting/internal/webrtc"
+	"net/http"
 )
 
 type Server struct {
@@ -25,11 +30,25 @@ func NewServer() *Server {
 	//r.StaticFS("/swagger", http.Dir("public/swagger"))
 	//r.StaticFile("/swagger.json", "./public/swagger.json")
 
-	r.Use(webrtc.CORS())
+	store := cookie.NewStore([]byte("secret"))
+	store.Options(sessions.Options{
+		SameSite: http.SameSiteLaxMode,
+		Secure:   false,
+	})
+	r.Use(sessions.Sessions("session", store))
+	r.Use(middleware.CORS())
 
-	r.GET("/api/signature", s.webrtcServer.GenerateSignature)
+	r.GET("login", controller.AuthHandler.Login)
+	r.GET("login/callback", controller.AuthHandler.LoginCallback)
 	r.GET("/api/websocket", s.webrtcServer.HandleWebSocket)
-	r.GET("/api/monitoring", s.webrtcServer.GetMonitoringData) // 添加监控接口路由
+
+	p := r.Group("")
+	p.Use(middleware.Authentication())
+	{
+		r.GET("/api/info", controller.AuthHandler.Info)
+		p.GET("/api/signature", s.webrtcServer.GenerateSignature)
+		p.GET("/api/monitoring", s.webrtcServer.GetMonitoringData) // 添加监控接口路由
+	}
 
 	s.httpServer = r
 	return s

@@ -8,13 +8,8 @@
 
       <a-card>
         <a-typography-title :heading="4" style="margin-bottom: 16px">在线会议室</a-typography-title>
-        <a-table
-          :columns="columns"
-          :data="rooms"
-          :loading="loading"
-          :pagination="false"
-          :bordered="{ wrapper: true, cell: true }"
-        >
+        <a-table :columns="columns" :data="rooms" :loading="loading" :pagination="false"
+          :bordered="{ wrapper: true, cell: true }">
           <template #clientCount="{ record }">
             <a-tag color="green">{{ record.clientCount }} 人</a-tag>
           </template>
@@ -25,13 +20,8 @@
       </a-card>
 
       <!-- Room Details Modal -->
-      <a-modal
-        v-model:visible="showRoomDetails"
-        :title="`房间详情 - ${selectedRoom?.id}`"
-        @cancel="closeRoomDetails"
-        @ok="closeRoomDetails"
-        :width="800"
-      >
+      <a-modal v-model:visible="showRoomDetails" :title="`房间详情 - ${selectedRoom?.id}`" @cancel="closeRoomDetails"
+        @ok="closeRoomDetails" :width="800">
         <a-spin :loading="roomDetailLoading">
           <div v-if="selectedRoom">
             <a-descriptions title="房间信息" :column="2" style="margin-bottom: 20px">
@@ -49,9 +39,7 @@
               <a-list-item v-for="client in selectedRoom.clients" :key="client.id">
                 <a-list-item-meta>
                   <template #avatar>
-                    <a-avatar
-                      :style="{ backgroundColor: client.role === 'master' ? '#6268ff' : '#165dff' }"
-                    >
+                    <a-avatar :style="{ backgroundColor: client.role === 'master' ? '#6268ff' : '#165dff' }">
                       {{ client.name.charAt(0) }}
                     </a-avatar>
                   </template>
@@ -97,6 +85,7 @@ import {
   Avatar as AAvatar,
   Empty as AEmpty
 } from '@arco-design/web-vue'
+import { getMinitorData } from '@/api'
 
 const rooms = ref<RoomInfo[]>([])
 const showRoomDetails = ref(false)
@@ -147,7 +136,7 @@ const formatTime = (timeString: string | undefined) => {
 const fetchMonitoringData = async () => {
   try {
     loading.value = true
-    const response = await axios.get('/api/monitoring')
+    const response = await getMinitorData()
     rooms.value = response.data
   } catch (error) {
     console.error('获取监控数据失败:', error)

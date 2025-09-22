@@ -1,4 +1,4 @@
-package webrtc
+package middleware
 
 import (
 	"github.com/gin-contrib/cors"

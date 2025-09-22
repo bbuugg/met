@@ -5,7 +5,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useUserStore } from './stores/user';
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  userStore.updateInfo()
+})
 
 // 暗色主题
 const isDarkTheme = computed(() => {
@@ -19,6 +26,7 @@ const isDarkTheme = computed(() => {
     opacity: 0;
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);

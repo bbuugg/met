@@ -20,7 +20,7 @@ type TomlConfig struct {
 	}
 	Passport struct {
 		URL          string
-		ClientID     string
+		ClientId     string
 		ClientSecret string
 		RedirectURI  string
 		ResponseType string

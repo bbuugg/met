@@ -1,8 +1,8 @@
 package webrtc
 
 import (
-	"github.com/google/uuid"
 	"log"
+	"meeting/pkg/api"
 	"net/http"
 	"sync"
 	"time"
@@ -31,7 +31,7 @@ func (s *Server) startRoom(id string) (*Room, bool) {
 	r, exists := s.rooms[id]
 	if !exists {
 		r = &Room{
-			ID:         id,
+			Id:         id,
 			server:     s,
 			broadcast:  make(chan *Message, 100), // Buffered channel
 			register:   make(chan *Client),
@@ -41,7 +41,7 @@ func (s *Server) startRoom(id string) (*Room, bool) {
 			StartTime:  time.Now(),
 			lastAlive:  time.Now(),
 		}
-		s.rooms[r.ID] = r
+		s.rooms[r.Id] = r
 		isNew = true
 		go r.Run()
 	}
@@ -56,30 +56,19 @@ func (s *Server) RemoveRoom(id string) {
 }
 
 func (s *Server) HandleWebSocket(c *gin.Context) {
-	//var req SignatureResponse
-	//if err := c.ShouldBindQuery(&req); err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	//	return
-	//}
-	//
-	//if err := ValidateSignature(req); err != nil {
-	//	c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-	//	return
-	//}
-
-	clientId := c.Query("client_id")
-	if clientId == "" {
-		c.Status(http.StatusBadRequest)
+	var req SignatureResponse
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage(err.Error())))
 		return
 	}
 
-	roomID := c.Query("rid")
-	if roomID == "" {
-		roomID = uuid.New().String()[:8]
+	if err := ValidateSignature(req); err != nil {
+		c.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage(err.Error())))
+		return
 	}
 
 	role := RoleUser
-	r, isNew := s.startRoom(roomID)
+	r, isNew := s.startRoom(req.RoomId)
 	if isNew {
 		role = RoleMaster
 	}
@@ -90,7 +79,7 @@ func (s *Server) HandleWebSocket(c *gin.Context) {
 		return
 	}
 	// Create client with Role and add to room
-	client := newClient(conn, clientId, role)
+	client := newClient(conn, req.UserId, role)
 	r.RegisterClient(client)
 
 	// Start client message handling

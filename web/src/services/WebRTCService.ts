@@ -15,6 +15,7 @@ export class WebRTCService {
   private localStream: MediaStream | null = null
   private screenStream: MediaStream | null = null
   private peers: Map<string, PeerConnection> = new Map()
+  private signedData: any
   private clientId: string
   private roomId: string
   private mediaState: MediaState = { video: false, audio: false, screen: false }
@@ -41,18 +42,20 @@ export class WebRTCService {
   private fileTransfers: Map<string, FileTransfer> = new Map()
   private readonly CHUNK_SIZE = 16384 // 16KB chunks
 
-  constructor(clientId: string, roomId: string) {
-    this.clientId = clientId
-    this.roomId = roomId
+  constructor(signedData: any) {
+    this.clientId = signedData.userId
+    this.roomId = signedData.roomId
+    this.signedData = signedData
   }
 
   async connect(wsUrl: string): Promise<void> {
     this.wsUrl = wsUrl
     this.isManuallyDisconnected = false
     this.onConnectionStateChanged?.('connecting')
-    
+
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(`${wsUrl}?client_id=${this.clientId}&rid=${this.roomId}`)
+      let query = new URLSearchParams(this.signedData)
+      this.ws = new WebSocket(`${wsUrl}?${query.toString()}`)
 
       this.ws.onopen = () => {
         console.log('WebSocket connected')
@@ -88,7 +91,7 @@ export class WebRTCService {
       this.ws.onclose = (event) => {
         console.log('WebSocket disconnected', event)
         this.stopPing()
-        
+
         // 如果不是手动断开连接，则尝试重连
         if (!this.isManuallyDisconnected) {
           this.onConnectionStateChanged?.('disconnected')
@@ -132,7 +135,7 @@ export class WebRTCService {
                 name: `${clientId.slice(0, 8)}`,
                 mediaState: { video: false, audio: false, screen: false }
               })
-              
+
               // 如果是重连后收到的all-clients消息，需要重新建立连接
               if (this.reconnectAttempts > 0) {
                 await this.handlePeerJoined(clientId)
@@ -274,7 +277,7 @@ export class WebRTCService {
 
   private async createPeerConnection(peerId: string): Promise<PeerConnection> {
     // 添加更详细的RTC配置来优化音频质量
-    const configuration: RTCConfiguration = { 
+    const configuration: RTCConfiguration = {
       iceServers,
       // 添加ICE传输策略来优化连接
       iceCandidatePoolSize: 10,
@@ -289,15 +292,15 @@ export class WebRTCService {
         const audioTransceiver = connection.addTransceiver('audio', {
           direction: 'sendrecv'
         });
-        
+
         // 获取发送编码参数并优化
         const audioSender = audioTransceiver.sender;
         const audioParams = audioSender.getParameters();
-        
+
         if (!audioParams.encodings) {
           audioParams.encodings = [{}];
         }
-        
+
         // 设置音频编码参数来优化质量
         audioParams.encodings[0] = {
           ...audioParams.encodings[0],
@@ -306,11 +309,11 @@ export class WebRTCService {
           // 添加冗余以提高音频质量
           maxFramerate: 50,
         };
-        
+
         audioSender.setParameters(audioParams).catch(err => {
           console.warn('Failed to set audio parameters:', err);
         });
-        
+
         // 为视频添加transceiver
         connection.addTransceiver('video', {
           direction: 'sendrecv'
@@ -369,7 +372,7 @@ export class WebRTCService {
           console.log(
             `Adding ${track.kind} track to new peer ${peerId} from ${this.screenStream ? 'screen' : 'camera'}`
           )
-          
+
           // 为音频轨道添加额外的处理选项
           if (track.kind === 'audio' && 'applyConstraints' in track) {
             (track as MediaStreamTrack).applyConstraints({
@@ -380,12 +383,12 @@ export class WebRTCService {
               console.warn('Failed to apply audio constraints:', err);
             });
           }
-          
+
           // 确保音频轨道的初始状态与mediaState一致
           if (track.kind === 'audio') {
             track.enabled = this.mediaState.audio;
           }
-          
+
           connection.addTrack(track, streamToUse)
         } catch (error) {
           console.error(`Failed to add ${track.kind} track to new peer ${peerId}:`, error)
@@ -464,7 +467,7 @@ export class WebRTCService {
       // 添加音频约束以启用回音消除和噪声抑制
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
-        audio: audioDeviceId ? { 
+        audio: audioDeviceId ? {
           deviceId: { exact: audioDeviceId },
           // 根据参数决定是否启用回音消除和其他音频处理功能
           echoCancellation: enableEchoCancellation,
@@ -505,7 +508,7 @@ export class WebRTCService {
 
       this.mediaState.screen = true
       this.mediaState.audio = true
-      
+
       // 同步音频状态 - 如果本地音频当前是静音的，屏幕共享音频也应该静音
       if (this.screenStream && !this.mediaState.audio) {
         const screenAudioTracks = this.screenStream.getAudioTracks();
@@ -513,7 +516,7 @@ export class WebRTCService {
           track.enabled = false;
         });
       }
-      
+
       this.broadcastMediaState()
 
       // Renegotiate connections to switch to screen share
@@ -551,7 +554,7 @@ export class WebRTCService {
 
   toggleAudio(): boolean {
     let audioEnabled = false;
-    
+
     // 控制本地摄像头音频
     if (this.localStream) {
       const audioTracks = this.localStream.getAudioTracks();
@@ -560,7 +563,7 @@ export class WebRTCService {
         audioEnabled = audioTracks[0].enabled;
       }
     }
-    
+
     // 控制屏幕共享音频
     if (this.screenStream) {
       const screenAudioTracks = this.screenStream.getAudioTracks();
@@ -568,7 +571,7 @@ export class WebRTCService {
         track.enabled = audioEnabled; // 与摄像头音频状态保持一致
       });
     }
-    
+
     this.mediaState.audio = audioEnabled;
     this.broadcastMediaState();
     return audioEnabled;
@@ -859,10 +862,10 @@ export class WebRTCService {
     if (this.pingInterval) {
       clearInterval(this.pingInterval)
     }
-    
+
     this.pingInterval = window.setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.sendMessage({type: MessageType.Ping})
+        this.sendMessage({ type: MessageType.Ping })
       }
     }, this.PING_INTERVAL)
   }
@@ -891,19 +894,19 @@ export class WebRTCService {
 
     // 清理当前连接
     this.cleanupPeersOnly()
-    
+
     // 增加重连尝试次数
     this.reconnectAttempts++
     this.onConnectionStateChanged?.('reconnecting')
-    
+
     console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`)
-    
+
     // 计算延迟时间（指数退避）
     const delay = Math.min(
       this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
       this.maxReconnectDelay
     )
-    
+
     this.reconnectTimeout = window.setTimeout(() => {
       console.log(`Reconnecting after ${delay}ms delay`)
       this.connect(this.wsUrl)

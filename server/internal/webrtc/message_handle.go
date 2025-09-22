@@ -9,7 +9,7 @@ import (
 func (c *Client) handleMessage(message *Message) {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("Error processing message from client %s: %v", c.ID, err)
+			log.Printf("Error processing message from client %s: %v", c.Id, err)
 		}
 	}()
 	switch message.Type {
@@ -22,7 +22,7 @@ func (c *Client) handleMessage(message *Message) {
 	case MessageTypeChat:
 		c.handleChat(message)
 	default:
-		log.Printf("Unknown message type received from client %s: %s", c.ID, message.Type)
+		log.Printf("Unknown message type received from client %s: %s", c.Id, message.Type)
 	}
 }
 
@@ -42,7 +42,7 @@ func (c *Client) handleAllClients(message *Message) {
 	allClients := c.room.AllClients()
 	var otherClients []string
 	for _, clientId := range allClients {
-		if clientId != c.ID {
+		if clientId != c.Id {
 			otherClients = append(otherClients, clientId)
 		}
 	}
@@ -50,9 +50,9 @@ func (c *Client) handleAllClients(message *Message) {
 }
 
 func (c *Client) handleWebRTCEvent(message *Message) {
-	targetClient := c.room.FindClient(message.To.ID)
+	targetClient := c.room.FindClient(message.To.Id)
 	if targetClient == nil {
-		log.Printf("Target client %s not found for offer", message.To.ID)
+		log.Printf("Target client %s not found for offer", message.To.Id)
 		return
 	}
 

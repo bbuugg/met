@@ -16,8 +16,8 @@ var (
 
 // SignatureRequest represents the request structure for generating signatures
 type SignatureRequest struct {
-	RoomID    string `json:"room_id" form:"room_id"`
-	UserID    string `json:"user_id" form:"user_id"`
+	RoomId    string `json:"roomId" form:"roomId"`
+	UserId    string `json:"userId" form:"userId"`
 	Name      string `json:"name"    form:"name"`
 	Timestamp string `json:"timestamp" form:"timestamp"`
 }
@@ -25,18 +25,18 @@ type SignatureRequest struct {
 // SignatureResponse represents the response structure for generating signatures
 type SignatureResponse struct {
 	SignatureRequest
-	Signature string `json:"signature"`
+	Signature string `json:"signature" form:"signature"`
 }
 
 // GenerateSignature generates a signature for joining a room
 func GenerateSignature(req SignatureRequest) (*SignatureResponse, error) {
 	// Validate required fields
-	if req.RoomID == "" || req.UserID == "" || req.Name == "" {
+	if req.RoomId == "" || req.UserId == "" || req.Name == "" || req.Timestamp == "" {
 		return nil, ErrMissingRequiredFields
 	}
 
 	// Create the data to be signed
-	data := req.RoomID + req.UserID + req.Name
+	data := req.RoomId + req.UserId + req.Name + req.Timestamp
 
 	// Create a new HMAC by defining the hash type and the key
 	h := hmac.New(sha256.New, []byte(Secret))

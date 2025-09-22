@@ -3,7 +3,7 @@ DSN = "root:123456@tcp(127.0.0.1:3305)/met?charset=utf8mb4&parseTime=True&loc=Lo
 
 [Passport]
 URL = "https://passport.example.com/oauth"
-ClientID = "your-client-id"
+ClientId = "your-client-id"
 ClientSecret = "your-client-secret"
 RedirectURI = "https://yourapp.example.com/callback"
 ResponseType = "code"

@@ -48,7 +48,7 @@ const (
 const RoleAll Role = math.MaxUint8
 
 type User struct {
-	ID   string `json:"id"`
+	Id   string `json:"id"`
 	Name string `json:"name"`
 	// Client Role (bitmap)
 	Role Role `json:"role"`
@@ -71,11 +71,11 @@ type Client struct {
 }
 
 // newClient creates a new client with a specific Role
-func newClient(conn *websocket.Conn, clientID string, role Role) *Client {
+func newClient(conn *websocket.Conn, clientId string, role Role) *Client {
 	return &Client{
 		User: &User{
-			ID:   clientID,
-			Name: clientID,
+			Id:   clientId,
+			Name: clientId,
 			Role: role,
 		},
 		conn:            conn,

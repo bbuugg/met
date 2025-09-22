@@ -1,6 +1,5 @@
 export interface User {
-  id: string
-  nickname: string
+  uuid: string
+  name: string
   avatar: string
-  muted: boolean
 }

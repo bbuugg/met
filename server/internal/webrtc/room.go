@@ -7,8 +7,8 @@ import (
 
 // Room maintains the set of active clients and broadcasts messages to the clients.
 type Room struct {
-	// Room ID
-	ID        string
+	// Room Id
+	Id        string
 	StartTime time.Time
 	MaxOnline int
 
@@ -63,12 +63,12 @@ func (r *Room) Run() {
 		case client := <-r.register:
 			client.room = r
 			r.mu.Lock()
-			if c, ok := r.clients[client.ID]; ok {
+			if c, ok := r.clients[client.Id]; ok {
 				c.handleLeave()
 				c.handleKick()
 				c.room = nil
 			}
-			r.clients[client.ID] = client
+			r.clients[client.Id] = client
 			clientsCount := len(r.clients)
 			if clientsCount > r.MaxOnline {
 				r.MaxOnline = clientsCount
@@ -78,8 +78,8 @@ func (r *Room) Run() {
 		case client := <-r.unregister:
 			r.mu.Lock()
 			client.handleLeave()
-			if _, ok := r.clients[client.ID]; ok {
-				delete(r.clients, client.ID)
+			if _, ok := r.clients[client.Id]; ok {
+				delete(r.clients, client.Id)
 				//close(client.send)
 			}
 			r.mu.Unlock()
@@ -90,7 +90,7 @@ func (r *Room) Run() {
 			r.mu.RLock()
 			for _, c := range r.clients {
 				// Don't send message back to sender
-				if c.ID != msg.From.ID {
+				if c.Id != msg.From.Id {
 					c.Send(msg)
 				}
 			}
@@ -102,7 +102,7 @@ func (r *Room) Run() {
 			}
 			r.mu.RUnlock()
 			if r.lastAlive.Add(time.Minute * 5).Before(time.Now()) {
-				r.server.RemoveRoom(r.ID)
+				r.server.RemoveRoom(r.Id)
 				return
 			}
 		case <-r.close:

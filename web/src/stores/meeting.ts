@@ -38,16 +38,16 @@ export const useMeetingStore = defineStore('meeting', () => {
   )
 
   // Actions
-  async function joinMeeting(roomIdParam: string, clientIdParam: string, wsUrl: string) {
+  async function joinMeeting(wsUrl: string, signedData: any) {
     if (isJoining.value) return
 
     isJoining.value = true
-    roomId.value = roomIdParam
-    clientId.value = clientIdParam
+    roomId.value = signedData.roomId
+    clientId.value = signedData.userId
 
     try {
       // Create WebRTC service
-      webrtcService.value = new WebRTCService(clientIdParam, roomIdParam)
+      webrtcService.value = new WebRTCService(signedData)
 
       // Setup event handlers
       setupEventHandlers()
@@ -57,12 +57,12 @@ export const useMeetingStore = defineStore('meeting', () => {
 
       // Create current user
       currentUser.value = {
-        id: clientIdParam,
-        name: `${clientIdParam.slice(0, 8)}`,
+        id: signedData.userId,
+        name: signedData.name,
         mediaState: { video: false, audio: false, screen: false }
       }
 
-      participants.value.set(clientIdParam, currentUser.value)
+      participants.value.set(signedData.userId, currentUser.value)
       isConnected.value = true
     } catch (error) {
       console.error('Failed to join meeting:', error)
@@ -223,7 +223,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       // 创建仅音频约束
       const constraints: MediaStreamConstraints = {
         video: false,
-        audio: audioDeviceId ? { 
+        audio: audioDeviceId ? {
           deviceId: { exact: audioDeviceId },
           echoCancellation: true,
           noiseSuppression: true,
@@ -237,10 +237,10 @@ export const useMeetingStore = defineStore('meeting', () => {
 
       // 获取音频流
       const audioStream = await navigator.mediaDevices.getUserMedia(constraints)
-      
+
       // 将音频流设置为本地流
       localStream.value = audioStream
-      
+
       // 更新WebRTC服务中的媒体状态
       if (webrtcService.value) {
         // 更新媒体状态
@@ -250,7 +250,7 @@ export const useMeetingStore = defineStore('meeting', () => {
           currentUser.value.mediaState.screen = false
           currentUser.value.stream = audioStream
         }
-        
+
         // 如果有现有的对等连接，重新协商以添加音频轨道
         // 通过反射访问WebRTCService的私有属性和方法
         const service: any = webrtcService.value;
@@ -284,7 +284,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       if (audioDeviceId) {
         const audioConstraints: MediaStreamConstraints = {
           video: false,
-          audio: { 
+          audio: {
             deviceId: { exact: audioDeviceId },
             echoCancellation: true,
             noiseSuppression: true,
@@ -296,12 +296,12 @@ export const useMeetingStore = defineStore('meeting', () => {
 
       // 合并屏幕和音频流
       const combinedStream = new MediaStream()
-      
+
       // 添加屏幕视频轨道
       displayStream.getVideoTracks().forEach(track => {
         combinedStream.addTrack(track)
       })
-      
+
       // 添加音频轨道（优先使用指定设备的音频，否则使用屏幕共享的音频）
       if (audioStream) {
         audioStream.getAudioTracks().forEach(track => {
@@ -475,7 +475,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (webrtcService.value) {
       webrtcService.value.disconnect()
     }
-    
+
     // 清理所有状态
     participants.value.clear()
     chatMessages.value = []
@@ -489,7 +489,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     webrtcService.value = null
     roomId.value = ''
     clientId.value = ''
-    
+
     // 重置额外状态
     inMeeting.value = false
     displayName.value = ''
