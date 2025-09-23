@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col h-full">
     <div class="h-72 md:h-full">
-      <!-- 当没有任何流时显示提示 -->
-      <div v-show="!localStream && participantsWithStreams.length === 0"
+      <!-- 当没有任何参与者时显示提示 -->
+      <div v-show="!currentUser && participantsWithStreams.length === 0"
         class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl">
         <div class="text-center p-8">
           <VideoCameraIcon class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
@@ -17,14 +17,15 @@
 
       <!-- 视频网格 -->
       <div class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-2 rounded-xl" :class="gridClass">
-        <!-- Local video - only show if we have a local stream -->
-        <div v-show="localStream && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
+        <!-- Local video - always show if current user exists -->
+        <div v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
           class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
 
           <!-- 视频元素 -->
           <video ref="localVideoRef" autoplay muted playsinline
             class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-            :class="{ 'opacity-0': isLocalAudioOnly }" />
+            :class="{ 'opacity-0': isLocalAudioOnly }"
+            :style="{ display: isLocalAudioOnly ? 'none' : 'block' }" />
 
           <!-- 只有音频时显示头像占位符 -->
           <div v-if="isLocalAudioOnly"
@@ -67,7 +68,8 @@
             <!-- 视频元素 -->
             <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
               class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-              :class="{ 'opacity-0': isAudioOnlyParticipant(participant.id) }" />
+              :class="{ 'opacity-0': isAudioOnlyParticipant(participant.id) }"
+              :style="{ display: isAudioOnlyParticipant(participant.id) ? 'none' : 'block' }" />
 
             <!-- 只有音频时显示头像占位符 -->
             <div v-if="isAudioOnlyParticipant(participant.id)"
@@ -149,39 +151,33 @@ const remoteParticipants = computed(() =>
   meetingStore.participantsList.filter((p) => p.id !== meetingStore.clientId)
 )
 
-// 计算属性：包含所有有流的参与者（音频或视频）
+// 计算属性：显示所有远程参与者，不管是否有流
 const participantsWithStreams = computed(() => {
-  // 只要流中有音频或视频 track 就显示
-  return remoteParticipants.value.filter((participant) => {
-    const stream = meetingStore.remoteStreams.get(participant.id)
-    return (
-      stream !== undefined &&
-      stream !== null &&
-      (stream.getAudioTracks().length > 0 || stream.getVideoTracks().length > 0) &&
-      stream.active === true
-    )
-  })
+  // 显示所有远程参与者
+  return remoteParticipants.value
 })
 
-// 计算属性：检查参与者是否只有音频流
+// 计算属性：检查参与者是否只有音频流或没有流
 const isAudioOnlyParticipant = (participantId: string) => {
   const stream = meetingStore.remoteStreams.get(participantId)
-  if (!stream) return false
+  // 如果没有流，或者只有音频流，都显示头像
+  if (!stream || !stream.active) return true
   return stream.getAudioTracks().length > 0 && stream.getVideoTracks().length === 0
 }
 
-// 计算属性：检查本地流是否只有音频
+// 计算属性：检查本地流是否只有音频或没有流
 const isLocalAudioOnly = computed(() => {
-  if (!localStream.value) return false
+  if (!localStream.value) return true
   return localStream.value.getAudioTracks().length > 0 && localStream.value.getVideoTracks().length === 0
 })
 
-// 修改gridClass计算属性，只计算有流的参与者数量
+// 修改gridClass计算属性，基于所有参与者数量
 const gridClass = computed(() => {
-  // 只计算本地流和拥有远程流的参与者
-  const localStreamCount = localStream.value ? 1 : 0
-  const remoteStreamCount = participantsWithStreams.value.length
-  let totalParticipants = localStreamCount + remoteStreamCount
+  // 计算本地用户和所有远程参与者
+  const localUserCount = currentUser.value ? 1 : 0
+  const remoteParticipantCount = participantsWithStreams.value.length
+  let totalParticipants = localUserCount + remoteParticipantCount
+
   if (fullscreenParticipantId.value) {
     totalParticipants = 1
   }
@@ -233,8 +229,11 @@ function setRemoteVideoRef(participantId: string, el: any) {
 
     // Immediately assign stream if available
     const stream = meetingStore.remoteStreams.get(participantId)
-    if (stream) {
+    if (stream && stream.active) {
       videoElement.srcObject = stream
+    } else {
+      // 如果没有流，清空 srcObject
+      videoElement.srcObject = null
     }
   } else {
     remoteVideoRefs.value.delete(participantId)
@@ -247,7 +246,7 @@ watch(
   (newStream) => {
     if (localVideoRef.value) {
       console.log('Setting local video stream:', newStream)
-      if (newStream) {
+      if (newStream && newStream.active) {
         console.log('Local stream tracks:', newStream.getTracks())
         newStream.getTracks().forEach((track) => {
           console.log('Track info:', track.kind, track.label, track.readyState)
@@ -257,8 +256,11 @@ watch(
             console.log('Track settings:', track.getSettings())
           }
         })
+        localVideoRef.value.srcObject = newStream
+      } else {
+        // 如果没有流或流不活跃，清空 srcObject
+        localVideoRef.value.srcObject = null
       }
-      localVideoRef.value.srcObject = newStream
     }
   },
   { immediate: true }
@@ -274,9 +276,20 @@ watch(
         const videoElement = remoteVideoRefs.value.get(participantId)
         if (videoElement) {
           console.log(`Assigning stream to video element for ${participantId}, stream: `, stream)
-          videoElement.srcObject = stream
+          if (stream && stream.active) {
+            videoElement.srcObject = stream
+          } else {
+            videoElement.srcObject = null
+          }
         }
       }
+
+      // 为没有流的参与者清空 srcObject
+      remoteVideoRefs.value.forEach((videoElement, participantId) => {
+        if (!streams.has(participantId)) {
+          videoElement.srcObject = null
+        }
+      })
     })
   },
   { deep: true, immediate: true }
