@@ -10,7 +10,6 @@ const (
 	MessageTypeAllClients  MessageType = "all-clients" // 客户端id列表
 	MessageTypeWebRTCEvent MessageType = "webrtc-event"
 	MessageTypeKick        MessageType = "kick" // 被踢了
-	MessageTypeChat        MessageType = "chat"
 )
 
 // Message represents a message to be sent to clients

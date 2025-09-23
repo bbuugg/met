@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 )
 
 const Secret = "secret"
@@ -19,7 +20,8 @@ type SignatureRequest struct {
 	RoomId    string `json:"roomId" form:"roomId"`
 	UserId    string `json:"userId" form:"userId"`
 	Name      string `json:"name"    form:"name"`
-	Timestamp string `json:"timestamp" form:"timestamp"`
+	Role      Role   `json:"role"    form:"role"`
+	Timestamp int    `json:"timestamp" form:"timestamp"`
 }
 
 // SignatureResponse represents the response structure for generating signatures
@@ -31,13 +33,11 @@ type SignatureResponse struct {
 // GenerateSignature generates a signature for joining a room
 func GenerateSignature(req SignatureRequest) (*SignatureResponse, error) {
 	// Validate required fields
-	if req.RoomId == "" || req.UserId == "" || req.Name == "" || req.Timestamp == "" {
+	if req.RoomId == "" || req.UserId == "" || req.Name == "" || req.Timestamp == 0 {
 		return nil, ErrMissingRequiredFields
 	}
 
-	// Create the data to be signed
-	data := req.RoomId + req.UserId + req.Name + req.Timestamp
-
+	data := fmt.Sprintf("%s%s%s%d%d", req.RoomId, req.UserId, req.Name, req.Role, req.Timestamp)
 	// Create a new HMAC by defining the hash type and the key
 	h := hmac.New(sha256.New, []byte(Secret))
 

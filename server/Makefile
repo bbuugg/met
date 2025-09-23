@@ -1,10 +1,12 @@
-.PHONY:all
 all: build
 
-.PHONY:build
 build:
 	go build -o ./bin/webrtc-signal ./cmd
 
-.PHONY:clean
+dev:
+	go run ./cmd
+
 clean:
 	rm -rf ./bin/webrtc-signal
+
+.PHONY: build clean all

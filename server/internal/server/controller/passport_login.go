@@ -9,6 +9,7 @@ import (
 	"meeting/internal/model/entity"
 	"meeting/internal/server/constants"
 	"meeting/pkg/api"
+	"meeting/pkg/auth"
 	"meeting/pkg/database"
 	"meeting/pkg/passport"
 	"net/http"
@@ -78,17 +79,6 @@ func (a *authHandler) LoginCallback(ctx *gin.Context) {
 }
 
 func (a *authHandler) Info(ctx *gin.Context) {
-	session := sessions.Default(ctx)
-	userId, ok := session.Get(constants.UserIdKey).(uint)
-	if !ok {
-		ctx.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("用户不存在")))
-		return
-	}
-	var user entity.User
-	if tx := database.DB(ctx).Where("id=?", userId).Find(&user); tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		ctx.JSON(http.StatusBadRequest, api.Fail(api.WithMessage("用户不存在")))
-		return
-	}
-
+	user := auth.MustGetUserFromCtx(ctx)
 	ctx.JSON(http.StatusOK, api.Okay(api.WithData(user)))
 }

@@ -45,7 +45,7 @@ func NewServer() *Server {
 	p := r.Group("")
 	p.Use(middleware.Authentication())
 	{
-		r.GET("/api/info", controller.AuthHandler.Info)
+		p.GET("/api/info", controller.AuthHandler.Info)
 		p.GET("/api/signature", s.webrtcServer.GenerateSignature)
 		p.GET("/api/monitoring", s.webrtcServer.GetMonitoringData) // 添加监控接口路由
 	}

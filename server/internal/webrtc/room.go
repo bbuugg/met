@@ -82,10 +82,7 @@ func (r *Room) Run() {
 		case client := <-r.unregister:
 			r.mu.Lock()
 			client.handleLeave()
-			if _, ok := r.clients[client.Id]; ok {
-				delete(r.clients, client.Id)
-				//close(client.send)
-			}
+			delete(r.clients, client.Id)
 			r.mu.Unlock()
 		case msg := <-r.broadcast:
 			if msg.From == nil {

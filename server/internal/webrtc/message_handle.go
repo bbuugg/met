@@ -19,8 +19,6 @@ func (c *Client) handleMessage(message *Message) {
 		c.handleAllClients(message)
 	case MessageTypeWebRTCEvent:
 		c.handleWebRTCEvent(message)
-	case MessageTypeChat:
-		c.handleChat(message)
 	default:
 		log.Printf("Unknown message type received from client %s: %s", c.Id, message.Type)
 	}
@@ -31,10 +29,6 @@ func (c *Client) handlePing() {
 		return
 	}
 	c.Send(c.newMessage(MessageTypePong, nil, nil))
-}
-
-func (c *Client) handleChat(message *Message) {
-	c.room.broadcast <- c.newMessage(MessageTypeChat, message.Data, nil)
 }
 
 func (c *Client) handleAllClients(message *Message) {
