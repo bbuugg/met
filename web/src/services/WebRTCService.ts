@@ -468,24 +468,27 @@ export class WebRTCService {
     videoDeviceId?: string,
   ): Promise<MediaStream> {
     try {
-      // 添加音频约束以启用回音消除和噪声抑制
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
         audio: false
       }
-
-      this.localStream = await navigator.mediaDevices.getUserMedia(constraints)
-
-      this.mediaState.video = true
-      this.mediaState.audio = false
-      this.broadcastMediaState()
-
-      // 如果有现有的对等连接，重新协商以添加新轨道
-      if (this.peers.size > 0) {
-        console.log('Renegotiating connections to add camera tracks')
-        await this.renegotiateAllConnections()
+      const newStream = await navigator.mediaDevices.getUserMedia(constraints)
+      const newVideoTrack = newStream.getVideoTracks()[0]
+      if (!this.localStream) {
+        this.localStream = new MediaStream()
       }
-
+      // 移除旧 video track
+      this.localStream.getVideoTracks().forEach(track => {
+        this.localStream!.removeTrack(track)
+        track.stop()
+      })
+      // 添加新 video track
+      this.localStream.addTrack(newVideoTrack)
+      this.mediaState.video = true
+      this.mediaState.screen = false
+      this.broadcastMediaState()
+      // 替换所有 peer 的 video track
+      await this.replaceVideoTrack(newVideoTrack)
       return this.localStream
     } catch (error) {
       console.error('Error accessing camera:', error)
@@ -495,35 +498,35 @@ export class WebRTCService {
 
   async startScreenShare(): Promise<MediaStream> {
     try {
-      this.localStream = await navigator.mediaDevices.getDisplayMedia({
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true
       })
-
+      const screenVideoTrack = screenStream.getVideoTracks()[0]
+      if (!this.localStream) {
+        this.localStream = new MediaStream()
+      }
+      // 移除旧 video track
+      this.localStream.getVideoTracks().forEach(track => {
+        this.localStream!.removeTrack(track)
+        track.stop()
+      })
+      // 添加屏幕共享 video track
+      this.localStream.addTrack(screenVideoTrack)
       this.mediaState.screen = true
+      this.mediaState.video = false
       this.mediaState.desktopAudio = true
-
-      // 同步音频状态 - 如果本地音频当前是静音的，屏幕共享音频也应该静音
-      if (this.localStream && !this.mediaState.audio) {
-        const screenAudioTracks = this.localStream.getAudioTracks()
-        screenAudioTracks.forEach((track) => {
-          track.enabled = false
-        })
+      // 屏幕音频 track 处理
+      if (!this.mediaState.audio) {
+        screenStream.getAudioTracks().forEach(track => track.enabled = false)
       }
-
       this.broadcastMediaState()
-
-      // Renegotiate connections to switch to screen share
-      if (this.peers.size > 0) {
-        console.log('Renegotiating connections to switch to screen share')
-        await this.renegotiateAllConnections()
-      }
-
-      // Handle screen share end
-      this.localStream.getVideoTracks()[0].onended = () => {
+      // 替换所有 peer 的 video track
+      await this.replaceVideoTrack(screenVideoTrack)
+      // 屏幕共享结束时回退
+      screenVideoTrack.onended = () => {
         this.stopScreenShare()
       }
-
       return this.localStream
     } catch (error) {
       console.error('Error starting screen share:', error)
@@ -533,50 +536,73 @@ export class WebRTCService {
 
   async stopScreenShare(): Promise<void> {
     if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => track.stop())
-      this.localStream = null
+      // 移除屏幕 video track
+      this.localStream.getVideoTracks().forEach(track => {
+        this.localStream!.removeTrack(track)
+        track.stop()
+      })
       this.mediaState.screen = false
       this.broadcastMediaState()
-
-      // Renegotiate to switch back to camera or remove video
-      if (this.peers.size > 0) {
-        console.log('Renegotiating connections after stopping screen share')
-        await this.renegotiateAllConnections()
-      }
+      // 可选：恢复摄像头
+      await this.startCamera()
     }
   }
 
   async toggleAudio(deviceId?: string): Promise<boolean> {
     if (!this.mediaState.audio) {
-      if (!this.audioStream) {
-        this.audioStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            deviceId: { exact: deviceId },
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          }, video: false
-        })
-      }
-      if (!this.audioStream) {
-        return (this.mediaState.audio = false)
-      }
-
-      this.audioStream.getAudioTracks().forEach((track) => {
-        track.enabled = true
-        this.localStream?.addTrack(track)
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }, video: false
       })
+      const newAudioTrack = audioStream.getAudioTracks()[0]
+      if (!this.localStream) {
+        this.localStream = new MediaStream()
+      }
+      // 移除旧 audio track
+      this.localStream.getAudioTracks().forEach(track => {
+        this.localStream!.removeTrack(track)
+        track.stop()
+      })
+      // 添加新 audio track
+      this.localStream.addTrack(newAudioTrack)
       this.mediaState.audio = true
+      // 替换所有 peer 的 audio track
+      await this.replaceAudioTrack(newAudioTrack)
     } else {
-      this.localStream?.getAudioTracks().forEach((track) => {
+      // 关闭音频
+      this.localStream?.getAudioTracks().forEach(track => {
         track.enabled = false
       })
       this.mediaState.audio = false
+      // 替换所有 peer 的 audio track为null
+      await this.replaceAudioTrack(null)
     }
-
     this.broadcastMediaState()
-    await this.renegotiateAllConnections()
     return this.mediaState.audio
+  }
+
+  // 替换所有 peer 的 audio track
+  private async replaceAudioTrack(newTrack: MediaStreamTrack | null): Promise<void> {
+    const promises: Promise<void>[] = [];
+    this.peers.forEach((peer, peerId) => {
+      const senders = peer.connection.getSenders();
+      const audioSender = senders.find((s) => s.track && s.track.kind === 'audio');
+      if (audioSender) {
+        promises.push(
+          audioSender.replaceTrack(newTrack).catch((error) => {
+            console.error(`Failed to replace audio track for peer ${peerId}:`, error);
+            return this.renegotiateConnection(peerId);
+          })
+        );
+      } else {
+        promises.push(this.renegotiateConnection(peerId));
+      }
+    });
+    await Promise.all(promises);
   }
 
   toggleVideo(): boolean {

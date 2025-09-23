@@ -123,16 +123,15 @@ const remoteParticipants = computed(() =>
 
 // 计算属性：只包含拥有有效流的参与者
 const participantsWithStreams = computed(() => {
-  // 过滤出拥有远程流的参与者，并确保流是有效的
+  // 只要流中有音频或视频 track 就显示
   return remoteParticipants.value.filter((participant) => {
     const stream = meetingStore.remoteStreams.get(participant.id)
-    // 确保参与者不仅在列表中，而且确实有对应的远程流，并且流是有效的
     return (
       stream !== undefined &&
       stream !== null &&
-      stream.getTracks().length > 0 &&
+      (stream.getAudioTracks().length > 0 || stream.getVideoTracks().length > 0) &&
       stream.active === true
-    ) // 确保流是活跃的
+    )
   })
 })
 
