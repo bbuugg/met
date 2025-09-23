@@ -10,7 +10,6 @@ export const useMeetingStore = defineStore('meeting', () => {
   const chatMessages = ref<ChatMessage[]>([])
   const fileTransfers = ref<FileTransfer[]>([])
   const localStream = ref<MediaStream | null>(null)
-  const screenStream = ref<MediaStream | null>(null)
   const remoteStreams = ref<Map<string, MediaStream>>(new Map())
   const isConnected = ref(false)
   const isJoining = ref(false)
@@ -193,11 +192,11 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (!webrtcService.value) return
 
     try {
-      screenStream.value = await webrtcService.value.startScreenShare()
+      localStream.value = await webrtcService.value.startScreenShare()
       if (currentUser.value) {
         currentUser.value.mediaState.screen = true
         // 确保currentUser.stream也更新为screenStream
-        currentUser.value.stream = screenStream.value
+        currentUser.value.stream = localStream.value
       }
     } catch (error) {
       console.error('Failed to start screen share:', error)
@@ -209,7 +208,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (!webrtcService.value) return
 
     await webrtcService.value.stopScreenShare()
-    screenStream.value = null
+    localStream.value = null
     if (currentUser.value) {
       currentUser.value.mediaState.screen = false
     }
@@ -318,7 +317,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       }
 
       // 更新状态
-      screenStream.value = combinedStream
+      localStream.value = combinedStream
       if (currentUser.value) {
         currentUser.value.mediaState.screen = true
         currentUser.value.mediaState.audio = true
@@ -404,7 +403,6 @@ export const useMeetingStore = defineStore('meeting', () => {
     fileTransfers.value = []
     remoteStreams.value.clear()
     localStream.value = null
-    screenStream.value = null
     isConnected.value = false
     currentUser.value = null
     webrtcService.value = null
@@ -484,7 +482,6 @@ export const useMeetingStore = defineStore('meeting', () => {
     fileTransfers.value = []
     remoteStreams.value.clear()
     localStream.value = null
-    screenStream.value = null
     isConnected.value = false
     isJoining.value = false
     currentUser.value = null
@@ -511,7 +508,6 @@ export const useMeetingStore = defineStore('meeting', () => {
     chatMessages,
     fileTransfers,
     localStream,
-    screenStream,
     remoteStreams,
     isConnected,
     isJoining,

@@ -14,7 +14,6 @@ export class WebRTCService {
   private ws: WebSocket | null = null
   private localStream: MediaStream | null = null
   private audioStream: MediaStream | null = null
-  private screenStream: MediaStream | null = null
   private peers: Map<string, PeerConnection> = new Map()
   private signedData: any
   private clientId: string
@@ -370,16 +369,9 @@ export class WebRTCService {
       this.setupDataChannel(event.channel, peerId)
     }
 
-    // Add tracks from the appropriate stream
-    const streamToUse = this.screenStream || this.localStream
-
-    if (streamToUse) {
-      streamToUse.getTracks().forEach((track) => {
+    if (this.localStream) {
+      this.localStream.getTracks().forEach((track) => {
         try {
-          console.log(
-            `Adding ${track.kind} track to new peer ${peerId} from ${this.screenStream ? 'screen' : 'camera'}`
-          )
-
           // 为音频轨道添加额外的处理选项
           if (track.kind === 'audio' && 'applyConstraints' in track) {
             ; (track as MediaStreamTrack)
@@ -398,7 +390,7 @@ export class WebRTCService {
             track.enabled = this.mediaState.audio
           }
 
-          connection.addTrack(track, streamToUse)
+          connection.addTrack(track, this.localStream!)
         } catch (error) {
           console.error(`Failed to add ${track.kind} track to new peer ${peerId}:`, error)
         }
@@ -505,17 +497,17 @@ export class WebRTCService {
 
   async startScreenShare(): Promise<MediaStream> {
     try {
-      this.screenStream = await navigator.mediaDevices.getDisplayMedia({
+      this.localStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true
       })
 
       this.mediaState.screen = true
-      this.mediaState.audio = true
+      this.mediaState.desktopAudio = true
 
       // 同步音频状态 - 如果本地音频当前是静音的，屏幕共享音频也应该静音
-      if (this.screenStream && !this.mediaState.audio) {
-        const screenAudioTracks = this.screenStream.getAudioTracks()
+      if (this.localStream && !this.mediaState.audio) {
+        const screenAudioTracks = this.localStream.getAudioTracks()
         screenAudioTracks.forEach((track) => {
           track.enabled = false
         })
@@ -530,11 +522,11 @@ export class WebRTCService {
       }
 
       // Handle screen share end
-      this.screenStream.getVideoTracks()[0].onended = () => {
+      this.localStream.getVideoTracks()[0].onended = () => {
         this.stopScreenShare()
       }
 
-      return this.screenStream
+      return this.localStream
     } catch (error) {
       console.error('Error starting screen share:', error)
       throw error
@@ -542,9 +534,9 @@ export class WebRTCService {
   }
 
   async stopScreenShare(): Promise<void> {
-    if (this.screenStream) {
-      this.screenStream.getTracks().forEach((track) => track.stop())
-      this.screenStream = null
+    if (this.localStream) {
+      this.localStream.getTracks().forEach((track) => track.stop())
+      this.localStream = null
       this.mediaState.screen = false
       this.broadcastMediaState()
 
@@ -575,14 +567,10 @@ export class WebRTCService {
       this.audioStream.getAudioTracks().forEach((track) => {
         track.enabled = true
         this.localStream?.addTrack(track)
-        this.screenStream?.addTrack(track)
       })
       this.mediaState.audio = true
     } else {
       this.localStream?.getAudioTracks().forEach((track) => {
-        track.enabled = false
-      })
-      this.screenStream?.getAudioTracks().forEach((track) => {
         track.enabled = false
       })
       this.mediaState.audio = false
@@ -824,7 +812,7 @@ export class WebRTCService {
       }
 
       // Add current tracks
-      const currentStream = this.screenStream || this.localStream
+      const currentStream = this.localStream
       if (currentStream) {
         currentStream.getTracks().forEach((track) => {
           console.log(`Adding ${track.kind} track during renegotiation with peer ${peerId}`)
@@ -947,10 +935,6 @@ export class WebRTCService {
 
     if (this.localStream) {
       this.localStream.getTracks().forEach((track) => track.stop())
-    }
-
-    if (this.screenStream) {
-      this.screenStream.getTracks().forEach((track) => track.stop())
     }
   }
 

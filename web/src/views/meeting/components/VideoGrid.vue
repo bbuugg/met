@@ -27,7 +27,7 @@
             <div class="flex justify-between items-center">
               <span class="text-white font-semibold text-sm shadow-md">{{
                 t('tools.webRtcMeeting.you')
-              }}</span>
+                }}</span>
               <div class="flex gap-2 items-center">
                 <MicrophoneDisabledIcon class="h-4 w-4 text-red-400 shadow-md" v-if="!currentUser?.mediaState.audio" />
                 <ComputerDesktopIcon v-if="currentUser?.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
@@ -56,7 +56,7 @@
               <div class="participant-info flex justify-between items-center">
                 <span class="participant-name text-white font-semibold text-sm shadow-md">{{
                   participant.name
-                }}</span>
+                  }}</span>
                 <div class="media-indicators flex gap-2 items-center">
                   <MicrophoneDisabledIcon v-if="!participant.mediaState.audio" class="h-4 w-4 text-red-400 shadow-md" />
                   <VideoCameraIcon v-if="participant.mediaState.video" class="h-4 w-4 text-blue-400 shadow-md" />
@@ -93,7 +93,6 @@ import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   ComputerDesktopIcon,
-  MicrophoneIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
   VideoCameraIcon
@@ -116,7 +115,7 @@ const localAudioEnabled = ref<boolean>(true)
 const fullscreenParticipantId = ref<string | null>(null)
 
 // Computed properties
-const localStream = computed(() => meetingStore.localStream || meetingStore.screenStream)
+const localStream = computed(() => meetingStore.localStream)
 const currentUser = computed(() => meetingStore.currentUser)
 const remoteParticipants = computed(() =>
   meetingStore.participantsList.filter((p) => p.id !== meetingStore.clientId)
