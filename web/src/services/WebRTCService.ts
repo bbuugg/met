@@ -550,38 +550,48 @@ export class WebRTCService {
 
   async toggleAudio(deviceId?: string): Promise<boolean> {
     if (!this.mediaState.audio) {
-      const audioStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          deviceId: deviceId ? { exact: deviceId } : undefined,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        },
-        video: false
-      })
-      const newAudioTrack = audioStream.getAudioTracks()[0]
+      // 启用音频
       if (!this.localStream) {
         this.localStream = new MediaStream()
       }
-      // 移除旧 audio track
-      this.localStream.getAudioTracks().forEach((track) => {
-        this.localStream!.removeTrack(track)
-        track.stop()
-      })
-      // 添加新 audio track
-      this.localStream.addTrack(newAudioTrack)
-      this.mediaState.audio = true
-      // 替换所有 peer 的 audio track
-      await this.replaceAudioTrack(newAudioTrack)
+
+      // 检查是否已有音频轨道
+      const existingAudioTrack = this.localStream.getAudioTracks()[0]
+
+      if (existingAudioTrack) {
+        // 如果已有音频轨道，只需启用它
+        existingAudioTrack.enabled = true
+        this.mediaState.audio = true
+      } else {
+        // 如果没有音频轨道，创建新的
+        const audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          video: false
+        })
+        const newAudioTrack = audioStream.getAudioTracks()[0]
+
+        // 添加新 audio track
+        this.localStream.addTrack(newAudioTrack)
+        this.mediaState.audio = true
+
+        // 替换所有 peer 的 audio track
+        await this.replaceAudioTrack(newAudioTrack)
+      }
     } else {
-      // 关闭音频
-      this.localStream?.getAudioTracks().forEach((track) => {
-        track.enabled = false
-      })
+      // 关闭音频 - 只禁用 track，不移除
+      if (this.localStream) {
+        this.localStream.getAudioTracks().forEach((track) => {
+          track.enabled = false
+        })
+      }
       this.mediaState.audio = false
-      // 替换所有 peer 的 audio track为null
-      await this.replaceAudioTrack(null)
     }
+
     this.broadcastMediaState()
     return this.mediaState.audio
   }

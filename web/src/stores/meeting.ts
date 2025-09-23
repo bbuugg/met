@@ -337,7 +337,9 @@ export const useMeetingStore = defineStore('meeting', () => {
       return false
     }
 
-    return (currentUser.value.mediaState.audio = await webrtcService.value.toggleAudio(deviceId))
+    const enabled = await webrtcService.value.toggleAudio(deviceId)
+    currentUser.value.mediaState.audio = enabled
+    return enabled
   }
 
   function toggleVideo() {
