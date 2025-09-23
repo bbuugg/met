@@ -138,7 +138,7 @@ export class WebRTCService {
               id: client.id,
               name: client.name,
               avatar: client.avatar,
-              mediaState: { video: false, audio: false, screen: false }
+              mediaState: { video: false, audio: false, screen: false, desktopAudio: false }
             })
 
             // 如果是重连后收到的all-clients消息，需要重新建立连接
@@ -195,8 +195,10 @@ export class WebRTCService {
       id: peer.id,
       name: peer.name,
       avatar: peer.avatar,
-      mediaState: { video: false, audio: false, screen: false }
+      mediaState: { video: false, audio: false, screen: false, desktopAudio: false }
     })
+    console.log('Peer joined:', peer.id, this.mediaState)
+    this.broadcastMediaState()
   }
 
   private handlePeerLeft(peer: Peer): void {
@@ -380,7 +382,7 @@ export class WebRTCService {
 
           // 为音频轨道添加额外的处理选项
           if (track.kind === 'audio' && 'applyConstraints' in track) {
-            ;(track as MediaStreamTrack)
+            ; (track as MediaStreamTrack)
               .applyConstraints({
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -464,6 +466,7 @@ export class WebRTCService {
         break
 
       case 'media-state':
+        console.log('Received media state update from:', senderId, data.mediaState)
         this.onMediaStateChanged?.(senderId, data.mediaState)
         break
     }
@@ -478,25 +481,13 @@ export class WebRTCService {
       // 添加音频约束以启用回音消除和噪声抑制
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
-        audio: audioDeviceId
-          ? {
-              deviceId: { exact: audioDeviceId },
-              // 根据参数决定是否启用回音消除和其他音频处理功能
-              echoCancellation: enableEchoCancellation,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
-          : {
-              echoCancellation: enableEchoCancellation,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
+        audio: false
       }
 
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints)
 
       this.mediaState.video = true
-      this.mediaState.audio = true
+      this.mediaState.audio = false
       this.broadcastMediaState()
 
       // 如果有现有的对等连接，重新协商以添加新轨道
@@ -568,7 +559,14 @@ export class WebRTCService {
   async toggleAudio() {
     if (!this.mediaState.audio) {
       if (!this.audioStream) {
-        this.audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        this.audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            // deviceId: { exact: this.audioDeviceId || '' },
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }, video: false
+        })
       }
       if (!this.audioStream) {
         return (this.mediaState.audio = false)

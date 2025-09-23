@@ -163,7 +163,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       localStream.value = await webrtcService.value.startCamera(videoDeviceId, audioDeviceId, true)
       if (currentUser.value) {
         currentUser.value.mediaState.video = true
-        currentUser.value.mediaState.audio = true
+        currentUser.value.mediaState.audio = false
         currentUser.value.stream = localStream.value
       }
     } catch (error) {

@@ -2,10 +2,8 @@
   <div class="flex flex-col h-full">
     <div class="h-72 md:h-full">
       <!-- 当没有任何流时显示提示 -->
-      <div 
-        v-show="!localStream && participantsWithStreams.length === 0" 
-        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl"
-      >
+      <div v-show="!localStream && participantsWithStreams.length === 0"
+        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl">
         <div class="text-center p-8">
           <VideoCameraIcon class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
           <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -16,195 +14,69 @@
           </p>
         </div>
       </div>
-      
+
       <!-- 视频网格 -->
-      <div
-        class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-2 rounded-xl"
-        :class="gridClass"
-      >
+      <div class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-2 rounded-xl" :class="gridClass">
         <!-- Local video - only show if we have a local stream -->
-        <div
-          v-show="localStream && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
-        >
-          <video
-            ref="localVideoRef"
-            autoplay
-            muted
-            playsinline
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-          />
+        <div v-show="localStream && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
+          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+          <video ref="localVideoRef" autoplay muted playsinline
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full" />
           <div
-            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
-          >
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
             <div class="flex justify-between items-center">
               <span class="text-white font-semibold text-sm shadow-md">{{
                 t('tools.webRtcMeeting.you')
               }}</span>
               <div class="flex gap-2 items-center">
-                <svg
-                  v-if="!currentUser?.mediaState.audio"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="h-4 w-4 text-red-400 shadow-md"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728M5.636 5.636l.001.001M18.364 18.364l-.001-.001"
-                  />
-                </svg>
-                <svg
-                  v-if="!currentUser?.mediaState.video"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="h-4 w-4 text-red-400 shadow-md"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.759l2.31.66c.248.071.498.135.75.192a2.25 2.25 0 0 0 1.632 2.163l1.32.377M15 9l-3-3m0 0 3-3m-3 3-3-3"
-                  />
-                </svg>
-                <ComputerDesktopIcon
-                  v-if="currentUser?.mediaState.screen"
-                  class="h-4 w-4 text-blue-400 shadow-md"
-                />
+                <MicrophoneDisabledIcon class="h-4 w-4 text-red-400 shadow-md" v-if="!currentUser?.mediaState.audio" />
+                <ComputerDesktopIcon v-if="currentUser?.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
               </div>
             </div>
           </div>
           <!-- Local video controls -->
           <div class="video-controls absolute top-2.5 right-2.5 z-10 flex">
-            <button
-              @click="toggleFullscreen('local')"
-              class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-            >
+            <button @click="toggleFullscreen('local')"
+              class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
               <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-5 w-5" />
               <ArrowsPointingOutIcon v-else class="h-5 w-5" />
-            </button>
-            <button
-              @click="toggleLocalAudio"
-              class="control-button ml-2 w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-              :class="{ 'text-red-500': !isLocalAudioEnabled }"
-            >
-              <SpeakerWaveIcon v-if="isLocalAudioEnabled" class="h-5 w-5" />
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="h-5 w-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728M5.636 5.636l.001.001M18.364 18.364l-.001-.001"
-                />
-              </svg>
             </button>
           </div>
         </div>
 
         <!-- Remote videos - only show participants with streams -->
         <template v-for="participant in participantsWithStreams" :key="participant.id">
-          <div
-            v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
-            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
-          >
-            <video
-              :ref="(el) => setRemoteVideoRef(participant.id, el)"
-              autoplay
-              playsinline
-              class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-            />
+          <div v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
+            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+            <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
+              class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full" />
 
             <div
-              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
-            >
+              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
               <div class="participant-info flex justify-between items-center">
                 <span class="participant-name text-white font-semibold text-sm shadow-md">{{
                   participant.name
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
-                  <svg
-                    v-if="!participant.mediaState.audio"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="h-4 w-4 text-red-400 shadow-md"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728M5.636 5.636l.001.001M18.364 18.364l-.001-.001"
-                    />
-                  </svg>
-                  <svg
-                    v-if="!participant.mediaState.video"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="h-4 w-4 text-red-400 shadow-md"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.759l2.31.66c.248.071.498.135.75.192a2.25 2.25 0 0 0 1.632 2.163l1.32.377M15 9l-3-3m0 0 3-3m-3 3-3-3"
-                    />
-                  </svg>
-                  <ComputerDesktopIcon
-                    v-if="participant.mediaState.screen"
-                    class="h-4 w-4 text-blue-400 shadow-md"
-                  />
+                  <MicrophoneDisabledIcon v-if="!participant.mediaState.audio" class="h-4 w-4 text-red-400 shadow-md" />
+                  <VideoCameraIcon v-if="participant.mediaState.video" class="h-4 w-4 text-blue-400 shadow-md" />
+                  <ComputerDesktopIcon v-if="participant.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
                 </div>
               </div>
             </div>
 
             <!-- Remote video controls -->
             <div class="video-controls absolute top-2.5 right-2.5 z-10 flex">
-              <button
-                @click="toggleFullscreen(participant.id)"
-                class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-              >
-                <ArrowsPointingInIcon
-                  v-if="fullscreenParticipantId === participant.id"
-                  class="h-5 w-5"
-                />
+              <button @click="toggleFullscreen(participant.id)"
+                class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
+                <ArrowsPointingInIcon v-if="fullscreenParticipantId === participant.id" class="h-5 w-5" />
                 <ArrowsPointingOutIcon v-else class="h-5 w-5" />
               </button>
-              <button
-                @click="toggleRemoteAudio(participant.id)"
+              <button @click="toggleRemoteAudio(participant.id)"
                 class="control-button ml-2 w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-                :class="{ 'text-red-500': isRemoteAudioMuted(participant.id) }"
-              >
+                :class="{ 'text-red-500': isRemoteAudioMuted(participant.id) }">
                 <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="h-5 w-5" />
-                <svg
-                  v-else
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="h-5 w-5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728M5.636 5.636l.001.001M18.364 18.364l-.001-.001"
-                  />
-                </svg>
+                <SpeakerXMarkIcon v-else class="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -215,12 +87,15 @@
 </template>
 
 <script setup lang="ts">
+import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
 import { useMeetingStore } from '@/stores/meeting'
 import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   ComputerDesktopIcon,
+  MicrophoneIcon,
   SpeakerWaveIcon,
+  SpeakerXMarkIcon,
   VideoCameraIcon
 } from '@heroicons/vue/24/outline'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -298,18 +173,6 @@ function toggleFullscreen(participantId: string) {
 // Function to check if remote audio is muted
 function isRemoteAudioMuted(participantId: string): boolean {
   return remoteAudioMuted.value.get(participantId) || false
-}
-
-// Toggle local audio
-function toggleLocalAudio() {
-  if (localVideoRef.value && localVideoRef.value.srcObject) {
-    const stream = localVideoRef.value.srcObject as MediaStream
-    const audioTracks = stream.getAudioTracks()
-    if (audioTracks.length > 0) {
-      audioTracks[0].enabled = !audioTracks[0].enabled
-      localAudioEnabled.value = audioTracks[0].enabled
-    }
-  }
 }
 
 // Toggle remote audio
