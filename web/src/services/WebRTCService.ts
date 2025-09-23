@@ -374,7 +374,7 @@ export class WebRTCService {
         try {
           // 为音频轨道添加额外的处理选项
           if (track.kind === 'audio' && 'applyConstraints' in track) {
-            ; (track as MediaStreamTrack)
+            ;(track as MediaStreamTrack)
               .applyConstraints({
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -464,9 +464,7 @@ export class WebRTCService {
     }
   }
 
-  async startCamera(
-    videoDeviceId?: string,
-  ): Promise<MediaStream> {
+  async startCamera(videoDeviceId?: string): Promise<MediaStream> {
     try {
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
@@ -478,7 +476,7 @@ export class WebRTCService {
         this.localStream = new MediaStream()
       }
       // 移除旧 video track
-      this.localStream.getVideoTracks().forEach(track => {
+      this.localStream.getVideoTracks().forEach((track) => {
         this.localStream!.removeTrack(track)
         track.stop()
       })
@@ -507,7 +505,7 @@ export class WebRTCService {
         this.localStream = new MediaStream()
       }
       // 移除旧 video track
-      this.localStream.getVideoTracks().forEach(track => {
+      this.localStream.getVideoTracks().forEach((track) => {
         this.localStream!.removeTrack(track)
         track.stop()
       })
@@ -518,7 +516,7 @@ export class WebRTCService {
       this.mediaState.desktopAudio = true
       // 屏幕音频 track 处理
       if (!this.mediaState.audio) {
-        screenStream.getAudioTracks().forEach(track => track.enabled = false)
+        screenStream.getAudioTracks().forEach((track) => (track.enabled = false))
       }
       this.broadcastMediaState()
       // 替换所有 peer 的 video track
@@ -537,7 +535,7 @@ export class WebRTCService {
   async stopScreenShare(): Promise<void> {
     if (this.localStream) {
       // 移除屏幕 video track
-      this.localStream.getVideoTracks().forEach(track => {
+      this.localStream.getVideoTracks().forEach((track) => {
         this.localStream!.removeTrack(track)
         track.stop()
       })
@@ -555,15 +553,16 @@ export class WebRTCService {
           deviceId: deviceId ? { exact: deviceId } : undefined,
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true,
-        }, video: false
+          autoGainControl: true
+        },
+        video: false
       })
       const newAudioTrack = audioStream.getAudioTracks()[0]
       if (!this.localStream) {
         this.localStream = new MediaStream()
       }
       // 移除旧 audio track
-      this.localStream.getAudioTracks().forEach(track => {
+      this.localStream.getAudioTracks().forEach((track) => {
         this.localStream!.removeTrack(track)
         track.stop()
       })
@@ -574,7 +573,7 @@ export class WebRTCService {
       await this.replaceAudioTrack(newAudioTrack)
     } else {
       // 关闭音频
-      this.localStream?.getAudioTracks().forEach(track => {
+      this.localStream?.getAudioTracks().forEach((track) => {
         track.enabled = false
       })
       this.mediaState.audio = false
@@ -587,22 +586,22 @@ export class WebRTCService {
 
   // 替换所有 peer 的 audio track
   private async replaceAudioTrack(newTrack: MediaStreamTrack | null): Promise<void> {
-    const promises: Promise<void>[] = [];
+    const promises: Promise<void>[] = []
     this.peers.forEach((peer, peerId) => {
-      const senders = peer.connection.getSenders();
-      const audioSender = senders.find((s) => s.track && s.track.kind === 'audio');
+      const senders = peer.connection.getSenders()
+      const audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
       if (audioSender) {
         promises.push(
           audioSender.replaceTrack(newTrack).catch((error) => {
-            console.error(`Failed to replace audio track for peer ${peerId}:`, error);
-            return this.renegotiateConnection(peerId);
+            console.error(`Failed to replace audio track for peer ${peerId}:`, error)
+            return this.renegotiateConnection(peerId)
           })
-        );
+        )
       } else {
-        promises.push(this.renegotiateConnection(peerId));
+        promises.push(this.renegotiateConnection(peerId))
       }
-    });
-    await Promise.all(promises);
+    })
+    await Promise.all(promises)
   }
 
   toggleVideo(): boolean {
@@ -620,8 +619,10 @@ export class WebRTCService {
 
   async stopCamera(): Promise<void> {
     if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => track.stop())
-      this.localStream = null
+      this.localStream.getTracks().forEach((track) => {
+        this.localStream?.removeTrack(track)
+        track.stop()
+      })
       this.mediaState.video = false
       this.mediaState.audio = false
       this.broadcastMediaState()
