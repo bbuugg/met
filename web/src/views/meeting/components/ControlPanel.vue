@@ -24,12 +24,13 @@
         <div
           class="relative min-w-[80px] h-12 border-none rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
           <button @click="toggleAudio"
-            class="min-w-[80px] h-full px-3 rounded-l-lg border-none shadow-lg flex flex-col items-center justify-center gap-1"
+            class="min-w-[80px] h-full px-3 border-none shadow-lg flex flex-col items-center justify-center gap-1"
             :class="{
               'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
                 !currentUser?.mediaState.audio,
               'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.audio,
-              'rounded-lg': audioDevices.length <= 1
+              'rounded-lg': audioDevices.length <= 1,
+              'rounded-l-lg': audioDevices.length > 1
             }">
             <MicrophoneDisabledIcon v-if="currentUser?.mediaState.audio" class="h-6 w-6" />
             <MicrophoneIcon v-else class="h-6 w-6" />
@@ -39,40 +40,41 @@
                 : t('tools.webRtcMeeting.controls.unmuteMic')
             }}</span>
           </button>
-          <button v-if="audioDevices.length > 1" @click.stop="toggleAudioDropdown"
-            class="w-5 h-full flex items-center justify-center rounded-r-lg" :class="{
+
+          <!-- 音频设备下拉菜单 -->
+          <a-dropdown v-if="audioDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
+            <button class="w-5 h-full flex items-center justify-center rounded-r-lg shadow-lg" :class="{
               'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
                 !currentUser?.mediaState.audio,
               'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.audio
             }">
-            <ChevronDownIcon class="h-5 w-5" />
-          </button>
-
-          <!-- 音频设备下拉菜单 -->
-          <div v-if="showAudioDropdown"
-            class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 min-w-[200px] max-w-xs z-10 border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-            <div v-for="device in audioDevices" :key="device.deviceId"
-              class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-800 dark:text-white flex items-center whitespace-nowrap text-sm"
-              @click="selectAudioDevice(device.deviceId)">
-              <CheckIcon v-if="device.deviceId === currentAudioDeviceId"
-                class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
-              <span class="truncate">{{
-                device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-              }}</span>
-            </div>
-          </div>
+              <ChevronDownIcon class="h-5 w-5" />
+            </button>
+            <template #content>
+              <a-doption v-for="device in audioDevices" :key="device.deviceId" :value="device.deviceId"
+                @click="selectAudioDevice(device.deviceId)">
+                <div class="flex items-center whitespace-nowrap">
+                  <CheckIcon v-if="device.deviceId === currentAudioDeviceId"
+                    class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                  <span class="truncate">{{
+                    device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
+                  }}</span>
+                </div>
+              </a-doption>
+            </template>
+          </a-dropdown>
         </div>
 
         <!-- 摄像头设备选择 -->
         <div
           class="relative min-w-[80px] h-12 border-none rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
-          <button @click="toggleVideo" class="px-3 h-full flex rounded-l-lg flex-col items-center justify-center gap-1"
-            :class="{
-              'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
-                !currentUser?.mediaState.video,
-              'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.video,
-              'rounded-lg': videoDevices.length <= 1
-            }">
+          <button @click="toggleVideo" class="px-3 h-full flex flex-col items-center justify-center gap-1" :class="{
+            'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
+              !currentUser?.mediaState.video,
+            'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.video,
+            'rounded-lg': videoDevices.length <= 1,
+            'rounded-l-lg': videoDevices.length > 1
+          }">
             <VideoCameraIcon class="h-6 w-6" />
             <span class="text-xs font-medium">{{
               currentUser?.mediaState.video
@@ -81,29 +83,28 @@
             }}</span>
           </button>
 
-          <!-- 视频设备选择按钮 -->
-          <button v-if="videoDevices.length > 1" @click.stop="toggleVideoDropdown"
-            class="w-5 h-full flex items-center justify-center rounded-r-lg" :class="{
+          <!-- 视频设备下拉菜单 -->
+          <a-dropdown v-if="videoDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
+            <button class="w-5 h-full flex items-center justify-center rounded-r-lg shadow-lg" :class="{
               'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
                 !currentUser?.mediaState.video,
               'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.video
             }">
-            <ChevronDownIcon class="h-5 w-5" />
-          </button>
-
-          <!-- 视频设备下拉菜单 -->
-          <div v-if="showVideoDropdown"
-            class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 min-w-[200px] max-w-xs z-10 border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
-            <div v-for="device in videoDevices" :key="device.deviceId"
-              class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-800 dark:text-white flex items-center whitespace-nowrap text-sm"
-              @click="selectVideoDevice(device.deviceId)">
-              <CheckIcon v-if="device.deviceId === currentVideoDeviceId"
-                class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
-              <span class="truncate">{{
-                device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-              }}</span>
-            </div>
-          </div>
+              <ChevronDownIcon class="h-5 w-5" />
+            </button>
+            <template #content>
+              <a-doption v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId"
+                @click="selectVideoDevice(device.deviceId)">
+                <div class="flex items-center whitespace-nowrap">
+                  <CheckIcon v-if="device.deviceId === currentVideoDeviceId"
+                    class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                  <span class="truncate">{{
+                    device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
+                  }}</span>
+                </div>
+              </a-doption>
+            </template>
+          </a-dropdown>
         </div>
 
         <button v-if="isGetDisplayMediaSupported" @click="toggleScreenShare"
@@ -143,7 +144,7 @@
 import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
-import { Modal as AModal, Message } from '@arco-design/web-vue'
+import { Modal as AModal, Message, Dropdown as ADropdown, Doption as ADoption } from '@arco-design/web-vue'
 import { ArrowRightIcon, MicrophoneIcon } from '@heroicons/vue/24/outline'
 import {
   CheckIcon,
@@ -167,8 +168,7 @@ const videoDevices = ref<MediaDeviceInfo[]>([])
 const audioDevices = ref<MediaDeviceInfo[]>([])
 const currentVideoDeviceId = ref<string | null>(null)
 const currentAudioDeviceId = ref<string | null>(null)
-const showAudioDropdown = ref(false)
-const showVideoDropdown = ref(false)
+
 const currentUser = computed(() => meetingStore.currentUser)
 const isGetDisplayMediaSupported = computed(
   () => !!(navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function')
@@ -179,47 +179,13 @@ const mediaRecorder = ref<MediaRecorder | null>(null)
 const recordedChunks = ref<Blob[]>([])
 const recordingStartTime = ref<number | null>(null)
 
-// 计算当前选中的设备
-const currentVideoDevice = computed(() => {
-  return videoDevices.value.find((device) => device.deviceId === currentVideoDeviceId.value) || null
-})
-
-const currentAudioDevice = computed(() => {
-  return audioDevices.value.find((device) => device.deviceId === currentAudioDeviceId.value) || null
-})
-
-// 点击外部关闭下拉菜单
-const handleClickOutside = (event: MouseEvent) => {
-  if (showAudioDropdown.value || showVideoDropdown.value) {
-    showAudioDropdown.value = false
-    showVideoDropdown.value = false
-  }
-}
-
-// 切换下拉菜单显示状态
-const toggleAudioDropdown = () => {
-  showAudioDropdown.value = !showAudioDropdown.value
-  if (showAudioDropdown.value) {
-    showVideoDropdown.value = false
-  }
-}
-
-const toggleVideoDropdown = () => {
-  showVideoDropdown.value = !showVideoDropdown.value
-  if (showVideoDropdown.value) {
-    showAudioDropdown.value = false
-  }
-}
-
 // 选择设备
 const selectAudioDevice = (deviceId: string) => {
   switchAudioDevice(deviceId)
-  showAudioDropdown.value = false
 }
 
 const selectVideoDevice = (deviceId: string) => {
   switchVideoDevice(deviceId)
-  showVideoDropdown.value = false
 }
 
 // 获取媒体设备列表
@@ -291,12 +257,17 @@ async function switchAudioDevice(deviceId: string) {
 }
 
 async function toggleAudio() {
-  const enabled = await meetingStore.toggleAudio(currentAudioDeviceId.value || undefined)
-  if (enabled) {
-    Message.success(t('tools.webRtcMeeting.controls.unmuteMic'))
-  } else {
-    Message.info(t('tools.webRtcMeeting.controls.muteMic'))
+  try {
+    const enabled = await meetingStore.toggleAudio(currentAudioDeviceId.value || undefined)
+    if (enabled) {
+      Message.success(t('tools.webRtcMeeting.controls.unmuteMic'))
+    } else {
+      Message.info(t('tools.webRtcMeeting.controls.muteMic'))
+    }
+  } catch (error) {
+    Message.error(`${t('tools.webRtcMeeting.controls.microphoneSwitchFailed')} ${error}`)
   }
+
 }
 
 async function toggleVideo() {
@@ -329,7 +300,7 @@ async function toggleVideo() {
       }
     }
   } catch (error) {
-    Message.error(t('tools.webRtcMeeting.controls.turnOnCamera'))
+    Message.error(`${t('tools.webRtcMeeting.controls.turnOnCameraFailed')} ${error}`)
   }
 }
 
@@ -480,7 +451,7 @@ async function toggleScreenShare() {
       Message.success(t('tools.webRtcMeeting.controls.startScreenShare'))
     }
   } catch (error: any) {
-    Message.error(t('tools.webRtcMeeting.controls.startScreenShare'))
+    Message.error(`${t('tools.webRtcMeeting.controls.startScreenShareFailed')} ${error}`)
   }
 }
 
@@ -509,13 +480,10 @@ function cancelLeave() {
 // 组件挂载时获取设备列表
 onMounted(() => {
   fetchMediaDevices()
-  document.addEventListener('click', handleClickOutside)
 })
 
-// 组件卸载时移除事件监听器
+// 组件卸载时确保停止录制
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-
   // 确保停止录制
   if (meetingStore.isRecording) {
     stopRecording()
