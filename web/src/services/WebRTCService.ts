@@ -385,10 +385,8 @@ export class WebRTCService {
               })
           }
 
-          // 确保音频轨道的初始状态与mediaState一致
-          if (track.kind === 'audio') {
-            track.enabled = this.mediaState.audio
-          }
+          // 音频轨道保持其当前的启用状态，不强制设置为 mediaState
+          // 这样可以确保每个用户的音频状态独立管理
 
           connection.addTrack(track, this.localStream!)
         } catch (error) {
@@ -559,9 +557,11 @@ export class WebRTCService {
       const existingAudioTrack = this.localStream.getAudioTracks()[0]
 
       if (existingAudioTrack) {
-        // 如果已有音频轨道，只需启用它
+        // 如果已有音频轨道，启用它并通知所有 peer
         existingAudioTrack.enabled = true
         this.mediaState.audio = true
+        // 重要：需要通知所有 peer 音频轨道已启用
+        await this.replaceAudioTrack(existingAudioTrack)
       } else {
         // 如果没有音频轨道，创建新的
         const audioStream = await navigator.mediaDevices.getUserMedia({
@@ -601,8 +601,14 @@ export class WebRTCService {
     const promises: Promise<void>[] = []
     this.peers.forEach((peer, peerId) => {
       const senders = peer.connection.getSenders()
-      const audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
+      // 查找音频发送器，包括没有轨道的发送器
+      const audioSender = senders.find((s) =>
+        (s.track && s.track.kind === 'audio') ||
+        (!s.track && s.dtmf === null) // 音频发送器通常有 dtmf 属性为 null
+      )
+
       if (audioSender) {
+        console.log(`Replacing audio track for peer ${peerId}, newTrack:`, newTrack)
         promises.push(
           audioSender.replaceTrack(newTrack).catch((error) => {
             console.error(`Failed to replace audio track for peer ${peerId}:`, error)
@@ -610,6 +616,7 @@ export class WebRTCService {
           })
         )
       } else {
+        console.log(`No audio sender found for peer ${peerId}, renegotiating`)
         promises.push(this.renegotiateConnection(peerId))
       }
     })
