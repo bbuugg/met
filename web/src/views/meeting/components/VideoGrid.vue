@@ -32,7 +32,7 @@
             <div class="text-center">
               <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <span class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y'
-                  }}</span>
+                }}</span>
               </div>
               <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
             </div>
@@ -46,6 +46,7 @@
               }}</span>
               <div class="flex gap-2 items-center">
                 <MicrophoneDisabledIcon class="h-4 w-4 text-red-400 shadow-md" v-if="!currentUser?.mediaState.audio" />
+                <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
                 <ComputerDesktopIcon v-if="currentUser?.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
               </div>
             </div>
@@ -77,7 +78,7 @@
               <div class="text-center">
                 <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <span class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U'
-                    }}</span>
+                  }}</span>
                 </div>
                 <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
               </div>
@@ -91,6 +92,7 @@
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
                   <MicrophoneDisabledIcon v-if="!participant.mediaState.audio" class="h-4 w-4 text-red-400 shadow-md" />
+                  <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
                   <VideoCameraIcon v-if="participant.mediaState.video" class="h-4 w-4 text-blue-400 shadow-md" />
                   <ComputerDesktopIcon v-if="participant.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
                 </div>
@@ -125,6 +127,7 @@ import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
   ComputerDesktopIcon,
+  MicrophoneIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
   VideoCameraIcon
