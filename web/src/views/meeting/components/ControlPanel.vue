@@ -272,18 +272,24 @@ async function toggleAudio() {
 
 async function toggleVideo() {
   try {
-    // 检查是否只有音频流（没有视频轨道）
     const hasVideoTrack =
       meetingStore.localStream && meetingStore.localStream.getVideoTracks().length > 0
+    const isScreenSharing = currentUser.value?.mediaState.screen
 
     if (!meetingStore.localStream || !hasVideoTrack) {
-      // 启动摄像头，WebRTCService 会自动替换现有的 video track（如果有屏幕共享）
+      // 没有流或没有视频轨道，启动摄像头
+      await meetingStore.startCamera(
+        currentVideoDeviceId.value || undefined,
+      )
+      Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
+    } else if (isScreenSharing) {
+      // 正在屏幕共享，将屏幕共享 track 替换为摄像头 track
       await meetingStore.startCamera(
         currentVideoDeviceId.value || undefined,
       )
       Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
     } else {
-      // 切换现有视频轨道的启用状态
+      // 有摄像头视频轨道，切换启用状态
       const enabled = meetingStore.toggleVideo()
       if (enabled) {
         Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))

@@ -20,8 +20,23 @@
         <!-- Local video - only show if we have a local stream -->
         <div v-show="localStream && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
           class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+
+          <!-- 视频元素 -->
           <video ref="localVideoRef" autoplay muted playsinline
-            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full" />
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
+            :class="{ 'opacity-0': isLocalAudioOnly }" />
+
+          <!-- 只有音频时显示头像占位符 -->
+          <div v-if="isLocalAudioOnly"
+            class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+            <div class="text-center">
+              <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <span class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y' }}</span>
+              </div>
+              <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
+            </div>
+          </div>
+
           <div
             class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
             <div class="flex justify-between items-center">
@@ -48,8 +63,23 @@
         <template v-for="participant in participantsWithStreams" :key="participant.id">
           <div v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
             class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+
+            <!-- 视频元素 -->
             <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
-              class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full" />
+              class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
+              :class="{ 'opacity-0': isAudioOnlyParticipant(participant.id) }" />
+
+            <!-- 只有音频时显示头像占位符 -->
+            <div v-if="isAudioOnlyParticipant(participant.id)"
+              class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
+              <div class="text-center">
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <span class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U' }}</span>
+                </div>
+                <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
+              </div>
+            </div>
+
             <div
               class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
               <div class="participant-info flex justify-between items-center">
@@ -108,7 +138,6 @@ const remoteVideoRefs = ref<Map<string, HTMLVideoElement>>(new Map())
 
 // Refs for audio mute state
 const remoteAudioMuted = ref<Map<string, boolean>>(new Map())
-const localAudioEnabled = ref<boolean>(true)
 
 // Ref for fullscreen state
 const fullscreenParticipantId = ref<string | null>(null)
@@ -120,7 +149,7 @@ const remoteParticipants = computed(() =>
   meetingStore.participantsList.filter((p) => p.id !== meetingStore.clientId)
 )
 
-// 计算属性：只包含拥有有效流的参与者
+// 计算属性：包含所有有流的参与者（音频或视频）
 const participantsWithStreams = computed(() => {
   // 只要流中有音频或视频 track 就显示
   return remoteParticipants.value.filter((participant) => {
@@ -132,6 +161,19 @@ const participantsWithStreams = computed(() => {
       stream.active === true
     )
   })
+})
+
+// 计算属性：检查参与者是否只有音频流
+const isAudioOnlyParticipant = (participantId: string) => {
+  const stream = meetingStore.remoteStreams.get(participantId)
+  if (!stream) return false
+  return stream.getAudioTracks().length > 0 && stream.getVideoTracks().length === 0
+}
+
+// 计算属性：检查本地流是否只有音频
+const isLocalAudioOnly = computed(() => {
+  if (!localStream.value) return false
+  return localStream.value.getAudioTracks().length > 0 && localStream.value.getVideoTracks().length === 0
 })
 
 // 修改gridClass计算属性，只计算有流的参与者数量
@@ -151,10 +193,7 @@ const gridClass = computed(() => {
   return 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]'
 })
 
-// Computed property for local audio state
-const isLocalAudioEnabled = computed(() => {
-  return localAudioEnabled.value && currentUser.value?.mediaState.audio
-})
+
 
 // Toggle fullscreen
 function toggleFullscreen(participantId: string) {

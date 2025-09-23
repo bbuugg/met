@@ -116,7 +116,8 @@ const enUS = {
         sharingScreen: 'Sharing Screen',
         cameraOff: 'Camera is off',
         waitingForParticipant: 'Waiting for participant'
-      }
+      },
+      audioOnly: 'Audio Only'
     }
   },
   legalNotice: {
@@ -241,7 +242,8 @@ const zhCN = {
         sharingScreen: '共享屏幕中',
         cameraOff: '摄像头已关闭',
         waitingForParticipant: '等待其他人加入'
-      }
+      },
+      audioOnly: '仅语音'
     }
   },
   legalNotice: {
