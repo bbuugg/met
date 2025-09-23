@@ -277,21 +277,13 @@ async function toggleVideo() {
       meetingStore.localStream && meetingStore.localStream.getVideoTracks().length > 0
 
     if (!meetingStore.localStream || !hasVideoTrack) {
-      // 在启动摄像头前，检查是否有屏幕共享流，如果有则停止
-      if (currentUser.value?.mediaState.screen) {
-        await meetingStore.stopScreenShare()
-      }
-
-      // 如果已有音频流，先停止它
-      if (meetingStore.localStream) {
-        await meetingStore.stopCamera()
-      }
-
+      // 启动摄像头，WebRTCService 会自动替换现有的 video track（如果有屏幕共享）
       await meetingStore.startCamera(
         currentVideoDeviceId.value || undefined,
       )
       Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
     } else {
+      // 切换现有视频轨道的启用状态
       const enabled = meetingStore.toggleVideo()
       if (enabled) {
         Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
@@ -439,14 +431,11 @@ function toggleRecording() {
 async function toggleScreenShare() {
   try {
     if (currentUser.value?.mediaState.screen) {
-      meetingStore.stopScreenShare()
+      // 停止屏幕共享，WebRTCService 会自动处理 track 替换
+      await meetingStore.stopScreenShare()
       Message.info(t('tools.webRtcMeeting.controls.stopScreenShare'))
     } else {
-      // 在启动屏幕共享前，检查是否有摄像头流，如果有则停止
-      if (meetingStore.localStream) {
-        await meetingStore.stopCamera()
-      }
-
+      // 启动屏幕共享，WebRTCService 会自动替换现有的 video track
       await meetingStore.startScreenShare()
       Message.success(t('tools.webRtcMeeting.controls.startScreenShare'))
     }

@@ -540,9 +540,11 @@ export class WebRTCService {
         track.stop()
       })
       this.mediaState.screen = false
+      this.mediaState.video = false
       this.broadcastMediaState()
-      // 可选：恢复摄像头
-      await this.startCamera()
+
+      // 通知所有 peer 移除 video track
+      await this.replaceVideoTrack(null)
     }
   }
 
@@ -788,8 +790,8 @@ export class WebRTCService {
     })
   }
 
-  private async replaceVideoTrack(newTrack: MediaStreamTrack): Promise<void> {
-    console.log('Replacing video track for', this.peers.size, 'peers')
+  private async replaceVideoTrack(newTrack: MediaStreamTrack | null): Promise<void> {
+    console.log('Replacing video track for', this.peers.size, 'peers', newTrack ? 'with new track' : 'with null (removing)')
 
     const promises: Promise<void>[] = []
 
@@ -808,7 +810,8 @@ export class WebRTCService {
             return this.renegotiateConnection(peerId)
           })
         )
-      } else {
+      } else if (newTrack) {
+        // Only renegotiate if we're adding a new track
         console.log(`No video sender found for peer ${peerId}, need renegotiation`)
         promises.push(this.renegotiateConnection(peerId))
       }
