@@ -59,7 +59,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       currentUser.value = {
         id: signedData.userId,
         name: signedData.name,
-        mediaState: { video: false, audio: false, screen: false }
+        mediaState: { video: false, audio: false, screen: false, desktopAudio: false }
       }
 
       participants.value.set(signedData.userId, currentUser.value)
@@ -223,16 +223,18 @@ export const useMeetingStore = defineStore('meeting', () => {
       // 创建仅音频约束
       const constraints: MediaStreamConstraints = {
         video: false,
-        audio: audioDeviceId ? {
-          deviceId: { exact: audioDeviceId },
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        } : {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        }
+        audio: audioDeviceId
+          ? {
+              deviceId: { exact: audioDeviceId },
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
+          : {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
       }
 
       // 获取音频流
@@ -253,7 +255,7 @@ export const useMeetingStore = defineStore('meeting', () => {
 
         // 如果有现有的对等连接，重新协商以添加音频轨道
         // 通过反射访问WebRTCService的私有属性和方法
-        const service: any = webrtcService.value;
+        const service: any = webrtcService.value
         if (service.peers && service.peers.size > 0) {
           console.log('Renegotiating connections to add audio-only tracks')
           // 调用重新协商方法
@@ -288,7 +290,7 @@ export const useMeetingStore = defineStore('meeting', () => {
             deviceId: { exact: audioDeviceId },
             echoCancellation: true,
             noiseSuppression: true,
-            autoGainControl: true,
+            autoGainControl: true
           }
         }
         audioStream = await navigator.mediaDevices.getUserMedia(audioConstraints)
@@ -298,19 +300,19 @@ export const useMeetingStore = defineStore('meeting', () => {
       const combinedStream = new MediaStream()
 
       // 添加屏幕视频轨道
-      displayStream.getVideoTracks().forEach(track => {
+      displayStream.getVideoTracks().forEach((track) => {
         combinedStream.addTrack(track)
       })
 
       // 添加音频轨道（优先使用指定设备的音频，否则使用屏幕共享的音频）
       if (audioStream) {
-        audioStream.getAudioTracks().forEach(track => {
+        audioStream.getAudioTracks().forEach((track) => {
           combinedStream.addTrack(track)
         })
         // 停止屏幕共享的音频轨道
-        displayStream.getAudioTracks().forEach(track => track.stop())
+        displayStream.getAudioTracks().forEach((track) => track.stop())
       } else {
-        displayStream.getAudioTracks().forEach(track => {
+        displayStream.getAudioTracks().forEach((track) => {
           combinedStream.addTrack(track)
         })
       }
@@ -333,12 +335,12 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
   }
 
-  function toggleAudio() {
-    if (!webrtcService.value || !currentUser.value) return false
+  async function toggleAudio() {
+    if (!webrtcService.value || !currentUser.value) {
+      return false
+    }
 
-    const enabled = webrtcService.value.toggleAudio()
-    currentUser.value.mediaState.audio = enabled
-    return enabled
+    return (currentUser.value.mediaState.audio = await webrtcService.value.toggleAudio())
   }
 
   function toggleVideo() {

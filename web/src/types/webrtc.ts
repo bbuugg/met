@@ -60,6 +60,7 @@ export interface MediaState {
   video: boolean
   audio: boolean
   screen: boolean
+  desktopAudio: boolean
 }
 
 export interface Peer {

@@ -13,12 +13,18 @@ import {
 export class WebRTCService {
   private ws: WebSocket | null = null
   private localStream: MediaStream | null = null
+  private audioStream: MediaStream | null = null
   private screenStream: MediaStream | null = null
   private peers: Map<string, PeerConnection> = new Map()
   private signedData: any
   private clientId: string
   private roomId: string
-  private mediaState: MediaState = { video: false, audio: false, screen: false }
+  private mediaState: MediaState = {
+    video: false,
+    audio: false,
+    screen: false,
+    desktopAudio: false
+  }
   private pingInterval: number | null = null
   private readonly PING_INTERVAL = 10000 // 10 seconds
   private wsUrl: string = ''
@@ -559,29 +565,34 @@ export class WebRTCService {
     }
   }
 
-  toggleAudio(): boolean {
-    let audioEnabled = false
-
-    // 控制本地摄像头音频
-    if (this.localStream) {
-      const audioTracks = this.localStream.getAudioTracks()
-      if (audioTracks.length > 0) {
-        audioTracks[0].enabled = !audioTracks[0].enabled
-        audioEnabled = audioTracks[0].enabled
+  async toggleAudio() {
+    if (!this.mediaState.audio) {
+      if (!this.audioStream) {
+        this.audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
       }
-    }
+      if (!this.audioStream) {
+        return (this.mediaState.audio = false)
+      }
 
-    // 控制屏幕共享音频
-    if (this.screenStream) {
-      const screenAudioTracks = this.screenStream.getAudioTracks()
-      screenAudioTracks.forEach((track) => {
-        track.enabled = audioEnabled // 与摄像头音频状态保持一致
+      this.audioStream.getAudioTracks().forEach((track) => {
+        track.enabled = true
+        this.localStream?.addTrack(track)
+        this.screenStream?.addTrack(track)
       })
+      this.mediaState.audio = true
+    } else {
+      this.localStream?.getAudioTracks().forEach((track) => {
+        track.enabled = false
+      })
+      this.screenStream?.getAudioTracks().forEach((track) => {
+        track.enabled = false
+      })
+      this.mediaState.audio = false
     }
 
-    this.mediaState.audio = audioEnabled
     this.broadcastMediaState()
-    return audioEnabled
+    await this.renegotiateAllConnections()
+    return this.mediaState.audio
   }
 
   toggleVideo(): boolean {
