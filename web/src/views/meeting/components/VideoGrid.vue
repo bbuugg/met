@@ -16,23 +16,23 @@
       </div>
 
       <!-- 视频网格 -->
-      <div class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-2 rounded-xl" :class="gridClass">
+      <div class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-2xl" :class="gridClass">
         <!-- Local video - always show if current user exists -->
         <div v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
 
           <!-- 视频元素 -->
           <video ref="localVideoRef" autoplay muted playsinline
             class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-            :class="{ 'opacity-0': isLocalAudioOnly }"
-            :style="{ display: isLocalAudioOnly ? 'none' : 'block' }" />
+            :class="{ 'opacity-0': isLocalAudioOnly }" :style="{ display: isLocalAudioOnly ? 'none' : 'block' }" />
 
           <!-- 只有音频时显示头像占位符 -->
           <div v-if="isLocalAudioOnly"
             class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
             <div class="text-center">
               <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <span class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y' }}</span>
+                <span class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y'
+                  }}</span>
               </div>
               <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
             </div>
@@ -42,8 +42,8 @@
             class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
             <div class="flex justify-between items-center">
               <span class="text-white font-semibold text-sm shadow-md">{{
-                t('tools.webRtcMeeting.you')
-                }}</span>
+                `${currentUser?.name} (${t('tools.webRtcMeeting.you')})`
+              }}</span>
               <div class="flex gap-2 items-center">
                 <MicrophoneDisabledIcon class="h-4 w-4 text-red-400 shadow-md" v-if="!currentUser?.mediaState.audio" />
                 <ComputerDesktopIcon v-if="currentUser?.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
@@ -51,7 +51,7 @@
             </div>
           </div>
           <!-- Local video controls -->
-          <div class="video-controls absolute top-2.5 right-2.5 z-10 flex">
+          <div class="video-controls absolute top-2.5 right-2.5 z-10">
             <button @click="toggleFullscreen('local')"
               class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
               <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-5 w-5" />
@@ -63,7 +63,7 @@
         <!-- Remote videos - only show participants with streams -->
         <template v-for="participant in participantsWithStreams" :key="participant.id">
           <div v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
-            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
+            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
 
             <!-- 视频元素 -->
             <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
@@ -76,7 +76,8 @@
               class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
               <div class="text-center">
                 <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <span class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U' }}</span>
+                  <span class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U'
+                    }}</span>
                 </div>
                 <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
               </div>
@@ -87,7 +88,7 @@
               <div class="participant-info flex justify-between items-center">
                 <span class="participant-name text-white font-semibold text-sm shadow-md">{{
                   participant.name
-                  }}</span>
+                }}</span>
                 <div class="media-indicators flex gap-2 items-center">
                   <MicrophoneDisabledIcon v-if="!participant.mediaState.audio" class="h-4 w-4 text-red-400 shadow-md" />
                   <VideoCameraIcon v-if="participant.mediaState.video" class="h-4 w-4 text-blue-400 shadow-md" />
@@ -97,7 +98,7 @@
             </div>
 
             <!-- Remote video controls -->
-            <div class="video-controls absolute top-2.5 right-2.5 z-10 flex">
+            <div class="video-controls absolute top-2.5 right-2.5 z-10 flex gap-2">
               <button @click="toggleFullscreen(participant.id)"
                 class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
                 <ArrowsPointingInIcon v-if="fullscreenParticipantId === participant.id" class="h-5 w-5" />

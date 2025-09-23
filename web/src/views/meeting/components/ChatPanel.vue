@@ -1,61 +1,7 @@
 <template>
   <div class="w-full md:w-96 h-full bg-white dark:bg-gray-800 flex flex-col">
-    <!-- Participants List -->
-    <div class="h-1/4 flex flex-col bg-white dark:bg-gray-800">
-      <div class="px-6 py-3 flex items-center justify-between dark:border-gray-700 h-14">
-        <h4 class="m-0 font-semibold text-gray-700 dark:text-gray-300">
-          {{ t('tools.webRtcMeeting.participants.title') }} ({{ participantsList.length }})
-        </h4>
-      </div>
-
-      <div class="flex-1 overflow-y-auto p-4">
-        <div class="flex flex-wrap gap-4">
-          <div
-            v-for="participant in participantsList"
-            :key="participant.id"
-            class="flex cursor-pointer"
-          >
-            <div class="flex flex-col items-center justify-center h-full">
-              <div
-                :style="{ backgroundImage: `url(${participant.avatar})` }"
-                class="relative w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-700 text-white flex items-center justify-center mx-auto dark:bg-gray-200 dark:text-black"
-                :class="{ 'ring-4 ring-indigo-500': participant.id === clientId }"
-              >
-                <span class="font-bold text-lg">{{
-                  getParticipantInitials(participant.name)
-                }}</span>
-                <!-- Online indicator -->
-                <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
-                <!-- 媒体状态图标 - 使用绝对定位 -->
-                <div class="absolute bottom-0 right-0 flex gap-1">
-                  <MicrophoneIcon
-                    v-if="participant.mediaState.audio"
-                    class="h-4 w-4 text-green-400"
-                  />
-                  <MicrophoneDisabledIcon v-else class="h-4 w-4" />
-                  <VideoCameraIcon
-                    v-if="participant.mediaState.video"
-                    class="h-4 w-4 text-green-400"
-                  />
-                  <ComputerDesktopIcon
-                    v-if="participant.mediaState.screen"
-                    class="h-4 w-4 text-blue-400"
-                  />
-                </div>
-              </div>
-              <div class="text-center mt-2">
-                <span class="text-gray-800 dark:text-white font-medium block text-sm">
-                  {{ participant.name }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div
-      class="h-3/4 flex flex-col bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
+      class="h-full flex flex-col bg-white dark:bg-gray-800"
     >
       <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" ref="messagesContainer">
         <div
