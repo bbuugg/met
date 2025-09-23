@@ -248,7 +248,7 @@ async function switchVideoDevice(deviceId: string) {
       }
 
       await meetingStore.stopCamera()
-      await meetingStore.startCamera(deviceId, currentAudioDeviceId.value || undefined)
+      await meetingStore.startCamera(deviceId)
       Message.success(t('tools.webRtcMeeting.controls.cameraSwitched'))
     }
   } catch (error) {
@@ -269,7 +269,7 @@ async function switchAudioDevice(deviceId: string) {
       // 但我们需要确保在有屏幕共享时不启动摄像头音频
       if (!currentUser.value?.mediaState.screen) {
         await meetingStore.stopCamera()
-        await meetingStore.startCamera(currentVideoDeviceId.value || undefined, deviceId)
+        await meetingStore.startCamera(currentVideoDeviceId.value || undefined)
         Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
       }
     } else if (currentUser.value?.mediaState.screen) {
@@ -291,7 +291,7 @@ async function switchAudioDevice(deviceId: string) {
 }
 
 async function toggleAudio() {
-  const enabled = await meetingStore.toggleAudio()
+  const enabled = await meetingStore.toggleAudio(currentAudioDeviceId.value || undefined)
   if (enabled) {
     Message.success(t('tools.webRtcMeeting.controls.unmuteMic'))
   } else {
@@ -318,7 +318,6 @@ async function toggleVideo() {
 
       await meetingStore.startCamera(
         currentVideoDeviceId.value || undefined,
-        currentAudioDeviceId.value || undefined
       )
       Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
     } else {

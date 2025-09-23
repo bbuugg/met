@@ -155,11 +155,11 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
   }
 
-  async function startCamera(videoDeviceId?: string, audioDeviceId?: string) {
+  async function startCamera(videoDeviceId?: string) {
     if (!webrtcService.value) return
 
     try {
-      localStream.value = await webrtcService.value.startCamera(videoDeviceId, audioDeviceId, true)
+      localStream.value = await webrtcService.value.startCamera(videoDeviceId)
       if (currentUser.value) {
         currentUser.value.mediaState.video = true
         currentUser.value.mediaState.audio = false
@@ -176,7 +176,6 @@ export const useMeetingStore = defineStore('meeting', () => {
 
     try {
       await webrtcService.value.stopCamera()
-      localStream.value = null
       if (currentUser.value) {
         currentUser.value.mediaState.video = false
         currentUser.value.mediaState.audio = false
@@ -208,7 +207,6 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (!webrtcService.value) return
 
     await webrtcService.value.stopScreenShare()
-    localStream.value = null
     if (currentUser.value) {
       currentUser.value.mediaState.screen = false
     }
@@ -224,16 +222,16 @@ export const useMeetingStore = defineStore('meeting', () => {
         video: false,
         audio: audioDeviceId
           ? {
-              deviceId: { exact: audioDeviceId },
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
+            deviceId: { exact: audioDeviceId },
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
           : {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true
-            }
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
       }
 
       // 获取音频流
@@ -334,12 +332,12 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
   }
 
-  async function toggleAudio() {
+  async function toggleAudio(deviceId?: string) {
     if (!webrtcService.value || !currentUser.value) {
       return false
     }
 
-    return (currentUser.value.mediaState.audio = await webrtcService.value.toggleAudio())
+    return (currentUser.value.mediaState.audio = await webrtcService.value.toggleAudio(deviceId))
   }
 
   function toggleVideo() {

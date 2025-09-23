@@ -466,8 +466,6 @@ export class WebRTCService {
 
   async startCamera(
     videoDeviceId?: string,
-    audioDeviceId?: string,
-    enableEchoCancellation: boolean = true
   ): Promise<MediaStream> {
     try {
       // 添加音频约束以启用回音消除和噪声抑制
@@ -548,15 +546,15 @@ export class WebRTCService {
     }
   }
 
-  async toggleAudio() {
+  async toggleAudio(deviceId?: string): Promise<boolean> {
     if (!this.mediaState.audio) {
       if (!this.audioStream) {
         this.audioStream = await navigator.mediaDevices.getUserMedia({
           audio: {
-            // deviceId: { exact: this.audioDeviceId || '' },
+            deviceId: { exact: deviceId },
             echoCancellation: true,
             noiseSuppression: true,
-            autoGainControl: true
+            autoGainControl: true,
           }, video: false
         })
       }
