@@ -655,11 +655,11 @@ export class WebRTCService {
     }
   }
 
-  sendChatMessage(content: string): void {
+  sendChatMessage(name: string, content: string): void {
     const message = {
       type: 'chat',
       id: Date.now().toString(),
-      senderName: `${this.clientId.slice(0, 8)}`,
+      senderName: name,
       content,
       timestamp: Date.now()
     }

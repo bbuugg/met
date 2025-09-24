@@ -361,7 +361,7 @@ export const useMeetingStore = defineStore('meeting', () => {
   function sendChatMessage(content: string) {
     if (!webrtcService.value) return
 
-    webrtcService.value.sendChatMessage(content)
+    webrtcService.value.sendChatMessage(currentUser.value?.name || "", content)
   }
 
   async function sendFile(file: File) {
@@ -372,7 +372,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       const fileMessage: ChatMessage = {
         id: Date.now().toString(),
         senderId: clientId.value,
-        senderName: currentUser.value?.name || 'You',
+        senderName: currentUser.value?.name || '',
         content: `File sent: ${file.name}`,
         timestamp: Date.now(),
         type: 'file',
