@@ -558,11 +558,10 @@ export class WebRTCService {
       const existingAudioTrack = this.localStream.getAudioTracks()[0]
 
       if (existingAudioTrack) {
-        // 如果已有音频轨道，启用它并通知所有 peer
+        // 如果已有音频轨道，启用它
         existingAudioTrack.enabled = true
         this.mediaState.audio = true
-        // 重要：需要通知所有 peer 音频轨道已启用
-        await this.replaceAudioTrack(existingAudioTrack)
+        // 不需要调用 replaceAudioTrack，因为轨道已经存在，只是启用状态改变
       } else {
         // 如果没有音频轨道，创建新的
         const audioStream = await navigator.mediaDevices.getUserMedia({
@@ -602,11 +601,32 @@ export class WebRTCService {
     const promises: Promise<void>[] = []
     this.peers.forEach((peer, peerId) => {
       const senders = peer.connection.getSenders()
-      // 查找音频发送器，包括没有轨道的发送器
-      const audioSender = senders.find((s) =>
-        (s.track && s.track.kind === 'audio') ||
-        (!s.track && s.dtmf === null) // 音频发送器通常有 dtmf 属性为 null
-      )
+
+      // 更准确地查找音频发送器
+      let audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
+
+      // 如果没有找到有音频轨道的发送器，查找可能的音频发送器
+      if (!audioSender) {
+        // 通过检查发送器的参数来识别音频发送器
+        audioSender = senders.find((s) => {
+          if (!s.track) {
+            // 检查发送器的编解码器参数
+            const params = s.getParameters()
+            if (params.codecs && params.codecs.length > 0) {
+              // 音频编解码器通常包含 opus, pcmu, pcma 等
+              return params.codecs.some(codec =>
+                codec.mimeType.toLowerCase().includes('audio') ||
+                codec.mimeType.toLowerCase().includes('opus') ||
+                codec.mimeType.toLowerCase().includes('pcmu') ||
+                codec.mimeType.toLowerCase().includes('pcma')
+              )
+            }
+            // 如果没有编解码器信息，检查 DTMF 支持（只有音频发送器支持）
+            return s.dtmf !== undefined
+          }
+          return false
+        })
+      }
 
       if (audioSender) {
         console.log(`Replacing audio track for peer ${peerId}, newTrack:`, newTrack)
