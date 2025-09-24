@@ -80,7 +80,7 @@ const userStore = useUserStore()
 const isJoining = ref(false)
 const isReconnecting = ref(false)
 const showLegalNotice = ref(true) // 默认显示法律提示
-const showChatPanel = ref(false) // 聊天面板显示状态
+const showChatPanel = ref(true) // 聊天面板显示状态
 
 // 计算未读消息数量
 const unreadMessagesCount = computed(() => {
