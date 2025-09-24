@@ -27,7 +27,7 @@ axios.interceptors.response.use(
     (error) => {
         const escapedPath = ["/login", "/"];
         if (error.response?.status === 401 && !escapedPath.includes(window.location.pathname)) {
-            window.location.href = `/login?redirect_uri=${window.location.href}`
+            window.location.href = `/`
             return
         }
 
