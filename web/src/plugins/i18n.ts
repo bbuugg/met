@@ -74,6 +74,8 @@ const enUS = {
       chat: {
         title: 'Chat',
         toggleChat: 'Toggle Chat',
+        openChat: 'Open Chat',
+        close: 'Close',
         sendFile: 'Send File',
         download: 'Download',
         placeholder: 'Type a message...',
@@ -200,6 +202,8 @@ const zhCN = {
       chat: {
         title: '聊天',
         toggleChat: '切换聊天',
+        openChat: '打开聊天',
+        close: '关闭',
         sendFile: '发送文件',
         download: '下载',
         placeholder: '输入消息...',

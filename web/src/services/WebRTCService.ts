@@ -439,7 +439,8 @@ export class WebRTCService {
           senderName: data.senderName,
           content: data.content,
           timestamp: data.timestamp,
-          type: 'text'
+          type: 'text',
+          read: false // 接收到的消息标记为未读
         })
         break
 
@@ -669,7 +670,8 @@ export class WebRTCService {
     this.onChatMessage?.({
       ...message,
       senderId: this.clientId,
-      type: 'text'
+      type: 'text',
+      read: true // 自己发送的消息标记为已读
     })
   }
 

@@ -122,7 +122,26 @@
           }}</span>
         </button>
       </div>
-      <div>
+      <div class="flex gap-3 items-center">
+        <!-- 聊天按钮 -->
+        <button @click="toggleChatPanel"
+          class="min-w-[80px] h-12 px-3 rounded-lg border-none shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 relative"
+          :class="{
+            'bg-blue-600 hover:bg-blue-700 text-white': props.showChatPanel,
+            'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600': !props.showChatPanel
+          }">
+          <ChatBubbleLeftRightIcon class="h-6 w-6" />
+          <span class="text-xs font-medium">{{ t('tools.webRtcMeeting.chat.title') }}</span>
+          <!-- 未读消息计数 -->
+          <div
+            v-if="props.unreadMessagesCount > 0"
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold"
+          >
+            {{ props.unreadMessagesCount > 99 ? '99+' : props.unreadMessagesCount }}
+          </div>
+        </button>
+
+        <!-- 离开按钮 -->
         <button @click="showLeaveConfirm"
           class="min-w-[80px] h-12 px-3 rounded-lg border-none shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white">
           <ArrowRightIcon class="h-6 w-6" />
@@ -145,7 +164,7 @@ import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vu
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
 import { Modal as AModal, Message, Dropdown as ADropdown, Doption as ADoption } from '@arco-design/web-vue'
-import { ArrowRightIcon, MicrophoneIcon } from '@heroicons/vue/24/outline'
+import { ArrowRightIcon, MicrophoneIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -155,6 +174,19 @@ import {
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+
+// 定义props
+interface Props {
+  showChatPanel: boolean
+  unreadMessagesCount: number
+}
+
+const props = defineProps<Props>()
+
+// 定义emit事件
+const emit = defineEmits<{
+  toggleChatPanel: []
+}>()
 
 const router = useRouter()
 const meetingStore = useMeetingStore()
@@ -470,6 +502,11 @@ function confirmLeave() {
 // 取消退出
 function cancelLeave() {
   showLeaveModal.value = false
+}
+
+// 切换聊天面板
+function toggleChatPanel() {
+  emit('toggleChatPanel')
 }
 
 // 组件挂载时获取设备列表

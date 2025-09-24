@@ -1,7 +1,21 @@
 <template>
   <div class="w-full md:w-96 h-full bg-white dark:bg-gray-800 flex flex-col">
+    <!-- 聊天面板头部 -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ t('tools.webRtcMeeting.chat.title') }}
+      </h3>
+      <button
+        @click="$emit('close')"
+        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+        :title="t('tools.webRtcMeeting.chat.close')"
+      >
+        <XMarkIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+      </button>
+    </div>
+
     <div
-      class="h-full flex flex-col bg-white dark:bg-gray-800"
+      class="flex-1 flex flex-col bg-white dark:bg-gray-800"
     >
       <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" ref="messagesContainer">
         <div
@@ -150,21 +164,24 @@
 </template>
 
 <script setup lang="ts">
-import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
+
 import { useMeetingStore } from '@/stores/meeting'
 import { Message } from '@arco-design/web-vue'
 import {
   ArrowDownTrayIcon,
   ChatBubbleLeftRightIcon,
-  ComputerDesktopIcon,
   DocumentIcon,
-  MicrophoneIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
-  VideoCameraIcon
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+// 定义emit事件
+defineEmits<{
+  close: []
+}>()
 
 const { t } = useI18n()
 const meetingStore = useMeetingStore()
@@ -179,17 +196,6 @@ const unreadMessageCount = ref(0)
 
 const chatMessages = computed(() => meetingStore.chatMessages)
 const clientId = computed(() => meetingStore.clientId)
-const participantsList = computed(() => meetingStore.participantsList)
-
-// Utility function to get participant initials
-function getParticipantInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((word) => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 function sendMessage() {
   const content = newMessage.value.trim()
@@ -221,8 +227,6 @@ async function handleFileSelect(event: Event) {
 function downloadFile(url: string, fileName?: string) {
   if (!url || !fileName) {
     // Fallback to old method for non-preview files
-    const content = typeof url === 'string' ? url : ''
-    const fileNameFromContent = content.replace('File received: ', '')
     Message.info(t('tools.webRtcMeeting.chat.download'))
     return
   }
@@ -235,11 +239,8 @@ function downloadFile(url: string, fileName?: string) {
   document.body.removeChild(a)
 }
 
-function downloadFileFromMessage(message: any) {
+function downloadFileFromMessage(_message: any) {
   // For non-preview files, we need to handle them differently
-  // Extract file name from content (assuming it's in the format "File received: filename")
-  const fileName = message.content.replace('File received: ', '')
-
   // In a real implementation, you would need to have the actual file data
   // For now, we'll just show a message
   Message.info(t('tools.webRtcMeeting.chat.download'))

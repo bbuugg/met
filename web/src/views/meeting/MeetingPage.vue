@@ -13,11 +13,27 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <MeetingToolbar />
       <!-- 在移动端设备上，视频区域和聊天区域上下分布 -->
-      <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+      <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative">
         <VideoGrid class="flex-1" />
-        <ChatPanel class="h-full md:w-96 flex-shrink-0" />
+        <!-- 聊天面板 - 可收起 -->
+        <ChatPanel
+          v-if="showChatPanel"
+          :class="[
+            'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
+            'fixed md:relative z-40',
+            'inset-0 md:inset-auto md:w-96',
+            'bg-white dark:bg-gray-800'
+          ]"
+          @close="toggleChatPanel"
+        />
+
+
       </div>
-      <ControlPanel />
+      <ControlPanel
+        :showChatPanel="showChatPanel"
+        :unreadMessagesCount="unreadMessagesCount"
+        @toggleChatPanel="toggleChatPanel"
+      />
     </div>
     <!-- Loading overlay -->
     <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
@@ -48,7 +64,8 @@ import LegalNoticeModal from '@/components/LegalNoticeModal.vue'
 import { wsUrl } from '@/config'
 import { useMeetingStore } from '@/stores/meeting'
 import { Message } from '@arco-design/web-vue'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import ChatPanel from './components/ChatPanel.vue'
@@ -68,11 +85,27 @@ const meetingStore = useMeetingStore()
 const isJoining = ref(false)
 const isReconnecting = ref(false)
 const showLegalNotice = ref(true) // 默认显示法律提示
+const showChatPanel = ref(false) // 聊天面板显示状态
+
+// 计算未读消息数量
+const unreadMessagesCount = computed(() => {
+  return meetingStore.chatMessages.filter(msg => !msg.read && msg.senderId !== meetingStore.clientId).length
+})
+
+// 切换聊天面板显示状态
+const toggleChatPanel = () => {
+  showChatPanel.value = !showChatPanel.value
+
+  // 当打开聊天面板时，标记所有消息为已读
+  if (showChatPanel.value) {
+    meetingStore.markMessagesAsRead()
+  }
+}
 
 // 监听WebSocket连接状态变化
 watch(
   () => meetingStore.webrtcService,
-  (newVal, oldVal) => {
+  (newVal) => {
     if (newVal) {
       // 保存原始的回调函数
       const originalCallback = newVal.onConnectionStateChanged

@@ -88,6 +88,12 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
 
     webrtcService.value.onChatMessage = (message: ChatMessage) => {
+      // 如果消息不是来自当前用户，标记为未读
+      if (message.senderId !== clientId.value) {
+        message.read = false
+      } else {
+        message.read = true
+      }
       chatMessages.value.push(message)
     }
 
@@ -112,7 +118,8 @@ export const useMeetingStore = defineStore('meeting', () => {
           fileType: file.type,
           fileUrl: url,
           fileName: file.name,
-          fileSize: file.size
+          fileSize: file.size,
+          read: false // 接收到的文件标记为未读
         })
       } else {
         // For other files, automatically download
@@ -133,7 +140,8 @@ export const useMeetingStore = defineStore('meeting', () => {
           timestamp: Date.now(),
           type: 'file',
           fileName: file.name,
-          fileSize: file.size
+          fileSize: file.size,
+          read: false // 接收到的文件标记为未读
         })
       }
     }
@@ -370,7 +378,8 @@ export const useMeetingStore = defineStore('meeting', () => {
         type: 'file',
         fileName: file.name,
         fileSize: file.size,
-        fileType: file.type
+        fileType: file.type,
+        read: true // 自己发送的消息标记为已读
       }
 
       // 检查文件类型以决定是否需要预览
