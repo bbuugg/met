@@ -30,9 +30,14 @@
           <div v-if="isLocalAudioOnly"
             class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
             <div class="text-center">
-              <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <span class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y'
-                }}</span>
+              <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
+                <img
+                  v-if="currentUser?.avatar"
+                  :src="currentUser.avatar"
+                  :alt="currentUser?.name || 'You'"
+                  class="w-full h-full object-cover"
+                />
+                <span v-else class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y' }}</span>
               </div>
               <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
             </div>
@@ -76,9 +81,14 @@
             <div v-if="isAudioOnlyParticipant(participant.id)"
               class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
               <div class="text-center">
-                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  <span class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U'
-                  }}</span>
+                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
+                  <img
+                    v-if="participant.avatar"
+                    :src="participant.avatar"
+                    :alt="participant.name || 'User'"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U' }}</span>
                 </div>
                 <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
               </div>
