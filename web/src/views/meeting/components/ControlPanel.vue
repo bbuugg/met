@@ -131,7 +131,7 @@
             'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600': !props.showChatPanel
           }">
           <ChatBubbleLeftRightIcon class="h-6 w-6" />
-          <span class="text-xs font-medium">{{ t('tools.webRtcMeeting.chat.title') }}</span>
+          <span claFss="text-xs font-medium">{{ t('tools.webRtcMeeting.chat.title') }}</span>
           <!-- 未读消息计数 -->
           <div
             v-if="props.unreadMessagesCount > 0"

@@ -12,12 +12,10 @@ import {
 
 export class WebRTCService {
   private ws: WebSocket | null = null
-  private localStream: MediaStream | null = null
-  private audioStream: MediaStream | null = null
+  private localStream: MediaStream
   private peers: Map<string, PeerConnection> = new Map()
   private signedData: any
   private clientId: string
-  private roomId: string
   private mediaState: MediaState = {
     video: false,
     audio: false,
@@ -51,8 +49,8 @@ export class WebRTCService {
 
   constructor(signedData: any) {
     this.clientId = signedData.userId
-    this.roomId = signedData.roomId
     this.signedData = signedData
+    this.localStream = new MediaStream()
   }
 
   async connect(wsUrl: string): Promise<void> {
@@ -549,11 +547,6 @@ export class WebRTCService {
 
   async toggleAudio(deviceId?: string): Promise<boolean> {
     if (!this.mediaState.audio) {
-      // 启用音频
-      if (!this.localStream) {
-        this.localStream = new MediaStream()
-      }
-
       // 检查是否已有音频轨道
       const existingAudioTrack = this.localStream.getAudioTracks()[0]
 
@@ -614,11 +607,12 @@ export class WebRTCService {
             const params = s.getParameters()
             if (params.codecs && params.codecs.length > 0) {
               // 音频编解码器通常包含 opus, pcmu, pcma 等
-              return params.codecs.some(codec =>
-                codec.mimeType.toLowerCase().includes('audio') ||
-                codec.mimeType.toLowerCase().includes('opus') ||
-                codec.mimeType.toLowerCase().includes('pcmu') ||
-                codec.mimeType.toLowerCase().includes('pcma')
+              return params.codecs.some(
+                (codec) =>
+                  codec.mimeType.toLowerCase().includes('audio') ||
+                  codec.mimeType.toLowerCase().includes('opus') ||
+                  codec.mimeType.toLowerCase().includes('pcmu') ||
+                  codec.mimeType.toLowerCase().includes('pcma')
               )
             }
             // 如果没有编解码器信息，检查 DTMF 支持（只有音频发送器支持）
@@ -830,7 +824,12 @@ export class WebRTCService {
   }
 
   private async replaceVideoTrack(newTrack: MediaStreamTrack | null): Promise<void> {
-    console.log('Replacing video track for', this.peers.size, 'peers', newTrack ? 'with new track' : 'with null (removing)')
+    console.log(
+      'Replacing video track for',
+      this.peers.size,
+      'peers',
+      newTrack ? 'with new track' : 'with null (removing)'
+    )
 
     const promises: Promise<void>[] = []
 
