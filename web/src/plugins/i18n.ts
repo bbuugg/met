@@ -17,15 +17,12 @@ const enUS = {
         disconnected: 'Disconnected'
       },
       entry: {
-        displayName: 'Display Name',
-        displayNamePlaceholder: 'Enter your name',
         meetingId: 'Meeting ID',
         meetingIdPlaceholder: 'Enter meeting ID',
         createMeeting: 'Create Meeting',
         joinMeeting: 'Join Meeting'
       },
       errors: {
-        displayNameRequired: 'Display name is required',
         meetingIdRequired: 'Meeting ID is required',
         connectionFailed: 'Failed to connect to server'
       },
@@ -35,8 +32,6 @@ const enUS = {
         disconnected: 'Disconnected',
         reconnecting: 'Reconnecting...'
       },
-      displayName: 'Display Name',
-      displayNamePlaceholder: 'Enter your name',
       meeting: {
         title: 'Meeting',
         createMeeting: 'Create Meeting',
@@ -145,15 +140,12 @@ const zhCN = {
         disconnected: '已断开连接'
       },
       entry: {
-        displayName: '显示名称',
-        displayNamePlaceholder: '输入你的名字',
         meetingId: '会议 ID',
         meetingIdPlaceholder: '输入会议 ID',
         createMeeting: '创建会议',
         joinMeeting: '加入会议'
       },
       errors: {
-        displayNameRequired: '显示名称是必需的',
         meetingIdRequired: '会议 ID 是必需的',
         connectionFailed: '连接服务器失败'
       },
@@ -163,8 +155,6 @@ const zhCN = {
         disconnected: '已断开连接',
         reconnecting: '重连中...'
       },
-      displayName: '显示名称',
-      displayNamePlaceholder: '输入你的名字',
       meeting: {
         title: '会议',
         createMeeting: '创建会议',

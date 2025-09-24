@@ -2,6 +2,7 @@ import { WebRTCService } from '@/services/WebRTCService'
 import type { ChatMessage, FileTransfer, MediaState, Peer } from '@/types/webrtc'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { useUserStore } from './user'
 
 export const useMeetingStore = defineStore('meeting', () => {
   // State
@@ -19,7 +20,6 @@ export const useMeetingStore = defineStore('meeting', () => {
 
   // Additional state for HomeView.vue.bak compatibility
   const inMeeting = ref(false)
-  const displayName = ref('')
   const localDeviceId = ref('')
   const currentMeeting = ref<any>(null)
   const isHost = ref(false)
@@ -54,10 +54,14 @@ export const useMeetingStore = defineStore('meeting', () => {
       // Connect to signaling server
       await webrtcService.value.connect(wsUrl)
 
+      // Get user info for avatar
+      const userStore = useUserStore()
+
       // Create current user
       currentUser.value = {
         id: signedData.userId,
         name: signedData.name,
+        avatar: userStore.info?.avatar || undefined,
         mediaState: { video: false, audio: false, screen: false, desktopAudio: false }
       }
 
@@ -500,7 +504,6 @@ export const useMeetingStore = defineStore('meeting', () => {
 
     // 重置额外状态
     inMeeting.value = false
-    displayName.value = ''
     localDeviceId.value = ''
     currentMeeting.value = null
     isHost.value = false
@@ -527,7 +530,6 @@ export const useMeetingStore = defineStore('meeting', () => {
 
     // Additional state
     inMeeting,
-    displayName,
     localDeviceId,
     currentMeeting,
     isHost,

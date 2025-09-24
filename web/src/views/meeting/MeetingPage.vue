@@ -16,24 +16,17 @@
       <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative">
         <VideoGrid class="flex-1" />
         <!-- 聊天面板 - 可收起 -->
-        <ChatPanel
-          v-if="showChatPanel"
-          :class="[
-            'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
-            'fixed md:relative z-40',
-            'inset-0 md:inset-auto md:w-96',
-            'bg-white dark:bg-gray-800'
-          ]"
-          @close="toggleChatPanel"
-        />
+        <ChatPanel v-if="showChatPanel" :class="[
+          'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
+          'fixed md:relative z-40',
+          'inset-0 md:inset-auto md:w-96',
+          'bg-white dark:bg-gray-800'
+        ]" @close="toggleChatPanel" />
 
 
       </div>
-      <ControlPanel
-        :showChatPanel="showChatPanel"
-        :unreadMessagesCount="unreadMessagesCount"
-        @toggleChatPanel="toggleChatPanel"
-      />
+      <ControlPanel :showChatPanel="showChatPanel" :unreadMessagesCount="unreadMessagesCount"
+        @toggleChatPanel="toggleChatPanel" />
     </div>
     <!-- Loading overlay -->
     <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
@@ -63,6 +56,7 @@ import { generateSignature } from '@/api'
 import LegalNoticeModal from '@/components/LegalNoticeModal.vue'
 import { wsUrl } from '@/config'
 import { useMeetingStore } from '@/stores/meeting'
+import { useUserStore } from '@/stores/user'
 import { Message } from '@arco-design/web-vue'
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -82,6 +76,7 @@ interface Props {
 const props = defineProps<Props>()
 const router = useRouter()
 const meetingStore = useMeetingStore()
+const userStore = useUserStore()
 const isJoining = ref(false)
 const isReconnecting = ref(false)
 const showLegalNotice = ref(true) // 默认显示法律提示
@@ -133,46 +128,11 @@ watch(
   { immediate: true }
 )
 
-// 从 sessionStorage 中获取显示名称
-const getStoredDisplayName = () => {
-  try {
-    return sessionStorage.getItem('displayName')
-  } catch (e) {
-    console.warn('Failed to access sessionStorage:', e)
-    return null
-  }
-}
-
-// 将显示名称存储到 sessionStorage
-const setStoredDisplayName = (name: string) => {
-  try {
-    sessionStorage.setItem('displayName', name)
-  } catch (e) {
-    console.warn('Failed to save to sessionStorage:', e)
-  }
-}
-
 // 处理法律声明接受事件
-const handleLegalNoticeAccept = () => {
+const handleLegalNoticeAccept = async () => {
   showLegalNotice.value = false
-  // 用户接受法律声明后，继续初始化会议
-  const storedName = getStoredDisplayName()
-
-  if (storedName) {
-    // 如果 sessionStorage 中有显示名称，使用它
-    meetingStore.displayName = storedName
-    initializeMeeting(storedName)
-  } else if (meetingStore.displayName) {
-    // 如果 store 中有显示名称，使用它并保存到 sessionStorage
-    setStoredDisplayName(meetingStore.displayName)
-    initializeMeeting(meetingStore.displayName)
-  } else {
-    // 如果都没有用户信息，直接跳转到首页，并带上会议ID参数
-    router.push({
-      path: '/',
-      query: { roomId: props.roomId }
-    })
-  }
+  await userStore.updateInfo()
+  initializeMeeting(userStore.info?.name)
 }
 
 async function initializeMeeting(clientId: string) {
@@ -188,18 +148,21 @@ async function initializeMeeting(clientId: string) {
   try {
     isJoining.value = true
 
+    // 加载用户信息以获取头像
+    try {
+      await userStore.updateInfo()
+    } catch (error) {
+      console.warn('Failed to load user info:', error)
+      // 继续执行，即使用户信息加载失败
+    }
+
     const signRes = await generateSignature({
       timestamp: Date.now(),
       name: clientId,
       roomId,
     })
- 
-    await meetingStore.joinMeeting(wsUrl, signRes.data)
 
-    // 成功加入会议后，更新 sessionStorage 中的显示名称
-    if (meetingStore.displayName) {
-      setStoredDisplayName(meetingStore.displayName)
-    }
+    await meetingStore.joinMeeting(wsUrl, signRes.data)
 
     // 设置连接状态变化的监听器
     if (meetingStore.webrtcService) {
@@ -227,36 +190,14 @@ async function initializeMeeting(clientId: string) {
 onMounted(async () => {
   // 页面加载时彻底重置所有状态
   meetingStore.resetAllState()
-
-  // 检查 sessionStorage 中是否有显示名称
-  const storedName = getStoredDisplayName()
-
-  // 如果没有存储的名称，则直接显示法律提示
-  // 如果有存储的名称，仍然显示法律提示，但用户接受后会自动继续
-  if (!storedName && !meetingStore.displayName) {
-    // 如果都没有用户信息，直接跳转到首页，并带上会议ID参数
-    router.push({
-      path: '/',
-      query: { roomId: props.roomId }
-    })
-  }
-  // 注意：法律提示modal默认显示，用户接受后才会继续
 })
 
 onUnmounted(() => {
-  // 页面关闭前，如果 store 中有显示名称，保存到 sessionStorage
-  if (meetingStore.displayName) {
-    setStoredDisplayName(meetingStore.displayName)
-  }
   meetingStore.leaveMeeting()
 })
 
 // Handle page refresh/close
 window.addEventListener('beforeunload', () => {
-  // 页面关闭前，如果 store 中有显示名称，保存到 sessionStorage
-  if (meetingStore.displayName) {
-    setStoredDisplayName(meetingStore.displayName)
-  }
   meetingStore.leaveMeeting()
 })
 </script>

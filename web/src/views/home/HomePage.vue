@@ -51,19 +51,6 @@
 
         <template v-if="userStore.info.uuid">
           <div class="flex flex-col gap-2">
-            <label for="displayName" class="font-semibold text-gray-700 dark:text-gray-300">{{
-              t('tools.webRtcMeeting.entry.displayName')
-            }}</label>
-            <input
-              id="displayName"
-              v-model="displayName"
-              :placeholder="t('tools.webRtcMeeting.entry.displayNamePlaceholder')"
-              class="input-field"
-              @keyup.enter="handleJoin"
-            />
-          </div>
-
-          <div class="flex flex-col gap-2">
             <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">{{
               t('tools.webRtcMeeting.entry.meetingId')
             }}</label>
@@ -123,8 +110,6 @@ const meetingStore = useMeetingStore()
 const userStore = useUserStore()
 const { t, locale } = useI18n()
 
-// 表单数据
-const displayName = ref(userStore.info?.name || '')
 const meetingId = ref((route.query.roomId as string) || '')
 
 // Reactive variable to track current language
@@ -154,8 +139,6 @@ const themeChangeListener = (newTheme: 'light' | 'dark') => {
 }
 
 onMounted(() => {
-  userStore.updateInfo().then(() => (displayName.value = userStore.info?.name))
-  // 设置初始主题
   currentTheme.value = theme.getCurrentTheme()
 
   // 监听主题变化
@@ -172,27 +155,12 @@ const isJoinDisabled = computed(() => {
   return !meetingId.value.trim()
 })
 
-// 将显示名称存储到 sessionStorage
-const setStoredDisplayName = (name: string) => {
-  try {
-    sessionStorage.setItem('displayName', name)
-  } catch (e) {
-    console.warn('Failed to save to sessionStorage:', e)
-  }
-}
-
 // Event handlers for components
 const handleJoin = () => {
   if (isJoinDisabled.value) {
     Message.error('请输入会议ID')
     return
   }
-  const trimmedName = displayName.value.trim()
-  meetingStore.displayName = trimmedName
-
-  // 将显示名称存储到 sessionStorage
-  setStoredDisplayName(trimmedName)
-
   // Navigate to meeting room without clientId in URL
   if (meetingId.value.trim()) {
     router.push({

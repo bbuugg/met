@@ -6,6 +6,11 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
+import { useUserStore } from './stores/user';
+
+const userStore = useUserStore();
+
+userStore.updateInfo();
 
 // 暗色主题
 const isDarkTheme = computed(() => {
