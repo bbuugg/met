@@ -174,7 +174,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       localStream.value = await webrtcService.value.startCamera(videoDeviceId)
       if (currentUser.value) {
         currentUser.value.mediaState.video = true
-        currentUser.value.mediaState.audio = false
+        currentUser.value.mediaState.screen = false
         currentUser.value.stream = localStream.value
       }
     } catch (error) {
@@ -190,8 +190,6 @@ export const useMeetingStore = defineStore('meeting', () => {
       await webrtcService.value.stopCamera()
       if (currentUser.value) {
         currentUser.value.mediaState.video = false
-        currentUser.value.mediaState.audio = false
-        currentUser.value.stream = undefined
       }
     } catch (error) {
       console.error('Failed to stop camera:', error)
@@ -206,6 +204,7 @@ export const useMeetingStore = defineStore('meeting', () => {
       localStream.value = await webrtcService.value.startScreenShare()
       if (currentUser.value) {
         currentUser.value.mediaState.screen = true
+        currentUser.value.mediaState.video = false
         // 确保currentUser.stream也更新为screenStream
         currentUser.value.stream = localStream.value
       }
@@ -284,64 +283,37 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (!webrtcService.value) return
 
     try {
-      // 先获取屏幕共享流
-      const displayStream = await navigator.mediaDevices.getDisplayMedia({
-        video: true,
-        audio: true
-      })
-
-      // 如果指定了音频设备，获取该设备的音频流
-      let audioStream: MediaStream | null = null
-      if (audioDeviceId) {
-        const audioConstraints: MediaStreamConstraints = {
-          video: false,
-          audio: {
-            deviceId: { exact: audioDeviceId },
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        }
-        audioStream = await navigator.mediaDevices.getUserMedia(audioConstraints)
-      }
-
-      // 合并屏幕和音频流
-      const combinedStream = new MediaStream()
-
-      // 添加屏幕视频轨道
-      displayStream.getVideoTracks().forEach((track) => {
-        combinedStream.addTrack(track)
-      })
-
-      // 添加音频轨道（优先使用指定设备的音频，否则使用屏幕共享的音频）
-      if (audioStream) {
-        audioStream.getAudioTracks().forEach((track) => {
-          combinedStream.addTrack(track)
-        })
-        // 停止屏幕共享的音频轨道
-        displayStream.getAudioTracks().forEach((track) => track.stop())
-      } else {
-        displayStream.getAudioTracks().forEach((track) => {
-          combinedStream.addTrack(track)
-        })
-      }
-
-      // 更新状态
-      localStream.value = combinedStream
+      // 使用服务启动屏幕共享（服务内部处理互斥和轨道替换）
+      localStream.value = await webrtcService.value.startScreenShare()
       if (currentUser.value) {
         currentUser.value.mediaState.screen = true
-        currentUser.value.mediaState.audio = true
-        currentUser.value.stream = combinedStream
+        currentUser.value.stream = localStream.value
       }
 
-      // 处理屏幕共享结束事件
-      displayStream.getVideoTracks()[0].onended = () => {
-        stopScreenShare()
+      // 如果指定音频设备，切换麦克风设备并保持开关状态
+      if (audioDeviceId) {
+        const enabled = await webrtcService.value.switchAudioDevice(audioDeviceId)
+        if (currentUser.value) {
+          currentUser.value.mediaState.audio = enabled
+        }
+        localStream.value = webrtcService.value.getLocalStream()
       }
     } catch (error) {
       console.error('Failed to start screen share with audio:', error)
       throw error
     }
+  }
+
+  // 切换麦克风设备
+  async function switchAudioDevice(deviceId?: string) {
+    if (!webrtcService.value || !currentUser.value) {
+      return false
+    }
+
+    const enabled = await webrtcService.value.switchAudioDevice(deviceId)
+    localStream.value = webrtcService.value.getLocalStream()
+    currentUser.value.mediaState.audio = enabled
+    return enabled
   }
 
   async function toggleAudio(deviceId?: string) {
@@ -350,22 +322,52 @@ export const useMeetingStore = defineStore('meeting', () => {
     }
 
     const enabled = await webrtcService.value.toggleAudio(deviceId)
+
+    localStream.value = webrtcService.value.getLocalStream()
+    console.log('Local stream tracks after toggleAudio:', localStream.value)
     currentUser.value.mediaState.audio = enabled
     return enabled
   }
 
-  function toggleVideo() {
+  async function toggleVideo(deviceId?: string) {
     if (!webrtcService.value || !currentUser.value) return false
 
-    const enabled = webrtcService.value.toggleVideo()
+    const enabled = await webrtcService.value.toggleVideo(deviceId)
+    console.log('Local stream tracks after toggleVideo:', currentUser.value.mediaState.video, enabled)
     currentUser.value.mediaState.video = enabled
+    if (enabled) {
+      // 摄像头开启后，屏幕共享应为关闭状态
+      currentUser.value.mediaState.screen = false
+    }
+    localStream.value = webrtcService.value.getLocalStream()
+    return enabled
+  }
+
+  async function switchVideoDevice(deviceId?: string) {
+    if (!webrtcService.value || !currentUser.value) return
+
+    const enabled = webrtcService.value.switchVideoDevice(deviceId)
+    currentUser.value.mediaState.video = enabled
+    localStream.value = webrtcService.value.getLocalStream()
+    return enabled
+  }
+
+  async function toggleDesktopAudio() {
+    if (!webrtcService.value || !currentUser.value) {
+      return false
+    }
+
+    const enabled = await webrtcService.value.toggleDesktopAudio()
+    currentUser.value.mediaState.desktopAudio = enabled
+    // 更新本地流以触发视频网格更新（音轨替换后仍指向同一对象，这里显式设置）
+    localStream.value = webrtcService.value.getLocalStream()
     return enabled
   }
 
   function sendChatMessage(content: string) {
     if (!webrtcService.value) return
 
-    webrtcService.value.sendChatMessage(currentUser.value?.name || "", content)
+    webrtcService.value.sendChatMessage(currentUser.value?.name || '', content)
   }
 
   async function sendFile(file: File) {
@@ -432,15 +434,6 @@ export const useMeetingStore = defineStore('meeting', () => {
     inMeeting.value = true
   }
 
-  function resetMeeting() {
-    currentMeeting.value = null
-    inMeeting.value = false
-    isHost.value = false
-    participants.value.clear()
-    chatMessages.value = []
-    remoteStreams.value.clear()
-  }
-
   function addParticipant(participant: any) {
     participants.value.set(participant.id, participant)
     participantCount.value = participants.value.size
@@ -449,10 +442,6 @@ export const useMeetingStore = defineStore('meeting', () => {
   function removeParticipant(participantId: string) {
     participants.value.delete(participantId)
     participantCount.value = participants.value.size
-  }
-
-  function addRemoteStream(streamInfo: any) {
-    remoteStreams.value.set(streamInfo.id, streamInfo.stream)
   }
 
   function updateParticipantMediaState(participantId: string, mediaState: any) {
@@ -475,11 +464,6 @@ export const useMeetingStore = defineStore('meeting', () => {
 
   function updateFileTransferProgress(participantId: string, progress: any) {
     // Implementation for file transfer progress
-  }
-
-  // 新增方法：清理远程流
-  function clearRemoteStreams() {
-    remoteStreams.value.clear()
   }
 
   // 新增方法：彻底重置所有状态
@@ -554,6 +538,9 @@ export const useMeetingStore = defineStore('meeting', () => {
     startAudioOnly, // 导出新方法
     toggleAudio,
     toggleVideo,
+    switchAudioDevice,
+    switchVideoDevice,
+    toggleDesktopAudio, // 导出桌面音频控制方法
     sendChatMessage,
     sendFile,
     leaveMeeting,
@@ -561,15 +548,12 @@ export const useMeetingStore = defineStore('meeting', () => {
 
     // Additional methods
     setMeeting,
-    resetMeeting,
     addParticipant,
     removeParticipant,
-    addRemoteStream,
     updateParticipantMediaState,
     addChatMessage,
     clearChatUnread,
     updateFileTransferProgress,
-    clearRemoteStreams,
     resetAllState // 导出新方法
   }
 })

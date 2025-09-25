@@ -58,7 +58,7 @@
                     class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
                   <span class="truncate">{{
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-                  }}</span>
+                    }}</span>
                 </div>
               </a-doption>
             </template>
@@ -100,27 +100,44 @@
                     class="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
                   <span class="truncate">{{
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-                  }}</span>
+                    }}</span>
                 </div>
               </a-doption>
             </template>
           </a-dropdown>
         </div>
 
-        <button v-if="isGetDisplayMediaSupported" @click="toggleScreenShare"
-          class="min-w-[80px] h-12 px-3 rounded-lg border-none shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1"
-          :class="{
-            'bg-indigo-600 hover:bg-indigo-700 text-white': currentUser?.mediaState.screen,
-            'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
-              !currentUser?.mediaState.screen
-          }">
-          <ComputerDesktopIcon class="h-6 w-6" />
-          <span class="text-xs font-medium">{{
-            currentUser?.mediaState.screen
-              ? t('tools.webRtcMeeting.controls.stopScreenShare')
-              : t('tools.webRtcMeeting.controls.startScreenShare')
-          }}</span>
-        </button>
+        <!-- 屏幕共享按钮组 -->
+        <div v-if="isGetDisplayMediaSupported"
+          class="relative min-w-[80px] h-12 border-none rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+          <button @click="toggleScreenShare"
+            class="min-w-[80px] h-full px-3 border-none shadow-lg flex flex-col items-center justify-center gap-1 rounded-lg"
+            :class="{
+              'bg-indigo-600 hover:bg-indigo-700 text-white': currentUser?.mediaState.screen,
+              'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
+                !currentUser?.mediaState.screen
+            }">
+            <ComputerDesktopIcon class="h-6 w-6" />
+            <span class="text-xs font-medium">{{
+              currentUser?.mediaState.screen
+                ? t('tools.webRtcMeeting.controls.stopScreenShare')
+                : t('tools.webRtcMeeting.controls.startScreenShare')
+            }}</span>
+          </button>
+
+          <!-- 桌面音频控制按钮 - 圆形图标，显示在屏幕共享按钮右下角 -->
+          <button v-if="currentUser?.mediaState.screen" @click="toggleDesktopAudio"
+            class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-200"
+            :class="{
+              'bg-green-500 hover:bg-green-600 text-white': currentUser?.mediaState.desktopAudio,
+              'bg-gray-400 hover:bg-gray-500 text-white': !currentUser?.mediaState.desktopAudio
+            }" :title="currentUser?.mediaState.desktopAudio
+              ? t('tools.webRtcMeeting.controls.muteDesktopAudio')
+              : t('tools.webRtcMeeting.controls.unmuteDesktopAudio')">
+            <SpeakerWaveIcon v-if="currentUser?.mediaState.desktopAudio" class="h-3 w-3" />
+            <SpeakerXMarkIcon v-else class="h-3 w-3" />
+          </button>
+        </div>
       </div>
       <div class="flex gap-3 items-center">
         <!-- 聊天按钮 -->
@@ -133,10 +150,8 @@
           <ChatBubbleLeftRightIcon class="h-6 w-6" />
           <span claFss="text-xs font-medium">{{ t('tools.webRtcMeeting.chat.title') }}</span>
           <!-- 未读消息计数 -->
-          <div
-            v-if="props.unreadMessagesCount > 0"
-            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold"
-          >
+          <div v-if="props.unreadMessagesCount > 0"
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold">
             {{ props.unreadMessagesCount > 99 ? '99+' : props.unreadMessagesCount }}
           </div>
         </button>
@@ -164,7 +179,7 @@ import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vu
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
 import { Modal as AModal, Message, Dropdown as ADropdown, Doption as ADoption } from '@arco-design/web-vue'
-import { ArrowRightIcon, MicrophoneIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline'
+import { ArrowRightIcon, MicrophoneIcon, ChatBubbleLeftRightIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/vue/24/outline'
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -235,20 +250,9 @@ async function fetchMediaDevices() {
 // 切换视频设备
 async function switchVideoDevice(deviceId: string) {
   if (currentVideoDeviceId.value === deviceId) return
-
   try {
-    currentVideoDeviceId.value = deviceId
-    // 如果当前正在使用摄像头，则重新启动
-    if (meetingStore.localStream && currentUser.value?.mediaState.video) {
-      // 在切换设备前，检查是否有屏幕共享流，如果有则停止
-      if (currentUser.value?.mediaState.screen) {
-        await meetingStore.stopScreenShare()
-      }
-
-      await meetingStore.stopCamera()
-      await meetingStore.startCamera(deviceId)
-      Message.success(t('tools.webRtcMeeting.controls.cameraSwitched'))
-    }
+    await meetingStore.switchVideoDevice(deviceId)
+    Message.success(t('tools.webRtcMeeting.controls.cameraSwitched'))
   } catch (error) {
     console.error('Failed to switch video device:', error)
     Message.error(t('tools.webRtcMeeting.controls.cameraSwitchFailed'))
@@ -261,25 +265,10 @@ async function switchAudioDevice(deviceId: string) {
 
   try {
     currentAudioDeviceId.value = deviceId
-    // 如果当前正在使用麦克风，则重新启动
-    if (meetingStore.localStream && currentUser.value?.mediaState.audio) {
-      // 注意：切换音频设备不需要停止屏幕共享，因为音频和视频是独立的
-      // 但我们需要确保在有屏幕共享时不启动摄像头音频
-      if (!currentUser.value?.mediaState.screen) {
-        await meetingStore.stopCamera()
-        await meetingStore.startCamera(currentVideoDeviceId.value || undefined)
-        Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
-      }
-    } else if (currentUser.value?.mediaState.screen) {
-      // 如果只有屏幕共享，也需要切换音频设备
-      // 先停止当前的屏幕共享
-      await meetingStore.stopScreenShare()
-      // 重新启动屏幕共享并指定音频设备
-      await meetingStore.startScreenShareWithAudio(deviceId)
+    const enabled = await meetingStore.switchAudioDevice(deviceId)
+    if (enabled) {
       Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
-    } else if (!meetingStore.localStream) {
-      // 如果没有视频流，但需要切换音频设备，创建一个仅音频的流
-      await meetingStore.startAudioOnly(deviceId)
+    } else {
       Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
     }
   } catch (error) {
@@ -299,35 +288,14 @@ async function toggleAudio() {
   } catch (error) {
     Message.error(`${t('tools.webRtcMeeting.controls.microphoneSwitchFailed')} ${error}`)
   }
-
 }
 
 async function toggleVideo() {
   try {
-    const hasVideoTrack =
-      meetingStore.localStream && meetingStore.localStream.getVideoTracks().length > 0
-    const isScreenSharing = currentUser.value?.mediaState.screen
-
-    if (!meetingStore.localStream || !hasVideoTrack) {
-      // 没有流或没有视频轨道，启动摄像头
-      await meetingStore.startCamera(
-        currentVideoDeviceId.value || undefined,
-      )
-      Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
-    } else if (isScreenSharing) {
-      // 正在屏幕共享，将屏幕共享 track 替换为摄像头 track
-      await meetingStore.startCamera(
-        currentVideoDeviceId.value || undefined,
-      )
-      Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
-    } else {
-      // 有摄像头视频轨道，切换启用状态
-      const enabled = meetingStore.toggleVideo()
-      if (enabled) {
-        Message.success(t('tools.webRtcMeeting.controls.turnOnCamera'))
-      } else {
-        Message.info(t('tools.webRtcMeeting.controls.turnOffCamera'))
-      }
+    const enabled = await meetingStore.toggleVideo(currentVideoDeviceId.value || undefined)
+    // 摄像头状态变化后，屏幕共享按钮需同步反映互斥关系
+    if (enabled && currentUser.value) {
+      currentUser.value.mediaState.screen = false
     }
   } catch (error) {
     Message.error(`${t('tools.webRtcMeeting.controls.turnOnCameraFailed')} ${error}`)
@@ -469,16 +437,32 @@ function toggleRecording() {
 async function toggleScreenShare() {
   try {
     if (currentUser.value?.mediaState.screen) {
-      // 停止屏幕共享，WebRTCService 会自动处理 track 替换
       await meetingStore.stopScreenShare()
+      // 屏幕共享关闭后，保持按钮状态一致
+      currentUser.value.mediaState.screen = false
       Message.info(t('tools.webRtcMeeting.controls.stopScreenShare'))
     } else {
-      // 启动屏幕共享，WebRTCService 会自动替换现有的 video track
       await meetingStore.startScreenShare()
+      // 启动屏幕共享会自动关闭摄像头
+      currentUser.value.mediaState.screen = true
+      currentUser.value.mediaState.video = false
       Message.success(t('tools.webRtcMeeting.controls.startScreenShare'))
     }
   } catch (error: any) {
     Message.error(`${t('tools.webRtcMeeting.controls.startScreenShareFailed')} ${error}`)
+  }
+}
+
+async function toggleDesktopAudio() {
+  try {
+    const enabled = await meetingStore.toggleDesktopAudio()
+    if (enabled) {
+      Message.success(t('tools.webRtcMeeting.controls.unmuteDesktopAudio'))
+    } else {
+      Message.info(t('tools.webRtcMeeting.controls.muteDesktopAudio'))
+    }
+  } catch (error: any) {
+    Message.error(`${t('tools.webRtcMeeting.controls.desktopAudioToggleFailed')} ${error}`)
   }
 }
 

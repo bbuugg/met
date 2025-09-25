@@ -2,19 +2,24 @@ package middleware
 
 import (
 	"errors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"meeting/internal/model/entity"
 	"meeting/internal/server/constants"
 	"meeting/pkg/api"
 	"meeting/pkg/database"
 	"net/http"
-
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func Authentication() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		//var user *entity.User
+		//database.DB(ctx).Where("name != ''").Order("rand()").Find(&user)
+		//
+		//ctx.Set(constants.UserKey, user)
+		//ctx.Next()
+		//return
 		session := sessions.Default(ctx)
 		userId, ok := session.Get(constants.UserIdKey).(uint)
 		if !ok || userId == 0 {

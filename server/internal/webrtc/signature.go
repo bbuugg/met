@@ -33,7 +33,7 @@ type SignatureResponse struct {
 // GenerateSignature generates a signature for joining a room
 func GenerateSignature(req SignatureRequest) (*SignatureResponse, error) {
 	// Validate required fields
-	if req.RoomId == "" || req.UserId == "" || req.Name == "" || req.Timestamp == 0 {
+	if req.RoomId == "" || req.UserId == "" || req.Timestamp == 0 {
 		return nil, ErrMissingRequiredFields
 	}
 

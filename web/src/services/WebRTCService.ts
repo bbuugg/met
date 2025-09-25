@@ -12,7 +12,12 @@ import {
 
 export class WebRTCService {
   private ws: WebSocket | null = null
-  private localStream: MediaStream
+  private readonly localStream: MediaStream
+  private audioTrack: MediaStreamTrack | null = null
+  private videoTrack: MediaStreamTrack | null = null
+  private desktopAudioTrack: MediaStreamTrack | null = null
+  private desktopVideoTrack: MediaStreamTrack | null = null
+  private mixedAudioTrack: MediaStreamTrack | null = null
   private peers: Map<string, PeerConnection> = new Map()
   private signedData: any
   private clientId: string
@@ -139,9 +144,9 @@ export class WebRTCService {
             })
 
             // 如果是重连后收到的all-clients消息，需要重新建立连接
-            if (this.reconnectAttempts > 0) {
-              await this.handlePeerJoined(client)
-            }
+            // if (this.reconnectAttempts > 0) {
+            //   await this.handlePeerJoined(client)
+            // }
           }
         }
         break
@@ -246,16 +251,14 @@ export class WebRTCService {
   private async handleAnswer(peerId: string, answer: RTCSessionDescriptionInit): Promise<void> {
     const peer = this.peers.get(peerId)
     if (peer) {
-      await peer.connection.setRemoteDescription(answer)
-      console.log(`Peer ${peerId} already has answer from createPeerConnection`)
       // Check connection state before setting remote description
-      // if (peer.connection.signalingState === 'have-local-offer') {
-      //   await peer.connection.setRemoteDescription(answer)
-      // } else {
-      //   console.warn(
-      //     `Cannot set remote answer, connection state: ${peer.connection.signalingState}`
-      //   )
-      // }
+      if (peer.connection.signalingState === 'have-local-offer') {
+        await peer.connection.setRemoteDescription(answer)
+      } else {
+        console.warn(
+          `Cannot set remote answer, connection state: ${peer.connection.signalingState}`
+        )
+      }
     } else {
       console.warn(`Peer ${peerId} not found`)
     }
@@ -341,12 +344,29 @@ export class WebRTCService {
       }
     }
 
+    // Handle ICE connection state changes
+    connection.oniceconnectionstatechange = () => {
+      console.log(`ICE connection state for peer ${peerId}:`, connection.iceConnectionState)
+
+      // 当 ICE 连接成功时，发送自己的媒体状态
+      if (
+        connection.iceConnectionState === 'connected' ||
+        connection.iceConnectionState === 'completed'
+      ) {
+        console.log(`WebRTC connection established with peer ${peerId}, sending media state`)
+        this.sendMediaStateToPeer(peerId)
+      }
+    }
+
     console.log('Creating peer connection for:', peerId)
 
     // Handle remote stream
     connection.ontrack = (event) => {
       const [remoteStream] = event.streams
-      console.log('Received remote stream from:', peerId)
+      if (!remoteStream) {
+        return
+      }
+      console.log('Received remote stream from:', peerId, remoteStream)
       this.onRemoteStream?.(peerId, remoteStream)
 
       const peer = this.peers.get(peerId)
@@ -367,31 +387,29 @@ export class WebRTCService {
       this.setupDataChannel(event.channel, peerId)
     }
 
-    if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => {
-        try {
-          // 为音频轨道添加额外的处理选项
-          if (track.kind === 'audio' && 'applyConstraints' in track) {
-            ;(track as MediaStreamTrack)
-              .applyConstraints({
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true
-              })
-              .catch((err) => {
-                console.warn('Failed to apply audio constraints:', err)
-              })
-          }
-
-          // 音频轨道保持其当前的启用状态，不强制设置为 mediaState
-          // 这样可以确保每个用户的音频状态独立管理
-
-          connection.addTrack(track, this.localStream!)
-        } catch (error) {
-          console.error(`Failed to add ${track.kind} track to new peer ${peerId}:`, error)
+    this.localStream.getTracks().forEach((track) => {
+      try {
+        // 为音频轨道添加额外的处理选项
+        if (track.kind === 'audio' && 'applyConstraints' in track) {
+          ;(track as MediaStreamTrack)
+            .applyConstraints({
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            })
+            .catch((err) => {
+              console.warn('Failed to apply audio constraints:', err)
+            })
         }
-      })
-    }
+
+        // 音频轨道保持其当前的启用状态，不强制设置为 mediaState
+        // 这样可以确保每个用户的音频状态独立管理
+
+        connection.addTrack(track, this.localStream!)
+      } catch (error) {
+        console.error(`Failed to add ${track.kind} track to new peer ${peerId}:`, error)
+      }
+    })
 
     const peerConnection: PeerConnection = {
       id: peerId,
@@ -406,6 +424,8 @@ export class WebRTCService {
   private setupDataChannel(dataChannel: RTCDataChannel, peerId: string): void {
     dataChannel.onopen = () => {
       console.log(`Data channel opened with ${peerId}`)
+      // 数据通道打开后立即发送自己的媒体状态
+      this.sendMediaStateToPeer(peerId)
     }
 
     dataChannel.onmessage = (event) => {
@@ -463,27 +483,34 @@ export class WebRTCService {
 
   async startCamera(videoDeviceId?: string): Promise<MediaStream> {
     try {
+      // 摄像头视频与屏幕共享互斥
+      if (this.mediaState.screen) {
+        await this.stopScreenShare()
+      }
+
       const constraints: MediaStreamConstraints = {
         video: videoDeviceId ? { deviceId: { exact: videoDeviceId } } : true,
         audio: false
       }
-      const newStream = await navigator.mediaDevices.getUserMedia(constraints)
-      const newVideoTrack = newStream.getVideoTracks()[0]
-      if (!this.localStream) {
-        this.localStream = new MediaStream()
-      }
-      // 移除旧 video track
+      const camStream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.videoTrack = camStream.getVideoTracks()[0]
+
+      // 替换本地视频轨道
       this.localStream.getVideoTracks().forEach((track) => {
-        this.localStream!.removeTrack(track)
+        this.localStream.removeTrack(track)
         track.stop()
       })
-      // 添加新 video track
-      this.localStream.addTrack(newVideoTrack)
+      if (this.videoTrack) {
+        this.localStream.addTrack(this.videoTrack)
+        this.videoTrack.onended = () => {
+          this.stopCamera()
+        }
+      }
+
       this.mediaState.video = true
       this.mediaState.screen = false
       this.broadcastMediaState()
-      // 替换所有 peer 的 video track
-      await this.replaceVideoTrack(newVideoTrack)
+      await this.replaceVideoTrack(this.videoTrack)
       return this.localStream
     } catch (error) {
       console.error('Error accessing camera:', error)
@@ -493,35 +520,44 @@ export class WebRTCService {
 
   async startScreenShare(): Promise<MediaStream> {
     try {
+      // 与摄像头视频互斥
+      if (this.mediaState.video) {
+        await this.stopCamera()
+      }
+
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true
       })
       const screenVideoTrack = screenStream.getVideoTracks()[0]
-      if (!this.localStream) {
-        this.localStream = new MediaStream()
-      }
-      // 移除旧 video track
+      const screenAudioTrack = screenStream.getAudioTracks()[0] || null
+
+      this.desktopVideoTrack = screenVideoTrack
+      this.desktopAudioTrack = screenAudioTrack
+
+      // 替换本地视频为屏幕视频
       this.localStream.getVideoTracks().forEach((track) => {
-        this.localStream!.removeTrack(track)
+        this.localStream.removeTrack(track)
         track.stop()
       })
-      // 添加屏幕共享 video track
-      this.localStream.addTrack(screenVideoTrack)
+      if (this.desktopVideoTrack) {
+        this.localStream.addTrack(this.desktopVideoTrack)
+        this.desktopVideoTrack.onended = () => {
+          this.stopScreenShare()
+        }
+      }
+
       this.mediaState.screen = true
       this.mediaState.video = false
-      this.mediaState.desktopAudio = true
-      // 屏幕音频 track 处理
-      if (!this.mediaState.audio) {
-        screenStream.getAudioTracks().forEach((track) => (track.enabled = false))
+      this.mediaState.desktopAudio = !!this.desktopAudioTrack
+
+      if (this.desktopAudioTrack) {
+        this.desktopAudioTrack.enabled = true
       }
+
       this.broadcastMediaState()
-      // 替换所有 peer 的 video track
-      await this.replaceVideoTrack(screenVideoTrack)
-      // 屏幕共享结束时回退
-      screenVideoTrack.onended = () => {
-        this.stopScreenShare()
-      }
+      await this.replaceVideoTrack(this.desktopVideoTrack)
+      await this.replaceAudioTrack(await this.createMixedAudioTrack())
       return this.localStream
     } catch (error) {
       console.error('Error starting screen share:', error)
@@ -533,140 +569,320 @@ export class WebRTCService {
     if (this.localStream) {
       // 移除屏幕 video track
       this.localStream.getVideoTracks().forEach((track) => {
-        this.localStream!.removeTrack(track)
+        this.localStream.removeTrack(track)
         track.stop()
       })
+
+      // 停止并清理桌面音频引用
+      if (this.desktopAudioTrack) {
+        try {
+          this.desktopAudioTrack.stop()
+        } catch {}
+      }
+      this.desktopAudioTrack = null
+
       this.mediaState.screen = false
       this.mediaState.video = false
+      this.mediaState.desktopAudio = false
       this.broadcastMediaState()
 
-      // 通知所有 peer 移除 video track
       await this.replaceVideoTrack(null)
+      await this.replaceAudioTrack(await this.createMixedAudioTrack())
     }
   }
 
   async toggleAudio(deviceId?: string): Promise<boolean> {
-    if (!this.mediaState.audio) {
-      // 检查是否已有音频轨道
-      const existingAudioTrack = this.localStream.getAudioTracks()[0]
+    if (!this.audioTrack) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        },
+        video: false
+      })
 
-      if (existingAudioTrack) {
-        // 如果已有音频轨道，启用它
-        existingAudioTrack.enabled = true
-        this.mediaState.audio = true
-        // 不需要调用 replaceAudioTrack，因为轨道已经存在，只是启用状态改变
-      } else {
-        // 如果没有音频轨道，创建新的
-        const audioStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            deviceId: deviceId ? { exact: deviceId } : undefined,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          },
-          video: false
-        })
-        const newAudioTrack = audioStream.getAudioTracks()[0]
-
-        // 添加新 audio track
-        this.localStream.addTrack(newAudioTrack)
-        this.mediaState.audio = true
-
-        // 替换所有 peer 的 audio track
-        await this.replaceAudioTrack(newAudioTrack)
-      }
-    } else {
-      // 关闭音频 - 只禁用 track，不移除
-      if (this.localStream) {
-        this.localStream.getAudioTracks().forEach((track) => {
-          track.enabled = false
-        })
-      }
-      this.mediaState.audio = false
+      this.audioTrack = stream.getAudioTracks()[0]
     }
-
+    console.log(
+      'toggleAudio',
+      this.audioTrack.enabled,
+      this.mediaState.audio,
+      this.audioTrack,
+      this.localStream
+    )
+    // 切换 mic 状态（enable/disable）并替换给 peers
+    this.mediaState.audio = !this.mediaState.audio
+    this.audioTrack.enabled = this.mediaState.audio
+    await this.replaceAudioTrack(await this.createMixedAudioTrack())
     this.broadcastMediaState()
     return this.mediaState.audio
+  }
+
+  // 切换麦克风设备（保持当前音频开关状态）
+  async switchAudioDevice(deviceId?: string): Promise<boolean> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        },
+        video: false
+      })
+
+      // 替换当前麦克风轨道
+      const newMic = stream.getAudioTracks()[0]
+      if (this.audioTrack) {
+        try {
+          this.audioTrack.stop()
+        } catch {}
+      }
+      this.audioTrack = newMic
+      // 若当前音频开关为开启，则保持开启
+      if (this.mediaState.audio) {
+        this.audioTrack.enabled = true
+      } else {
+        this.audioTrack.enabled = false
+      }
+
+      await this.replaceAudioTrack(await this.createMixedAudioTrack())
+      this.broadcastMediaState()
+      return this.mediaState.audio
+    } catch (error) {
+      console.error('Failed to switch audio device:', error)
+      throw error
+    }
+  }
+
+  getLocalStream(): MediaStream | null {
+    return this.localStream
+  }
+
+  // 切换桌面音频（独立于麦克风音频）
+  async toggleDesktopAudio(): Promise<boolean> {
+    console.log('toggleDesktopAudio', this.localStream, this.mediaState.screen)
+    if (!this.mediaState.screen || !this.desktopAudioTrack) {
+      return false // 只有在屏幕共享时才能控制桌面音频
+    }
+
+    const newState = !this.mediaState.desktopAudio
+    this.desktopAudioTrack.enabled = newState
+
+    this.mediaState.desktopAudio = newState
+    this.broadcastMediaState()
+
+    // 更新音频轨道（混合或单一）
+    await this.replaceAudioTrack(await this.createMixedAudioTrack())
+
+    return this.mediaState.desktopAudio
+  }
+
+  // 创建混合音频轨道（同时支持麦克风和桌面音频）
+  private async createMixedAudioTrack(): Promise<MediaStreamTrack | null> {
+    const micEnabled = !!this.audioTrack && this.mediaState.audio
+    const deskEnabled = !!this.desktopAudioTrack && this.mediaState.desktopAudio
+
+    if (!micEnabled && !deskEnabled) {
+      return null
+    }
+
+    if (micEnabled && deskEnabled && this.audioTrack && this.desktopAudioTrack) {
+      return await this.mixAudioTracks(this.audioTrack, this.desktopAudioTrack)
+    }
+
+    if (micEnabled && this.audioTrack) return this.audioTrack
+    if (deskEnabled && this.desktopAudioTrack) return this.desktopAudioTrack
+    return null
+  }
+
+  // 混合两个音频轨道
+  private async mixAudioTracks(
+    micTrack: MediaStreamTrack,
+    desktopTrack: MediaStreamTrack
+  ): Promise<MediaStreamTrack> {
+    try {
+      // 创建 AudioContext 来混合音频
+      const audioContext = new AudioContext()
+
+      // 创建音频源
+      const micStream = new MediaStream([micTrack])
+      const desktopStream = new MediaStream([desktopTrack])
+
+      const micSource = audioContext.createMediaStreamSource(micStream)
+      const desktopSource = audioContext.createMediaStreamSource(desktopStream)
+
+      // 创建增益节点来控制音量
+      const micGain = audioContext.createGain()
+      const desktopGain = audioContext.createGain()
+
+      // 设置音量（可以根据需要调整）
+      micGain.gain.value = 1.0 // 麦克风音量
+      desktopGain.gain.value = 0.7 // 桌面音频音量稍低，避免过响
+
+      // 创建混合器
+      const mixer = audioContext.createGain()
+
+      // 连接音频节点
+      micSource.connect(micGain)
+      desktopSource.connect(desktopGain)
+      micGain.connect(mixer)
+      desktopGain.connect(mixer)
+
+      // 创建输出流
+      const destination = audioContext.createMediaStreamDestination()
+      mixer.connect(destination)
+
+      const mixed = destination.stream.getAudioTracks()[0]
+      // 保存当前混合输出轨，用于后续替换时正确停止
+      this.mixedAudioTrack = mixed
+      return mixed
+    } catch (error) {
+      console.warn('Failed to mix audio tracks, falling back to mic track:', error)
+      return micTrack // 如果混合失败，回退到麦克风
+    }
   }
 
   // 替换所有 peer 的 audio track
   private async replaceAudioTrack(newTrack: MediaStreamTrack | null): Promise<void> {
     const promises: Promise<void>[] = []
+
+    // 保持本地流仅有一个音频轨道（混合后的或单一）
+    this.localStream.getAudioTracks().forEach((track) => {
+      try {
+        this.localStream.removeTrack(track)
+        // 停止旧的混合输出轨，避免残留
+        if (this.mixedAudioTrack && track === this.mixedAudioTrack) {
+          try {
+            track.stop()
+          } catch {}
+          this.mixedAudioTrack = null
+        }
+      } catch {}
+    })
+    if (newTrack) {
+      this.localStream.addTrack(newTrack)
+    }
+
     this.peers.forEach((peer, peerId) => {
       const senders = peer.connection.getSenders()
-
-      // 更准确地查找音频发送器
-      let audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
-
-      // 如果没有找到有音频轨道的发送器，查找可能的音频发送器
+      const audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
       if (!audioSender) {
-        // 通过检查发送器的参数来识别音频发送器
-        audioSender = senders.find((s) => {
-          if (!s.track) {
-            // 检查发送器的编解码器参数
-            const params = s.getParameters()
-            if (params.codecs && params.codecs.length > 0) {
-              // 音频编解码器通常包含 opus, pcmu, pcma 等
-              return params.codecs.some(
-                (codec) =>
-                  codec.mimeType.toLowerCase().includes('audio') ||
-                  codec.mimeType.toLowerCase().includes('opus') ||
-                  codec.mimeType.toLowerCase().includes('pcmu') ||
-                  codec.mimeType.toLowerCase().includes('pcma')
-              )
-            }
-            // 如果没有编解码器信息，检查 DTMF 支持（只有音频发送器支持）
-            return s.dtmf !== undefined
+        if (newTrack) {
+          try {
+            peer.connection.addTrack(newTrack, this.localStream)
+          } catch (e) {
+            console.warn('Failed to add audio track, will renegotiate', e)
           }
-          return false
-        })
-      }
-
-      if (audioSender) {
-        console.log(`Replacing audio track for peer ${peerId}, newTrack:`, newTrack)
-        promises.push(
-          audioSender.replaceTrack(newTrack).catch((error) => {
-            console.error(`Failed to replace audio track for peer ${peerId}:`, error)
-            return this.renegotiateConnection(peerId)
-          })
-        )
+          promises.push(this.renegotiateConnection(peerId))
+        } else {
+          // 没有发送器且无新轨，不需要操作
+        }
       } else {
-        console.log(`No audio sender found for peer ${peerId}, renegotiating`)
-        promises.push(this.renegotiateConnection(peerId))
+        if (newTrack) {
+          promises.push(
+            audioSender
+              .replaceTrack(newTrack)
+              .then(() => this.renegotiateConnection(peerId))
+              .catch((error) => {
+                console.error(`Failed to replace audio track for peer ${peerId}:`, error)
+                return this.renegotiateConnection(peerId)
+              })
+          )
+        } else {
+          // 禁用音频：移除发送器并重新协商
+          try {
+            peer.connection.removeTrack(audioSender)
+          } catch (e) {
+            console.warn('Failed to remove audio sender', e)
+          }
+          promises.push(this.renegotiateConnection(peerId))
+        }
       }
     })
     await Promise.all(promises)
   }
 
-  toggleVideo(): boolean {
-    if (this.localStream) {
-      const videoTrack = this.localStream.getVideoTracks()[0]
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled
-        this.mediaState.video = videoTrack.enabled
-        this.broadcastMediaState()
-        return videoTrack.enabled
+  async toggleVideo(deviceId?: string) {
+    if (!this.videoTrack) {
+      const constraints: MediaStreamConstraints = {
+        video: deviceId ? { deviceId: { exact: deviceId } } : true,
+        audio: false
       }
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.videoTrack = stream.getVideoTracks()[0]
+      console.log('Started camera with video device:', deviceId)
     }
-    return false
+
+    // 打开摄像头时关闭屏幕共享
+    if (!this.mediaState.video && this.mediaState.screen) {
+      await this.stopScreenShare()
+    }
+
+    if (!this.mediaState.video) {
+      this.localStream.getVideoTracks().forEach((track) => {
+        this.localStream.removeTrack(track)
+      })
+      this.localStream.addTrack(this.videoTrack)
+      await this.replaceVideoTrack(this.videoTrack)
+      this.mediaState.video = true
+    } else {
+      await this.replaceVideoTrack(null)
+      this.localStream.getVideoTracks().forEach((track) => this.localStream.removeTrack(track))
+      this.mediaState.video = false
+    }
+    this.videoTrack.enabled = this.mediaState.video
+    this.broadcastMediaState()
+    return this.mediaState.video
+  }
+
+  async toggleScreenShare() {
+    if (!this.mediaState.screen) {
+      await this.startScreenShare()
+      return true
+    } else {
+      await this.stopScreenShare()
+      return false
+    }
+  }
+
+  async switchVideoDevice(deviceId?: string) {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: deviceId ? { exact: deviceId } : undefined
+      }
+    })
+    this.videoTrack = stream.getVideoTracks()[0]
+    this.localStream.getVideoTracks().forEach((track) => {
+      this.localStream.removeTrack(track)
+      track.stop()
+    })
+    this.localStream.addTrack(this.videoTrack)
   }
 
   async stopCamera(): Promise<void> {
-    if (this.localStream) {
-      this.localStream.getTracks().forEach((track) => {
-        this.localStream?.removeTrack(track)
+    // Remove and stop local video tracks
+    const vids = this.localStream.getVideoTracks()
+    vids.forEach((track) => {
+      try {
+        this.localStream.removeTrack(track)
         track.stop()
-      })
-      this.mediaState.video = false
-      this.mediaState.audio = false
-      this.broadcastMediaState()
-
-      // Renegotiate to remove camera tracks
-      if (this.peers.size > 0) {
-        console.log('Renegotiating connections after stopping camera')
-        await this.renegotiateAllConnections()
-      }
+      } catch {}
+    })
+    if (this.videoTrack) {
+      try {
+        this.videoTrack.stop()
+      } catch {}
     }
+    this.videoTrack = null
+
+    // Update state and notify peers
+    this.mediaState.video = false
+    this.broadcastMediaState()
+
+    await this.replaceVideoTrack(null)
   }
 
   sendChatMessage(name: string, content: string): void {
@@ -810,6 +1026,25 @@ export class WebRTCService {
     })
   }
 
+  // 向特定 peer 发送媒体状态
+  private sendMediaStateToPeer(peerId: string): void {
+    const peer = this.peers.get(peerId)
+    if (peer && peer.dataChannel && peer.dataChannel.readyState === 'open') {
+      const message = JSON.stringify({
+        type: 'media-state',
+        mediaState: this.mediaState
+      })
+      try {
+        peer.dataChannel.send(message)
+        console.log(`Sent media state to peer ${peerId}:`, this.mediaState)
+      } catch (error) {
+        console.error(`Failed to send media state to peer ${peerId}:`, error)
+      }
+    } else {
+      console.log(`Cannot send media state to peer ${peerId}: data channel not ready`)
+    }
+  }
+
   private broadcastToDataChannels(data: any): void {
     const message = JSON.stringify(data)
     this.peers.forEach((peer) => {
@@ -840,17 +1075,32 @@ export class WebRTCService {
       const videoSender = senders.find((s) => s.track && s.track.kind === 'video')
 
       if (videoSender) {
-        console.log(`Replacing video track for peer ${peerId}`)
-        promises.push(
-          videoSender.replaceTrack(newTrack).catch((error) => {
-            console.error(`Failed to replace track for peer ${peerId}:`, error)
-            // If replaceTrack fails, try renegotiation
-            return this.renegotiateConnection(peerId)
-          })
-        )
+        if (newTrack) {
+          console.log(`Replacing video track for peer ${peerId}`)
+          promises.push(
+            videoSender
+              .replaceTrack(newTrack)
+              .then(() => this.renegotiateConnection(peerId))
+              .catch((error) => {
+                console.error(`Failed to replace track for peer ${peerId}:`, error)
+                return this.renegotiateConnection(peerId)
+              })
+          )
+        } else {
+          try {
+            peer.connection.removeTrack(videoSender)
+          } catch (error) {
+            console.warn(`Failed to remove video sender for peer ${peerId}:`, error)
+          }
+          promises.push(this.renegotiateConnection(peerId))
+        }
       } else if (newTrack) {
-        // Only renegotiate if we're adding a new track
-        console.log(`No video sender found for peer ${peerId}, need renegotiation`)
+        // If there's no existing video sender, add one and renegotiate
+        try {
+          peer.connection.addTrack(newTrack, this.localStream)
+        } catch (error) {
+          console.warn(`Failed to add video track for peer ${peerId}:`, error)
+        }
         promises.push(this.renegotiateConnection(peerId))
       }
     })

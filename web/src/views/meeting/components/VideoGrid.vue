@@ -24,20 +24,18 @@
           <!-- 视频元素 -->
           <video ref="localVideoRef" autoplay muted playsinline
             class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-            :class="{ 'opacity-0': isLocalAudioOnly }" :style="{ display: isLocalAudioOnly ? 'none' : 'block' }" />
+            :class="{ 'opacity-0': !showLocalVideo }" :style="{ display: !showLocalVideo ? 'none' : 'block' }" />
 
           <!-- 只有音频时显示头像占位符 -->
-          <div v-if="isLocalAudioOnly"
+          <div v-if="!showLocalVideo"
             class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
             <div class="text-center">
-              <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
-                <img
-                  v-if="currentUser?.avatar"
-                  :src="currentUser.avatar"
-                  :alt="currentUser?.name || 'You'"
-                  class="w-full h-full object-cover"
-                />
-                <span v-else class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y' }}</span>
+              <div
+                class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
+                <img v-if="currentUser?.avatar" :src="currentUser.avatar" :alt="currentUser?.name || 'You'"
+                  class="w-full h-full object-cover" />
+                <span v-else class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y'
+                }}</span>
               </div>
               <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
             </div>
@@ -74,21 +72,19 @@
             <!-- 视频元素 -->
             <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
               class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-              :class="{ 'opacity-0': isAudioOnlyParticipant(participant.id) }"
-              :style="{ display: isAudioOnlyParticipant(participant.id) ? 'none' : 'block' }" />
+              :class="{ 'opacity-0': !showRemoteVideo(participant.id) }"
+              :style="{ display: !showRemoteVideo(participant.id) ? 'none' : 'block' }" />
 
-            <!-- 只有音频时显示头像占位符 -->
-            <div v-if="isAudioOnlyParticipant(participant.id)"
+            <!-- 只有音频或无视频时显示头像占位符 -->
+            <div v-if="!showRemoteVideo(participant.id)"
               class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
               <div class="text-center">
-                <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
-                  <img
-                    v-if="participant.avatar"
-                    :src="participant.avatar"
-                    :alt="participant.name || 'User'"
-                    class="w-full h-full object-cover"
-                  />
-                  <span v-else class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U' }}</span>
+                <div
+                  class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
+                  <img v-if="participant.avatar" :src="participant.avatar" :alt="participant.name || 'User'"
+                    class="w-full h-full object-cover" />
+                  <span v-else class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U'
+                  }}</span>
                 </div>
                 <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
               </div>
@@ -171,26 +167,24 @@ const participantsWithStreams = computed(() => {
   return remoteParticipants.value
 })
 
-// 计算属性：检查参与者是否只有音频流或没有流
-const isAudioOnlyParticipant = (participantId: string) => {
-  const stream = meetingStore.remoteStreams.get(participantId)
-  // 如果没有流，或者只有音频流，都显示头像
-  if (!stream || !stream.active) return true
-  return stream.getAudioTracks().length > 0 && stream.getVideoTracks().length === 0
+// 显示本地视频：基于媒体状态（摄像头或屏幕共享任一开启）
+const showLocalVideo = computed(() => !!currentUser.value && (
+  !!currentUser.value.mediaState?.video || !!currentUser.value.mediaState?.screen
+))
+
+// 显示远端视频：基于对方媒体状态（摄像头或屏幕共享任一开启）
+function showRemoteVideo(participantId: string): boolean {
+  const p = meetingStore.participants.get(participantId)
+  if (!p) return false
+  return !!p.mediaState?.video || !!p.mediaState?.screen
 }
 
-// 计算属性：检查本地流是否只有音频或没有流
-const isLocalAudioOnly = computed(() => {
-  if (!localStream.value) return true
-  return localStream.value.getAudioTracks().length > 0 && localStream.value.getVideoTracks().length === 0
-})
-
-// 修改gridClass计算属性，基于所有参与者数量
+// 修改gridClass计算属性，基于当前正在显示的视频数量（摄像头或屏幕共享开启的）
 const gridClass = computed(() => {
-  // 计算本地用户和所有远程参与者
-  const localUserCount = currentUser.value ? 1 : 0
-  const remoteParticipantCount = participantsWithStreams.value.length
-  let totalParticipants = localUserCount + remoteParticipantCount
+  // 计算当前显示的视频数量
+  const localVideoCount = showLocalVideo.value ? 1 : 0
+  const remoteVideoCount = participantsWithStreams.value.filter((p) => showRemoteVideo(p.id)).length
+  let totalParticipants = localVideoCount + remoteVideoCount
 
   if (fullscreenParticipantId.value) {
     totalParticipants = 1
@@ -259,22 +253,7 @@ watch(
   localStream,
   (newStream) => {
     if (localVideoRef.value) {
-      console.log('Setting local video stream:', newStream)
-      if (newStream && newStream.active) {
-        console.log('Local stream tracks:', newStream.getTracks())
-        newStream.getTracks().forEach((track) => {
-          console.log('Track info:', track.kind, track.label, track.readyState)
-          // @ts-ignore
-          if (track.getSettings) {
-            // @ts-ignore
-            console.log('Track settings:', track.getSettings())
-          }
-        })
-        localVideoRef.value.srcObject = newStream
-      } else {
-        // 如果没有流或流不活跃，清空 srcObject
-        localVideoRef.value.srcObject = null
-      }
+      localVideoRef.value.srcObject = newStream
     }
   },
   { immediate: true }
