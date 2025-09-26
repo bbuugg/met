@@ -179,21 +179,20 @@ function showRemoteVideo(participantId: string): boolean {
   return !!p.mediaState?.video || !!p.mediaState?.screen
 }
 
-// 修改gridClass计算属性，基于当前正在显示的视频数量（摄像头或屏幕共享开启的）
+// 网格列数：基于当前实际可见的网格项数量（无论是否有视频）
 const gridClass = computed(() => {
-  // 计算当前显示的视频数量
-  const localVideoCount = showLocalVideo.value ? 1 : 0
-  const remoteVideoCount = participantsWithStreams.value.filter((p) => showRemoteVideo(p.id)).length
-  let totalParticipants = localVideoCount + remoteVideoCount
+  // 计算当前实际显示的卡片数量（local + remote），与模板中的 v-show/v-if 条件一致
+  const showsLocal = !!currentUser.value && (!fullscreenParticipantId.value || fullscreenParticipantId.value === 'local')
+  const visibleRemoteCount = participantsWithStreams.value.filter(
+    (p) => !fullscreenParticipantId.value || fullscreenParticipantId.value === p.id
+  ).length
 
-  if (fullscreenParticipantId.value) {
-    totalParticipants = 1
-  }
+  const totalTiles = (showsLocal ? 1 : 0) + visibleRemoteCount
 
-  if (totalParticipants <= 1) return 'grid-cols-1'
-  if (totalParticipants <= 2) return 'grid-cols-2'
-  if (totalParticipants <= 4) return 'grid-cols-2 grid-rows-2'
-  if (totalParticipants <= 6) return 'grid-cols-3 grid-rows-2'
+  if (totalTiles <= 1) return 'grid-cols-1'
+  if (totalTiles <= 2) return 'grid-cols-2'
+  if (totalTiles <= 4) return 'grid-cols-2 grid-rows-2'
+  if (totalTiles <= 6) return 'grid-cols-3 grid-rows-2'
   return 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]'
 })
 
