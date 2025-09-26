@@ -75,7 +75,8 @@
             'rounded-lg': videoDevices.length <= 1,
             'rounded-l-lg': videoDevices.length > 1
           }">
-            <VideoCameraIcon class="h-6 w-6" />
+            <VideoCameraIcon v-if="!currentUser?.mediaState.video" class="h-6 w-6" />
+            <VideoCameraSlashIcon v-else class="h-6 w-6" />
             <span class="text-xs font-medium">{{
               currentUser?.mediaState.video
                 ? t('tools.webRtcMeeting.controls.turnOffCamera')
@@ -126,8 +127,7 @@
           </button>
 
           <!-- 桌面音频控制按钮 - 仅当屏幕共享且存在桌面音频轨道时显示 -->
-          <button v-if="currentUser?.mediaState.screen && hasDesktopAudioTrack"
-            @click="toggleDesktopAudio"
+          <button v-if="currentUser?.mediaState.screen && hasDesktopAudioTrack" @click="toggleDesktopAudio"
             class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-200"
             :class="{
               'bg-green-500 hover:bg-green-600 text-white': currentUser?.mediaState.desktopAudio,
@@ -185,7 +185,8 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ComputerDesktopIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  VideoCameraSlashIcon
 } from '@heroicons/vue/24/solid'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
