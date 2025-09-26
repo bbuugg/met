@@ -47,3 +47,8 @@ export async function getMediaDevices() {
 
   return [videoDevices, audioDevices, audioOutputDevices]
 }
+
+export function handleAvatarError(event: Event) {
+  const target = event.target as HTMLImageElement
+  target.src = '/images/avatar.svg'
+}

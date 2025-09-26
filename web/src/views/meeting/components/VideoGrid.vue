@@ -2,8 +2,10 @@
   <div class="flex flex-col h-full">
     <div class="h-72 md:h-full">
       <!-- 当没有任何参与者时显示提示 -->
-      <div v-show="!currentUser && participantsWithStreams.length === 0"
-        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl">
+      <div
+        v-show="!currentUser && participantsWithStreams.length === 0"
+        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl"
+      >
         <div class="text-center p-8">
           <VideoCameraIcon class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
           <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -16,25 +18,45 @@
       </div>
 
       <!-- 视频网格 -->
-      <div class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-2xl" :class="gridClass">
+      <div
+        class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-2xl"
+        :class="gridClass"
+      >
         <!-- Local video - always show if current user exists -->
-        <div v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
-
+        <div
+          v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
+          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
+        >
           <!-- 视频元素 -->
-          <video ref="localVideoRef" autoplay muted playsinline
+          <video
+            ref="localVideoRef"
+            autoplay
+            muted
+            playsinline
             class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
-            :class="{ 'opacity-0': !showLocalVideo }" :style="{ display: !showLocalVideo ? 'none' : 'block' }" />
+            :class="{ 'opacity-0': !showLocalVideo }"
+            :style="{ display: !showLocalVideo ? 'none' : 'block' }"
+          />
 
           <!-- 只有音频时显示头像占位符 -->
-          <div v-if="!showLocalVideo"
-            class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+          <div
+            v-if="!showLocalVideo"
+            class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600"
+          >
             <div class="text-center">
               <div
-                class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
-                <img v-if="currentUser?.avatar" :src="currentUser.avatar" :alt="currentUser?.name || 'You'"
-                  class="w-full h-full object-cover" />
-                <span v-else class="text-3xl font-bold text-white">{{ currentUser?.name?.charAt(0).toUpperCase() || 'Y'
+                class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden"
+              >
+                <img
+                  referrerpolicy="no-referrer"
+                  @error="handleAvatarError"
+                  v-if="currentUser?.avatar"
+                  :src="currentUser.avatar"
+                  :alt="currentUser?.name || 'You'"
+                  class="w-full h-full object-cover"
+                />
+                <span v-else class="text-3xl font-bold text-white">{{
+                  currentUser?.name?.charAt(0).toUpperCase() || 'Y'
                 }}</span>
               </div>
               <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
@@ -42,22 +64,31 @@
           </div>
 
           <div
-            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
+          >
             <div class="flex justify-between items-center">
               <span class="text-white font-semibold text-sm shadow-md">{{
                 `${currentUser?.name} (${t('tools.webRtcMeeting.you')})`
               }}</span>
               <div class="flex gap-2 items-center">
-                <MicrophoneDisabledIcon class="h-4 w-4 text-red-400 shadow-md" v-if="!currentUser?.mediaState.audio" />
+                <MicrophoneDisabledIcon
+                  class="h-4 w-4 text-red-400 shadow-md"
+                  v-if="!currentUser?.mediaState.audio"
+                />
                 <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
-                <ComputerDesktopIcon v-if="currentUser?.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
+                <ComputerDesktopIcon
+                  v-if="currentUser?.mediaState.screen"
+                  class="h-4 w-4 text-blue-400 shadow-md"
+                />
               </div>
             </div>
           </div>
           <!-- Local video controls -->
           <div class="video-controls absolute top-2.5 right-2.5 z-10">
-            <button @click="toggleFullscreen('local')"
-              class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
+            <button
+              @click="toggleFullscreen('local')"
+              class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
+            >
               <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-5 w-5" />
               <ArrowsPointingOutIcon v-else class="h-5 w-5" />
             </button>
@@ -66,24 +97,39 @@
 
         <!-- Remote videos - only show participants with streams -->
         <template v-for="participant in participantsWithStreams" :key="participant.id">
-          <div v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
-            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center">
-
+          <div
+            v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
+            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
+          >
             <!-- 视频元素 -->
-            <video :ref="(el) => setRemoteVideoRef(participant.id, el)" autoplay playsinline
+            <video
+              :ref="(el) => setRemoteVideoRef(participant.id, el)"
+              autoplay
+              playsinline
               class="video-element remote absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-full max-h-full object-contain w-full h-full"
               :class="{ 'opacity-0': !showRemoteVideo(participant.id) }"
-              :style="{ display: !showRemoteVideo(participant.id) ? 'none' : 'block' }" />
+              :style="{ display: !showRemoteVideo(participant.id) ? 'none' : 'block' }"
+            />
 
             <!-- 只有音频或无视频时显示头像占位符 -->
-            <div v-if="!showRemoteVideo(participant.id)"
-              class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
+            <div
+              v-if="!showRemoteVideo(participant.id)"
+              class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600"
+            >
               <div class="text-center">
                 <div
-                  class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden">
-                  <img v-if="participant.avatar" :src="participant.avatar" :alt="participant.name || 'User'"
-                    class="w-full h-full object-cover" />
-                  <span v-else class="text-3xl font-bold text-white">{{ participant.name?.charAt(0).toUpperCase() || 'U'
+                  class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden"
+                >
+                  <img
+                    referrerpolicy="no-referrer"
+                    @error="handleAvatarError"
+                    v-if="participant.avatar"
+                    :src="participant.avatar"
+                    :alt="participant.name || 'User'"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-3xl font-bold text-white">{{
+                    participant.name?.charAt(0).toUpperCase() || 'U'
                   }}</span>
                 </div>
                 <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
@@ -91,30 +137,47 @@
             </div>
 
             <div
-              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl">
+              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
+            >
               <div class="participant-info flex justify-between items-center">
                 <span class="participant-name text-white font-semibold text-sm shadow-md">{{
                   participant.name
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
-                  <MicrophoneDisabledIcon v-if="!participant.mediaState.audio" class="h-4 w-4 text-red-400 shadow-md" />
+                  <MicrophoneDisabledIcon
+                    v-if="!participant.mediaState.audio"
+                    class="h-4 w-4 text-red-400 shadow-md"
+                  />
                   <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
-                  <VideoCameraIcon v-if="participant.mediaState.video" class="h-4 w-4 text-blue-400 shadow-md" />
-                  <ComputerDesktopIcon v-if="participant.mediaState.screen" class="h-4 w-4 text-blue-400 shadow-md" />
+                  <VideoCameraIcon
+                    v-if="participant.mediaState.video"
+                    class="h-4 w-4 text-blue-400 shadow-md"
+                  />
+                  <ComputerDesktopIcon
+                    v-if="participant.mediaState.screen"
+                    class="h-4 w-4 text-blue-400 shadow-md"
+                  />
                 </div>
               </div>
             </div>
 
             <!-- Remote video controls -->
             <div class="video-controls absolute top-2.5 right-2.5 z-10 flex gap-2">
-              <button @click="toggleFullscreen(participant.id)"
-                class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110">
-                <ArrowsPointingInIcon v-if="fullscreenParticipantId === participant.id" class="h-5 w-5" />
+              <button
+                @click="toggleFullscreen(participant.id)"
+                class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
+              >
+                <ArrowsPointingInIcon
+                  v-if="fullscreenParticipantId === participant.id"
+                  class="h-5 w-5"
+                />
                 <ArrowsPointingOutIcon v-else class="h-5 w-5" />
               </button>
-              <button @click="toggleRemoteAudio(participant.id)"
+              <button
+                @click="toggleRemoteAudio(participant.id)"
                 class="control-button ml-2 w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-                :class="{ 'text-red-500': isRemoteAudioMuted(participant.id) }">
+                :class="{ 'text-red-500': isRemoteAudioMuted(participant.id) }"
+              >
                 <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="h-5 w-5" />
                 <SpeakerXMarkIcon v-else class="h-5 w-5" />
               </button>
@@ -129,6 +192,7 @@
 <script setup lang="ts">
 import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
 import { useMeetingStore } from '@/stores/meeting'
+import { handleAvatarError } from '@/utils/helper'
 import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
@@ -168,9 +232,11 @@ const participantsWithStreams = computed(() => {
 })
 
 // 显示本地视频：基于媒体状态（摄像头或屏幕共享任一开启）
-const showLocalVideo = computed(() => !!currentUser.value && (
-  !!currentUser.value.mediaState?.video || !!currentUser.value.mediaState?.screen
-))
+const showLocalVideo = computed(
+  () =>
+    !!currentUser.value &&
+    (!!currentUser.value.mediaState?.video || !!currentUser.value.mediaState?.screen)
+)
 
 // 显示远端视频：基于对方媒体状态（摄像头或屏幕共享任一开启）
 function showRemoteVideo(participantId: string): boolean {
@@ -182,7 +248,9 @@ function showRemoteVideo(participantId: string): boolean {
 // 网格列数：基于当前实际可见的网格项数量（无论是否有视频）
 const gridClass = computed(() => {
   // 计算当前实际显示的卡片数量（local + remote），与模板中的 v-show/v-if 条件一致
-  const showsLocal = !!currentUser.value && (!fullscreenParticipantId.value || fullscreenParticipantId.value === 'local')
+  const showsLocal =
+    !!currentUser.value &&
+    (!fullscreenParticipantId.value || fullscreenParticipantId.value === 'local')
   const visibleRemoteCount = participantsWithStreams.value.filter(
     (p) => !fullscreenParticipantId.value || fullscreenParticipantId.value === p.id
   ).length
@@ -195,8 +263,6 @@ const gridClass = computed(() => {
   if (totalTiles <= 6) return 'grid-cols-3 grid-rows-2'
   return 'grid-cols-[repeat(auto-fit,minmax(300px,1fr))]'
 })
-
-
 
 // Toggle fullscreen
 function toggleFullscreen(participantId: string) {

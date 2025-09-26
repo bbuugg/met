@@ -78,6 +78,21 @@ func (a *authHandler) LoginCallback(ctx *gin.Context) {
 	ctx.Redirect(http.StatusFound, redirectURI)
 }
 
+func (a *authHandler) Logout(ctx *gin.Context) {
+	r := ctx.Query("redirect_uri")
+	if r == "" {
+		r = ctx.Request.Referer()
+	}
+	if r == "" {
+		r = ctx.Request.URL.String()
+	}
+	session := sessions.Default(ctx)
+	session.Clear()
+	_ = session.Save()
+
+	ctx.Redirect(http.StatusFound, passport.Logout(r))
+}
+
 func (a *authHandler) Info(ctx *gin.Context) {
 	user := auth.MustGetUserFromCtx(ctx)
 	ctx.JSON(http.StatusOK, api.Okay(api.WithData(user)))

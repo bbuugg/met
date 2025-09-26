@@ -40,6 +40,7 @@ func NewServer() *Server {
 
 	r.GET("login", controller.AuthHandler.Login)
 	r.GET("login/callback", controller.AuthHandler.LoginCallback)
+	r.GET("logout", controller.AuthHandler.Logout)
 	r.GET("/api/websocket", s.webrtcServer.HandleWebSocket)
 
 	p := r.Group("")
