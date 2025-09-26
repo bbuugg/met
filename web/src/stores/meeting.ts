@@ -205,6 +205,8 @@ export const useMeetingStore = defineStore('meeting', () => {
       if (currentUser.value) {
         currentUser.value.mediaState.screen = true
         currentUser.value.mediaState.video = false
+        // 根据实际桌面音频轨道存在情况初始化 desktopAudio 状态
+        currentUser.value.mediaState.desktopAudio = webrtcService.value.hasDesktopAudioTrack()
         // 确保currentUser.stream也更新为screenStream
         currentUser.value.stream = localStream.value
       }
@@ -220,6 +222,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     await webrtcService.value.stopScreenShare()
     if (currentUser.value) {
       currentUser.value.mediaState.screen = false
+      currentUser.value.mediaState.desktopAudio = false
     }
   }
 

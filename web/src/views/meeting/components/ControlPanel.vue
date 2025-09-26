@@ -125,8 +125,9 @@
             }}</span>
           </button>
 
-          <!-- 桌面音频控制按钮 - 圆形图标，显示在屏幕共享按钮右下角 -->
-          <button v-if="currentUser?.mediaState.screen" @click="toggleDesktopAudio"
+          <!-- 桌面音频控制按钮 - 仅当屏幕共享且存在桌面音频轨道时显示 -->
+          <button v-if="currentUser?.mediaState.screen && hasDesktopAudioTrack"
+            @click="toggleDesktopAudio"
             class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white shadow-lg flex items-center justify-center transform hover:scale-110 transition-all duration-200"
             :class="{
               'bg-green-500 hover:bg-green-600 text-white': currentUser?.mediaState.desktopAudio,
@@ -220,6 +221,15 @@ const currentUser = computed(() => meetingStore.currentUser)
 const isGetDisplayMediaSupported = computed(
   () => !!(navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function')
 )
+
+// 是否存在桌面音频轨道（用于控制桌面音频开关的显示）
+// 依赖于 screen 状态和 localStream，以确保在开始/停止共享时能重新计算
+const hasDesktopAudioTrack = computed(() => {
+  // reactive deps
+  void currentUser.value?.mediaState.screen
+  void meetingStore.localStream
+  return !!meetingStore.webrtcService?.hasDesktopAudioTrack()
+})
 
 // 录屏相关状态
 const mediaRecorder = ref<MediaRecorder | null>(null)

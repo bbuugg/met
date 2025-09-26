@@ -1026,6 +1026,16 @@ export class WebRTCService {
     })
   }
 
+  // 查询是否存在桌面音频轨道（用于 UI 显示控制）
+  public hasDesktopAudioTrack(): boolean {
+    return !!this.desktopAudioTrack
+  }
+
+  // 获取当前媒体状态（用于立即同步 UI）
+  public getMediaState(): MediaState {
+    return { ...this.mediaState }
+  }
+
   // 向特定 peer 发送媒体状态
   private sendMediaStateToPeer(peerId: string): void {
     const peer = this.peers.get(peerId)
