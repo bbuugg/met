@@ -77,7 +77,7 @@
             >
               <CheckIcon
                 v-if="hasReadTerms"
-                class="h-3 w-3 text-white dark:text-black absolute top-0.5 left-0.5"
+                class="h-3 w-3 text-white dark:text-black absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               />
             </div>
           </div>

@@ -4,14 +4,18 @@
       <!-- 当没有任何参与者时显示提示 -->
       <div
         v-show="!currentUser && participantsWithStreams.length === 0"
-        class="flex items-center justify-center h-full bg-gray-100 dark:bg-black rounded-xl"
+        class="flex items-center justify-center h-full bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800 transition-colors"
       >
         <div class="text-center p-8">
-          <VideoCameraIcon class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-          <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <div
+            class="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mx-auto mb-6"
+          >
+            <VideoCameraIcon class="h-10 w-10 text-gray-600 dark:text-gray-400" />
+          </div>
+          <h3 class="text-xl font-semibold text-black dark:text-white mb-3">
             {{ t('tools.webRtcMeeting.video.waitingForParticipant') }}
           </h3>
-          <p class="text-gray-500 dark:text-gray-400 max-w-md">
+          <p class="text-gray-600 dark:text-gray-400 max-w-md leading-relaxed">
             {{ t('tools.webRtcMeeting.meeting.invitedToMeeting') }}
           </p>
         </div>
@@ -19,13 +23,13 @@
 
       <!-- 视频网格 -->
       <div
-        class="bg-gray-100 dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-2xl"
+        class="bg-white dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-xl transition-colors"
         :class="gridClass"
       >
         <!-- Local video - always show if current user exists -->
         <div
           v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
+          class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:shadow-md"
         >
           <!-- 视频元素 -->
           <video
@@ -41,11 +45,11 @@
           <!-- 只有音频时显示头像占位符 -->
           <div
             v-if="!showLocalVideo"
-            class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600"
+            class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors"
           >
             <div class="text-center">
               <div
-                class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden"
+                class="w-24 h-24 bg-white/20 dark:bg-black/20 rounded-full flex items-center justify-center mb-6 mx-auto overflow-hidden border-2 border-white/30 dark:border-black/30"
               >
                 <img
                   referrerpolicy="no-referrer"
@@ -53,44 +57,52 @@
                   v-if="currentUser?.avatar"
                   :src="currentUser.avatar"
                   :alt="currentUser?.name || 'You'"
-                  class="w-full h-full object-cover"
+                  class="w-full h-full object-cover rounded-full"
                 />
-                <span v-else class="text-3xl font-bold text-white">{{
+                <span v-else class="text-3xl font-bold text-white dark:text-black">{{
                   currentUser?.name?.charAt(0).toUpperCase() || 'Y'
                 }}</span>
               </div>
-              <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
+              <p class="text-white dark:text-black font-medium text-sm">
+                {{ t('tools.webRtcMeeting.audioOnly') }}
+              </p>
             </div>
           </div>
 
           <div
-            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 rounded-b-xl"
           >
             <div class="flex justify-between items-center">
-              <span class="text-white font-semibold text-sm shadow-md">{{
+              <span class="text-white font-semibold text-sm">{{
                 `${currentUser?.name} (${t('tools.webRtcMeeting.you')})`
               }}</span>
               <div class="flex gap-2 items-center">
-                <MicrophoneDisabledIcon
-                  class="h-4 w-4 text-red-400 shadow-md"
-                  v-if="!currentUser?.mediaState.audio"
-                />
-                <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
-                <ComputerDesktopIcon
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <MicrophoneDisabledIcon
+                    class="h-3 w-3 text-red-400"
+                    v-if="!currentUser?.mediaState.audio"
+                  />
+                  <MicrophoneIcon v-else class="h-3 w-3 text-green-400" />
+                </div>
+                <div
                   v-if="currentUser?.mediaState.screen"
-                  class="h-4 w-4 text-blue-400 shadow-md"
-                />
+                  class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                >
+                  <ComputerDesktopIcon class="h-3 w-3 text-white" />
+                </div>
               </div>
             </div>
           </div>
           <!-- Local video controls -->
-          <div class="video-controls absolute top-2.5 right-2.5 z-10">
+          <div
+            class="video-controls absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
             <button
               @click="toggleFullscreen('local')"
-              class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
+              class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
             >
-              <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-5 w-5" />
-              <ArrowsPointingOutIcon v-else class="h-5 w-5" />
+              <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-4 w-4" />
+              <ArrowsPointingOutIcon v-else class="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -99,7 +111,7 @@
         <template v-for="participant in participantsWithStreams" :key="participant.id">
           <div
             v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
-            class="video-tile remote-video relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden min-h-[200px] shadow-lg border border-gray-300/50 dark:border-gray-600/50 transition-all duration-300 ease-in-out flex items-center justify-center"
+            class="video-tile remote-video relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:shadow-md"
           >
             <!-- 视频元素 -->
             <video
@@ -114,11 +126,11 @@
             <!-- 只有音频或无视频时显示头像占位符 -->
             <div
               v-if="!showRemoteVideo(participant.id)"
-              class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600"
+              class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors"
             >
               <div class="text-center">
                 <div
-                  class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto overflow-hidden"
+                  class="w-24 h-24 bg-white/20 dark:bg-black/20 rounded-full flex items-center justify-center mb-6 mx-auto overflow-hidden border-2 border-white/30 dark:border-black/30"
                 >
                   <img
                     referrerpolicy="no-referrer"
@@ -126,60 +138,70 @@
                     v-if="participant.avatar"
                     :src="participant.avatar"
                     :alt="participant.name || 'User'"
-                    class="w-full h-full object-cover"
+                    class="w-full h-full object-cover rounded-full"
                   />
-                  <span v-else class="text-3xl font-bold text-white">{{
+                  <span v-else class="text-3xl font-bold text-white dark:text-black">{{
                     participant.name?.charAt(0).toUpperCase() || 'U'
                   }}</span>
                 </div>
-                <p class="text-white font-medium">{{ t('tools.webRtcMeeting.audioOnly') }}</p>
+                <p class="text-white dark:text-black font-medium text-sm">
+                  {{ t('tools.webRtcMeeting.audioOnly') }}
+                </p>
               </div>
             </div>
 
             <div
-              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 rounded-b-xl"
+              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 rounded-b-xl"
             >
               <div class="participant-info flex justify-between items-center">
-                <span class="participant-name text-white font-semibold text-sm shadow-md">{{
+                <span class="participant-name text-white font-semibold text-sm">{{
                   participant.name
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
-                  <MicrophoneDisabledIcon
-                    v-if="!participant.mediaState.audio"
-                    class="h-4 w-4 text-red-400 shadow-md"
-                  />
-                  <MicrophoneIcon v-else class="h-4 w-4 text-green-400 shadow-md" />
-                  <VideoCameraIcon
+                  <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                    <MicrophoneDisabledIcon
+                      v-if="!participant.mediaState.audio"
+                      class="h-3 w-3 text-red-400"
+                    />
+                    <MicrophoneIcon v-else class="h-3 w-3 text-green-400" />
+                  </div>
+                  <div
                     v-if="participant.mediaState.video"
-                    class="h-4 w-4 text-blue-400 shadow-md"
-                  />
-                  <ComputerDesktopIcon
+                    class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                  >
+                    <VideoCameraIcon class="h-3 w-3 text-white" />
+                  </div>
+                  <div
                     v-if="participant.mediaState.screen"
-                    class="h-4 w-4 text-blue-400 shadow-md"
-                  />
+                    class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                  >
+                    <ComputerDesktopIcon class="h-3 w-3 text-white" />
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Remote video controls -->
-            <div class="video-controls absolute top-2.5 right-2.5 z-10 flex gap-2">
+            <div
+              class="video-controls absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
               <button
                 @click="toggleFullscreen(participant.id)"
-                class="control-button w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
+                class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
               >
                 <ArrowsPointingInIcon
                   v-if="fullscreenParticipantId === participant.id"
-                  class="h-5 w-5"
+                  class="h-4 w-4"
                 />
-                <ArrowsPointingOutIcon v-else class="h-5 w-5" />
+                <ArrowsPointingOutIcon v-else class="h-4 w-4" />
               </button>
               <button
                 @click="toggleRemoteAudio(participant.id)"
-                class="control-button ml-2 w-9 h-9 rounded-full bg-white/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 border border-white/20 dark:border-gray-600/20 text-gray-700 dark:text-white flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110"
-                :class="{ 'text-red-500': isRemoteAudioMuted(participant.id) }"
+                class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+                :class="{ 'text-red-500 dark:text-red-400': isRemoteAudioMuted(participant.id) }"
               >
-                <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="h-5 w-5" />
-                <SpeakerXMarkIcon v-else class="h-5 w-5" />
+                <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="h-4 w-4" />
+                <SpeakerXMarkIcon v-else class="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -353,3 +375,159 @@ watch(
   { deep: true, immediate: true }
 )
 </script>
+
+<style scoped>
+/* 视频容器悬停效果 */
+.group {
+  transition: all 0.3s ease;
+}
+
+.group:hover {
+  transform: translateY(-2px);
+}
+
+/* 控制按钮悬停效果 */
+.control-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.control-button:hover {
+  transform: scale(1.05);
+}
+
+.control-button:active {
+  transform: scale(0.95);
+}
+
+/* 视频元素样式 */
+video {
+  transition: opacity 0.3s ease;
+}
+
+/* 头像容器动画 */
+.w-24.h-24 {
+  transition: transform 0.3s ease;
+}
+
+.group:hover .w-24.h-24 {
+  transform: scale(1.05);
+}
+
+/* 状态指示器样式 */
+.w-6.h-6.rounded-full {
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+/* 视频覆盖层渐变优化 */
+.video-overlay {
+  backdrop-filter: blur(2px);
+}
+
+/* 响应式网格优化 */
+@media (max-width: 768px) {
+  .grid {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .min-h-\\[200px\\] {
+    min-height: 150px;
+  }
+
+  .w-24.h-24 {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .min-h-\\[200px\\] {
+    min-height: 120px;
+  }
+
+  .w-24.h-24 {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .text-3xl {
+    font-size: 1.25rem;
+  }
+
+  .video-controls {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .control-button {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .control-button svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+
+/* 全屏模式优化 */
+.grid-cols-1 .group {
+  max-height: 100%;
+}
+
+.grid-cols-1 .w-24.h-24 {
+  width: 6rem;
+  height: 6rem;
+}
+
+.grid-cols-1 .text-3xl {
+  font-size: 2.5rem;
+}
+
+/* 加载状态动画 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.bg-gray-50.dark\\:bg-gray-900:empty {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 连接状态指示 */
+.border-gray-200.dark\\:border-gray-800 {
+  position: relative;
+}
+
+.border-gray-200.dark\\:border-gray-800::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #10b981;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.group:hover .border-gray-200.dark\\:border-gray-800::before {
+  opacity: 1;
+}
+</style>
