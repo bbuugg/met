@@ -1,5 +1,7 @@
 <template>
-  <div class="px-6 py-4 flex justify-between items-center bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 transition-colors">
+  <div
+    class="px-6 py-4 flex justify-between items-center bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 transition-colors"
+  >
     <!-- 左侧：会议信息 -->
     <div class="flex items-center gap-3">
       <div class="flex items-center gap-3">
@@ -7,7 +9,9 @@
           <UserGroupIcon class="h-4 w-4 text-white dark:text-black" />
         </div>
         <div class="flex flex-col">
-          <span class="text-black dark:text-white font-semibold text-sm">{{ meetingStore.roomName }}</span>
+          <span class="text-black dark:text-white font-semibold text-sm">{{
+            meetingStore.roomName
+          }}</span>
           <div class="flex items-center gap-2 text-xs">
             <div class="flex items-center gap-1">
               <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -66,7 +70,9 @@
       <div class="p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <!-- 标题区域 -->
         <div class="text-center mb-6 sm:mb-8">
-          <div class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-black dark:bg-white mb-4 sm:mb-6 transition-colors">
+          <div
+            class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-black dark:bg-white mb-4 sm:mb-6 transition-colors"
+          >
             <LinkIcon class="h-6 w-6 sm:h-8 sm:w-8 text-white dark:text-black" />
           </div>
           <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-black dark:text-white">
@@ -85,16 +91,12 @@
           <div
             class="p-3 sm:p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
           >
-            <div class="flex items-center gap-3 mb-3">
+            <div class="flex items-center gap-3">
               <LinkIcon class="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-              <span class="font-medium text-black dark:text-white truncate text-sm">{{ meetingLink }}</span>
+              <span class="font-medium text-black dark:text-white text-sm">{{
+                meetingLink
+              }}</span>
             </div>
-            <button
-              @click="copyLink"
-              class="w-full py-2 px-3 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-            >
-              复制链接
-            </button>
           </div>
         </div>
 
@@ -189,22 +191,26 @@ function closeModal() {
 }
 
 function copyLink() {
-  navigator.clipboard.writeText(meetingLink.value).then(() => {
-    Message.success(t('tools.webRtcMeeting.meeting.copySuccess'))
-    // 复制成功后自动关闭模态框
-    setTimeout(() => {
-      closeModal()
-    }, 1000)
-  }).catch(() => {
-    Message.error(t('tools.webRtcMeeting.meeting.copyFailed'))
-  })
+  navigator.clipboard
+    .writeText(meetingLink.value)
+    .then(() => {
+      Message.success(t('tools.webRtcMeeting.meeting.copySuccess'))
+      // 复制成功后自动关闭模态框
+      setTimeout(() => {
+        closeModal()
+      }, 1000)
+    })
+    .catch(() => {
+      Message.error(t('tools.webRtcMeeting.meeting.copyFailed'))
+    })
 }
 </script>
 
 <style scoped>
 /* 状态指示器动画 */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -279,7 +285,7 @@ button:active {
   .max-h-\\[90vh\\] {
     max-height: calc(100vh - 2rem) !important;
   }
-  
+
   .flex-col button {
     min-height: 44px;
   }
