@@ -28,8 +28,7 @@ func NewServer() *Server {
 }
 
 // startRoom find or create a new room
-func (s *Server) startRoom(id string) (*Room, bool) {
-	var isNew bool
+func (s *Server) startRoom(id string) *Room {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	r, exists := s.rooms[id]
@@ -46,11 +45,10 @@ func (s *Server) startRoom(id string) (*Room, bool) {
 			lastAlive:  time.Now(),
 		}
 		s.rooms[r.Id] = r
-		isNew = true
 		go r.Run()
 	}
 
-	return r, isNew
+	return r
 }
 
 func (s *Server) RemoveRoom(id string) {
@@ -73,16 +71,27 @@ func (s *Server) HandleWebSocket(c *gin.Context) {
 
 	var user entity.User
 	if tx := database.DB(c).Where("uuid = ?", req.UserId).Find(&user); tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("User not found")))
+		return
+	}
+	if user.Id == 0 {
 		c.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage("Unauthorized")))
 		return
 	}
 
-	role := RoleUser
-	r, isNew := s.startRoom(req.RoomId)
-	if isNew {
+	var room entity.Room
+	if tx := database.DB(c).Where("uuid = ?", req.RoomId).Find(&room); tx.Error != nil && errors.Is(tx.Error, gorm.ErrRecordNotFound) || room.Id == 0 {
+		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage("Room not found")))
+		return
+	}
+
+	log.Printf("%v", room)
+	var role = RoleUser
+	if room.UserId == user.Id {
 		role = RoleMaster
 	}
 
+	r := s.startRoom(req.RoomId)
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err)

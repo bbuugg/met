@@ -1,13 +1,16 @@
 package webrtc
 
 import (
+	"meeting/internal/model/entity"
 	"meeting/pkg/api"
 	"meeting/pkg/auth"
+	"meeting/pkg/database"
 	"net/http"
 	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // RoomInfo represents the information of a room for monitoring
@@ -18,6 +21,48 @@ type RoomInfo struct {
 	MaxOnline   int       `json:"maxOnline"`
 	LastActive  time.Time `json:"lastActive"`
 	Clients     []*Client `json:"clients"`
+}
+
+// CreateRoomRequest represents the request structure for creating a room
+type CreateRoomRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+// CreateRoomResponse represents the response structure for creating a room
+type CreateRoomResponse struct {
+	Uuid string `json:"uuid"`
+	Name string `json:"name"`
+}
+
+// CreateRoom creates a new room
+func (s *Server) CreateRoom(c *gin.Context) {
+	var req CreateRoomRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage(err.Error())))
+		return
+	}
+
+	user := auth.MustGetUserFromCtx(c)
+
+	// Create room entity
+	room := &entity.Room{
+		Uuid:   uuid.New().String(),
+		UserId: user.Id,
+		Name:   req.Name,
+	}
+
+	// Save to database
+	if err := database.DB(c).Create(room).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to create room")))
+		return
+	}
+
+	response := CreateRoomResponse{
+		Uuid: room.Uuid,
+		Name: room.Name,
+	}
+
+	c.JSON(http.StatusOK, api.Okay(api.WithData(response)))
 }
 
 // GetMonitoringData returns the monitoring data of all rooms

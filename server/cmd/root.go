@@ -31,7 +31,7 @@ var rootCmd = &cobra.Command{
 		config.InitializeConfig(cfgPath)
 		database.InitializeDB()
 
-		database.DB(context.Background()).AutoMigrate(&entity.User{})
+		database.DB(context.Background()).AutoMigrate(&entity.User{}, &entity.Room{})
 
 		s := server.NewServer()
 

@@ -48,6 +48,7 @@ func NewServer() *Server {
 	{
 		p.GET("/api/info", controller.AuthHandler.Info)
 		p.GET("/api/signature", s.webrtcServer.GenerateSignature)
+		p.POST("/api/room", s.webrtcServer.CreateRoom)             // 添加创建房间接口
 		p.GET("/api/monitoring", s.webrtcServer.GetMonitoringData) // 添加监控接口路由
 	}
 
