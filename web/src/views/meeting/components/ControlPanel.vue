@@ -86,7 +86,7 @@
 
           <!-- 视频设备下拉菜单 -->
           <a-dropdown v-if="videoDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
-            <button class="w-5 h-full flex items-center justify-center rounded-r-lg shadow-lg" :class="{
+            <button class="w-5 h-full flex items-center justify-center rounded-r-lg" :class="{
               'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600':
                 !currentUser?.mediaState.video,
               'bg-red-500 hover:bg-red-600 text-white': currentUser?.mediaState.video
