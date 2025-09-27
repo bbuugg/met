@@ -71,7 +71,7 @@
     >
       <div class="flex flex-col gap-4 p-8">
         <div class="flex justify-center">
-          <img class="h-16" src="/images/logo.png" alt="">
+          <img class="h-16" src="/images/logo.png" alt="" />
         </div>
         <p class="text-center text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           {{
@@ -356,7 +356,8 @@ const currentLanguage = computed(() => locale.value)
 const currentTheme = ref<'light' | 'dark'>('dark')
 
 const handleLogin = () => {
-  window.location.href = `/login?redirect_uri=${encodeURIComponent(window.location.href)}`
+  const searchParams = new URLSearchParams(window.location.search)
+  window.location.href = `/login?redirect_uri=${encodeURIComponent(searchParams.get('redirect_uri') || window.location.href)}`
 }
 
 // 显示退出登录确认 modal
