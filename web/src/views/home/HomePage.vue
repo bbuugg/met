@@ -270,6 +270,12 @@
         {{ t('tools.webRtcMeeting.entry.systemMonitoring') }}
       </router-link>
       <span class="text-gray-400 dark:text-gray-600">|</span>
+      <a
+        class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
+        href="https://qm.qq.com/q/ayOVUpwjde"
+        >QQ群:1064753745</a
+      >
+      <span class="text-gray-400 dark:text-gray-600">|</span>
       <span class="text-gray-500 dark:text-gray-400">
         {{ t('tools.webRtcMeeting.entry.copyright', { year: new Date().getFullYear() }) }}
       </span>
