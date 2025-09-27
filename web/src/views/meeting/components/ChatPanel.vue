@@ -12,7 +12,6 @@
           <h3 class="text-sm font-semibold text-black dark:text-white">
             {{ t('tools.webRtcMeeting.chat.title') }}
           </h3>
-          <p class="text-xs text-gray-600 dark:text-gray-400">{{ participantCount }} 人在线</p>
         </div>
       </div>
       <button
