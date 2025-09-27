@@ -16,6 +16,10 @@ export function getMinitorData() {
   return axios.get('/api/monitoring')
 }
 
+export function getRoomInfo(id: string) {
+  return axios.get(`/api/room/${id}`)
+}
+
 // 添加创建房间的API接口
 export function createRoom(data: { name: string }) {
   return axios.post('/api/room', data)

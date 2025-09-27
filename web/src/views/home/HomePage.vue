@@ -96,9 +96,9 @@
             </div>
 
             <div class="flex justify-center">
-              <a-button 
-                type="primary" 
-                size="large" 
+              <a-button
+                type="primary"
+                size="large"
                 :loading="isCreating"
                 @click="handleCreateAndJoin"
               >
@@ -130,12 +130,7 @@
             </div>
 
             <div class="flex justify-center">
-              <a-button 
-                type="outline" 
-                size="large" 
-                :disabled="isJoinDisabled"
-                @click="handleJoin"
-              >
+              <a-button type="outline" size="large" :disabled="isJoinDisabled" @click="handleJoin">
                 <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
                 <ArrowRightIcon class="h-5 w-5 ml-2" />
               </a-button>
@@ -180,7 +175,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { handleAvatarError } from '@/utils/helper'
-import { createRoom } from '@/api'
+import { createRoom, getRoomInfo } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -240,15 +235,24 @@ const isJoinDisabled = computed(() => {
 })
 
 // Event handlers for components
-const handleJoin = () => {
+const handleJoin = async () => {
   if (isJoinDisabled.value) {
     Message.error('请输入会议ID')
     return
   }
+
+  const mid = meetingId.value.trim()
+  try {
+    await getRoomInfo(mid)
+  } catch (error) {
+    Message.error(error.message)
+    return
+  }
+
   // Navigate to meeting room without clientId in URL
-  if (meetingId.value.trim()) {
+  if (mid) {
     router.push({
-      path: `/meeting/${meetingId.value.trim()}`
+      path: `/meeting/${mid}`
     })
   }
 }

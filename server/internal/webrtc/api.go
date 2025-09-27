@@ -35,6 +35,17 @@ type CreateRoomResponse struct {
 	Name string `json:"name"`
 }
 
+func (s *Server) GetRoomInfo(c *gin.Context) {
+	id := c.Param("id")
+	var room entity.Room
+	if database.DB(context.Background()).Where("uuid=?", id).Find(&room); room.Id == 0 {
+		c.JSON(http.StatusNotFound, api.Fail(api.WithMessage("Room not found")))
+		return
+	}
+
+	c.JSON(http.StatusOK, api.Okay(api.WithData(room)))
+}
+
 // CreateRoom creates a new room
 func (s *Server) CreateRoom(c *gin.Context) {
 	var req CreateRoomRequest
