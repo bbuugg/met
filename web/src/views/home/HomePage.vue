@@ -70,24 +70,16 @@
       class="w-full max-w-md bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10"
     >
       <div class="flex flex-col gap-4 p-8">
-        <div class="text-center">
-          <div
-            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black dark:bg-white mb-6 transition-colors"
-          >
-            <VideoCameraIcon class="h-8 w-8 text-white dark:text-black" />
-          </div>
-          <h1 class="text-3xl font-bold mb-3 text-black dark:text-white">
-            {{ t('tools.webRtcMeeting.title') }}
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-            {{
-              userStore.info.uuid
-                ? t('tools.webRtcMeeting.subtitle')
-                : t('tools.webRtcMeeting.entry.loginToCreateOrJoin')
-            }}
-          </p>
+        <div class="flex justify-center">
+          <img class="h-16" src="/images/logo.png" alt="">
         </div>
-
+        <p class="text-center text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+          {{
+            userStore.info.uuid
+              ? t('tools.webRtcMeeting.subtitle')
+              : t('tools.webRtcMeeting.entry.loginToCreateOrJoin')
+          }}
+        </p>
         <template v-if="userStore.info.uuid">
           <!-- 创建会议表单 -->
           <div class="flex flex-col gap-5">
@@ -117,7 +109,7 @@
             </button>
           </div>
 
-          <div class="relative flex items-center justify-center my-2">
+          <div class="relative flex items-center justify-center">
             <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
             <span
               class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium bg-white dark:bg-black px-2"

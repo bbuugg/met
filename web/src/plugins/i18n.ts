@@ -203,7 +203,7 @@ const zhCN = {
         close: '关闭',
         noMeetings: '暂无会议',
         systemMonitoring: '系统监控',
-        copyright: '© {year} Met'
+        copyright: '© {year} 遇见'
       },
       errors: {
         meetingIdRequired: '会议 ID 是必需的',
