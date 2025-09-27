@@ -238,7 +238,7 @@ async function handleFileSelect(event: Event) {
         await meetingStore.sendFile(file)
         Message.success(t('tools.webRtcMeeting.chat.sendFile'))
       } catch (error) {
-        Message.error(t('tools.webRtcMeeting.chat.sendFile'))
+        Message.error(t('tools.webRtcMeeting.chat.sendFileFailed'))
       }
     }
 

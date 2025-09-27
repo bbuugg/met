@@ -2,12 +2,12 @@
   <div class="min-h-screen p-4">
     <div class="max-w-7xl mx-auto">
       <div class="mb-6">
-        <a-typography-title :heading="2">系统监控</a-typography-title>
-        <a-typography-paragraph>实时查看在线会议室和用户信息</a-typography-paragraph>
+        <a-typography-title :heading="2">{{ t('tools.webRtcMeeting.monitoring.systemMonitoring') }}</a-typography-title>
+        <a-typography-paragraph>{{ t('tools.webRtcMeeting.monitoring.realTimeInfo') }}</a-typography-paragraph>
       </div>
 
       <a-card>
-        <a-typography-title :heading="4" style="margin-bottom: 16px">在线会议室</a-typography-title>
+        <a-typography-title :heading="4" style="margin-bottom: 16px">{{ t('tools.webRtcMeeting.monitoring.onlineRooms') }}</a-typography-title>
         <a-table
           :columns="columns"
           :data="rooms"
@@ -19,10 +19,10 @@
             <RouterLink :to="`/meeting/${record.id}`">{{ record.id }}</RouterLink>
           </template>
           <template #clientCount="{ record }">
-            <a-tag color="green">{{ record.clientCount }} 人</a-tag>
+            <a-tag color="green">{{ record.clientCount }} {{ t('tools.webRtcMeeting.participants.count') }}</a-tag>
           </template>
           <template #action="{ record }">
-            <a-button type="text" @click="viewRoomDetails(record)">查看详情</a-button>
+            <a-button type="text" @click="viewRoomDetails(record)">{{ t('tools.webRtcMeeting.monitoring.viewDetails') }}</a-button>
           </template>
         </a-table>
       </a-card>
@@ -30,24 +30,24 @@
       <!-- Room Details Modal -->
       <a-modal
         v-model:visible="showRoomDetails"
-        :title="`房间详情 - ${selectedRoom?.id}`"
+        :title="t('tools.webRtcMeeting.monitoring.roomDetails') + ' - ' + (selectedRoom?.id || '')"
         @cancel="closeRoomDetails"
         @ok="closeRoomDetails"
         :width="800"
       >
         <a-spin :loading="roomDetailLoading">
           <div v-if="selectedRoom">
-            <a-descriptions title="房间信息" :column="2" style="margin-bottom: 20px">
+            <a-descriptions :title="t('tools.webRtcMeeting.monitoring.roomInfo')" :column="2" style="margin-bottom: 20px">
               <a-descriptions-item label="房间ID">{{ selectedRoom.id }}</a-descriptions-item>
               <a-descriptions-item label="创建时间">{{
                 formatTime(selectedRoom.startTime)
               }}</a-descriptions-item>
               <a-descriptions-item label="在线人数">
-                <a-tag color="green">{{ selectedRoom.clientCount }} 人</a-tag>
+                <a-tag color="green">{{ selectedRoom.clientCount }} {{ t('tools.webRtcMeeting.participants.count') }}</a-tag>
               </a-descriptions-item>
             </a-descriptions>
 
-            <a-typography-title :heading="6" style="margin: 20px 0">房间成员</a-typography-title>
+            <a-typography-title :heading="6" style="margin: 20px 0">{{ t('tools.webRtcMeeting.monitoring.roomMembers') }}</a-typography-title>
             <a-list :bordered="true">
               <a-list-item v-for="client in selectedRoom.clients" :key="client.id">
                 <a-list-item-meta>
@@ -67,7 +67,7 @@
                 </a-list-item-meta>
                 <template #actions>
                   <a-tag :color="client.role === 'master' ? 'purple' : 'blue'">
-                    {{ client.role === 'master' ? '主持人' : '成员' }}
+                    {{ client.role === 'master' ? t('tools.webRtcMeeting.participants.host') : t('tools.webRtcMeeting.participants.member') }}
                   </a-tag>
                 </template>
               </a-list-item>
@@ -102,6 +102,9 @@ import {
 } from '@arco-design/web-vue'
 import { getMinitorData } from '@/api'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const rooms = ref<RoomInfo[]>([])
 const showRoomDetails = ref(false)

@@ -375,7 +375,7 @@ async function startRecording() {
       stopRecording()
     }
   } catch (error: any) {
-    console.error('录屏失败:', error)
+    console.error(t('tools.webRtcMeeting.meeting.recordingFailed') + ':', error)
     Message.error(t('tools.webRtcMeeting.meeting.recordingFailed'))
     meetingStore.isRecording = false
   }
@@ -390,7 +390,7 @@ function stopRecording() {
     // 计算录制时长
     if (recordingStartTime.value) {
       const duration = Math.round((Date.now() - recordingStartTime.value) / 1000)
-      console.log(`录制时长: ${duration} 秒`)
+      console.log(`${t('tools.webRtcMeeting.meeting.recordingDuration')}: ${duration} ${t('tools.webRtcMeeting.meeting.seconds')}`)
       recordingStartTime.value = null
     }
 
@@ -431,7 +431,7 @@ function downloadRecording() {
     // 显示下载成功提示
     Message.success(t('tools.webRtcMeeting.meeting.recordingSaved'))
   } catch (error: any) {
-    console.error('下载录制文件失败:', error)
+    console.error(t('tools.webRtcMeeting.meeting.downloadRecordingFailed'), error)
     Message.error(t('tools.webRtcMeeting.meeting.recordingSaveFailed'))
   }
 }

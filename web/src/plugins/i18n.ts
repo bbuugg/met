@@ -23,7 +23,20 @@ const enUS = {
         meetingNamePlaceholder: 'Enter meeting name',
         createAndJoinMeeting: 'Create and Join Meeting',
         createMeeting: 'Create Meeting',
-        joinMeeting: 'Join Meeting'
+        joinMeeting: 'Join Meeting',
+        creating: 'Creating...',
+        startMeeting: 'Start Your Meeting',
+        loginToCreateOrJoin: 'Login to create or join a meeting',
+        testAccounts: 'Test Accounts',
+        login: 'Login',
+        myMeetings: 'My Meetings',
+        collapse: 'Collapse',
+        expand: 'Expand',
+        join: 'Join',
+        close: 'Close',
+        noMeetings: 'No meetings',
+        systemMonitoring: 'System Monitoring',
+        copyright: '© {year} Met'
       },
       errors: {
         meetingIdRequired: 'Meeting ID is required',
@@ -45,6 +58,7 @@ const enUS = {
         share: 'Share',
         copyLink: 'Copy Meeting Link',
         copySuccess: 'Copied Successfully',
+        copyFailed: 'Copy failed, please copy the link manually',
         shareMeeting: 'Share Meeting',
         meetingLink: 'Meeting Link',
         invitedToMeeting: "You've been invited to a meeting.",
@@ -54,9 +68,12 @@ const enUS = {
         stopRecording: 'Stop Recording',
         recordingStarted: 'Recording started',
         recordingStopped: 'Recording stopped',
+        recordingDuration: 'Recording duration',
+        seconds: 'seconds',
         recordingFailed: 'Recording failed',
         recordingSaved: 'Recording saved',
         recordingSaveFailed: 'Failed to save recording',
+        downloadRecordingFailed: 'Failed to download recording file:',
         noRecordingData: 'No recording data available',
         leaveConfirmTitle: 'Confirm Leave',
         leaveConfirmMessage: 'Are you sure you want to leave the meeting?',
@@ -76,6 +93,7 @@ const enUS = {
         openChat: 'Open Chat',
         close: 'Close',
         sendFile: 'Send File',
+        sendFileFailed: 'Failed to send file',
         download: 'Download',
         placeholder: 'Type a message...',
         send: 'Send',
@@ -121,7 +139,16 @@ const enUS = {
         cameraOff: 'Camera is off',
         waitingForParticipant: 'Waiting for participant'
       },
-      audioOnly: 'Audio Only'
+      audioOnly: 'Audio Only',
+      monitoring: {
+        systemMonitoring: 'System Monitoring',
+        realTimeInfo: 'Real-time view of online meeting rooms and user information',
+        onlineRooms: 'Online Meeting Rooms',
+        viewDetails: 'View Details',
+        roomDetails: 'Room Details',
+        roomInfo: 'Room Information',
+        roomMembers: 'Room Members'
+      }
     }
   },
   legalNotice: {
@@ -153,7 +180,20 @@ const zhCN = {
         meetingNamePlaceholder: '输入会议名称',
         createAndJoinMeeting: '创建并加入会议',
         createMeeting: '创建会议',
-        joinMeeting: '加入会议'
+        joinMeeting: '加入会议',
+        creating: '创建中...',
+        startMeeting: '开始您的会议',
+        loginToCreateOrJoin: '登录后即可创建或加入会议',
+        testAccounts: '测试账号',
+        login: '登录',
+        myMeetings: '我的会议',
+        collapse: '收起',
+        expand: '展开',
+        join: '加入',
+        close: '关闭',
+        noMeetings: '暂无会议',
+        systemMonitoring: '系统监控',
+        copyright: '© {year} Met'
       },
       errors: {
         meetingIdRequired: '会议 ID 是必需的',
@@ -175,6 +215,7 @@ const zhCN = {
         share: '分享',
         copyLink: '复制会议链接',
         copySuccess: '复制成功',
+        copyFailed: '复制失败，请手动复制链接',
         shareMeeting: '分享会议',
         meetingLink: '会议链接',
         invitedToMeeting: '你被邀请加入会议',
@@ -184,9 +225,12 @@ const zhCN = {
         stopRecording: '停止录制',
         recordingStarted: '开始录制',
         recordingStopped: '录制已停止',
+        recordingDuration: '录制时长',
+        seconds: '秒',
         recordingFailed: '录制失败',
         recordingSaved: '录制已保存',
         recordingSaveFailed: '保存录制文件失败',
+        downloadRecordingFailed: '下载录制文件失败:',
         noRecordingData: '没有可用的录制数据',
         leaveConfirmTitle: '确认离开',
         leaveConfirmMessage: '您确定要离开会议吗？',
@@ -206,6 +250,7 @@ const zhCN = {
         openChat: '打开聊天',
         close: '关闭',
         sendFile: '发送文件',
+        sendFileFailed: '发送文件失败',
         download: '下载',
         placeholder: '输入消息...',
         send: '发送',
@@ -251,7 +296,16 @@ const zhCN = {
         cameraOff: '摄像头已关闭',
         waitingForParticipant: '等待其他人加入'
       },
-      audioOnly: '仅语音'
+      audioOnly: '仅语音',
+      monitoring: {
+        systemMonitoring: '系统监控',
+        realTimeInfo: '实时查看在线会议室和用户信息',
+        onlineRooms: '在线会议室',
+        viewDetails: '查看详情',
+        roomDetails: '房间详情',
+        roomInfo: '房间信息',
+        roomMembers: '房间成员'
+      }
     }
   },
   legalNotice: {

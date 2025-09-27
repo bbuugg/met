@@ -108,7 +108,7 @@
               <span v-if="!isCreating">{{
                 t('tools.webRtcMeeting.entry.createAndJoinMeeting')
               }}</span>
-              <span v-else>创建中...</span>
+              <span v-else>{{ t('tools.webRtcMeeting.entry.creating') }}</span>
               <ArrowRightIcon v-if="!isCreating" class="h-4 w-4" />
             </button>
           </div>
@@ -149,15 +149,15 @@
         </template>
         <div class="flex flex-col gap-6" v-else>
           <div class="text-center">
-            <h2 class="text-xl font-semibold text-black dark:text-white mb-3">开始您的会议</h2>
+            <h2 class="text-xl font-semibold text-black dark:text-white mb-3">{{ t('tools.webRtcMeeting.entry.startMeeting') }}</h2>
             <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-              登录后即可创建或加入会议
+              {{ t('tools.webRtcMeeting.entry.loginToCreateOrJoin') }}
             </p>
           </div>
           <div
             class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4"
           >
-            <h3 class="font-medium text-black dark:text-white mb-3">测试账号</h3>
+            <h3 class="font-medium text-black dark:text-white mb-3">{{ t('tools.webRtcMeeting.entry.testAccounts') }}</h3>
             <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <li class="font-mono">邮箱：bug@bug.com 密码：bug@bug.com</li>
               <li class="font-mono">邮箱：bbql@qq.com 密码：bbql@qq.com</li>
@@ -167,7 +167,7 @@
             @click="handleLogin"
             class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
           >
-            登录
+            {{ t('tools.webRtcMeeting.entry.login') }}
           </button>
         </div>
       </div>
@@ -185,7 +185,7 @@
       >
         <h3 class="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
           <VideoCameraIcon class="h-4 w-4" />
-          我的会议
+          {{ t('tools.webRtcMeeting.entry.myMeetings') }}
           <span
             class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full"
           >
@@ -195,7 +195,7 @@
         <button
           @click="showMeetingList = !showMeetingList"
           class="p-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
-          :title="showMeetingList ? '收起' : '展开'"
+          :title="showMeetingList ? t('tools.webRtcMeeting.entry.collapse') : t('tools.webRtcMeeting.entry.expand')"
         >
           <svg
             class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
@@ -233,16 +233,16 @@
             <button
               @click="joinRoom(room.uuid)"
               class="px-2.5 py-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-              title="加入会议"
+              :title="t('tools.webRtcMeeting.entry.join')"
             >
-              加入
+              {{ t('tools.webRtcMeeting.entry.join') }}
             </button>
             <button
               @click="deleteRoomHandler(room.uuid)"
               class="px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-xs font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-600 transition-all"
-              title="关闭会议"
+              :title="t('tools.webRtcMeeting.entry.close')"
             >
-              关闭
+              {{ t('tools.webRtcMeeting.entry.close') }}
             </button>
           </div>
         </div>
@@ -252,7 +252,7 @@
           v-if="roomList.length === 0"
           class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
         >
-          暂无会议
+          {{ t('tools.webRtcMeeting.entry.noMeetings') }}
         </div>
       </div>
     </div>
@@ -263,10 +263,10 @@
         to="/monitoring"
         class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
       >
-        系统监控
+        {{ t('tools.webRtcMeeting.entry.systemMonitoring') }}
       </router-link>
       <span class="text-gray-400 dark:text-gray-600">|</span>
-      <span class="text-gray-500 dark:text-gray-400"> © {{ new Date().getFullYear() }} Met </span>
+      <span class="text-gray-500 dark:text-gray-400"> {{ t('tools.webRtcMeeting.entry.copyright', { year: new Date().getFullYear() }) }} </span>
     </div>
   </div>
 </template>
