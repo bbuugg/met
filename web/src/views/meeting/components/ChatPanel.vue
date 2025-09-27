@@ -1,23 +1,34 @@
 <template>
-  <div class="w-full md:w-96 h-full bg-white dark:bg-gray-800 flex flex-col">
+  <div class="w-full md:w-96 h-full bg-white dark:bg-black flex flex-col transition-colors">
     <!-- 聊天面板头部 -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-        {{ t('tools.webRtcMeeting.chat.title') }}
-      </h3>
+    <div
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center">
+          <ChatBubbleLeftRightIcon class="h-4 w-4 text-white dark:text-black" />
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-black dark:text-white">
+            {{ t('tools.webRtcMeeting.chat.title') }}
+          </h3>
+          <p class="text-xs text-gray-600 dark:text-gray-400">{{ participantCount }} 人在线</p>
+        </div>
+      </div>
       <button
         @click="$emit('close')"
-        class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+        class="w-8 h-8 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg flex items-center justify-center transition-colors"
         :title="t('tools.webRtcMeeting.chat.close')"
       >
-        <XMarkIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        <XMarkIcon class="h-4 w-4 text-gray-600 dark:text-gray-400" />
       </button>
     </div>
 
-    <div
-      class="flex-1 flex flex-col bg-white dark:bg-gray-800 overflow-y-auto"
-    >
-      <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scroll-smooth" ref="messagesContainer">
+    <div class="flex-1 flex flex-col bg-white dark:bg-black overflow-y-auto">
+      <div
+        class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scroll-smooth"
+        ref="messagesContainer"
+      >
         <div
           v-for="message in chatMessages"
           :key="message.id"
@@ -27,46 +38,55 @@
           <!-- 头像 -->
           <div class="flex-shrink-0">
             <div
-              class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold overflow-hidden"
-              :class="getAvatarClass(message.senderId)"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors"
+              :class="
+                message.senderId === clientId
+                  ? 'bg-black dark:bg-white text-white dark:text-black'
+                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
+              "
               :title="message.senderName"
             >
               <img
                 v-if="getParticipantAvatar(message.senderId)"
                 :src="getParticipantAvatar(message.senderId)!"
                 :alt="message.senderName"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover rounded-lg"
               />
               <span v-else>{{ getAvatarText(message.senderName) }}</span>
             </div>
           </div>
 
           <!-- 消息内容区域 -->
-          <div class="flex flex-col gap-1 max-w-[70%] min-w-0" :class="{ 'items-end': message.senderId === clientId }">
+          <div
+            class="flex flex-col gap-1 max-w-[70%] min-w-0"
+            :class="{ 'items-end': message.senderId === clientId }"
+          >
             <!-- 发送者信息 -->
             <div
-              class="flex gap-2 items-center text-xs text-gray-500 dark:text-gray-400"
+              class="flex gap-2 items-center text-xs text-gray-600 dark:text-gray-400"
               :class="{ 'flex-row-reverse': message.senderId === clientId }"
             >
               <span class="font-medium">{{ message.senderName }}</span>
-              <span>{{ formatTime(message.timestamp) }}</span>
+              <span class="opacity-75">{{ formatTime(message.timestamp) }}</span>
             </div>
 
             <!-- 消息气泡 -->
             <div
-              class="relative w-fit max-w-full px-2 py-2 rounded-2xl break-words shadow-md"
+              class="relative w-fit max-w-full px-3 py-2 rounded-lg break-words shadow-sm transition-colors"
               :class="[
                 message.senderId === clientId
-                  ? 'bg-blue-500 text-white rounded-tr-sm'
+                  ? 'bg-black dark:bg-white text-white dark:text-black'
                   : message.type === 'file'
-                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded-tl-sm'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-tl-sm'
+                    ? 'bg-gray-50 dark:bg-gray-900 text-black dark:text-white border border-gray-200 dark:border-gray-700'
+                    : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white border border-gray-200 dark:border-gray-700'
               ]"
             >
               <template v-if="message.type === 'file'">
                 <!-- Image preview -->
                 <div
-                  v-if="message.fileType && message.fileType.startsWith('image/') && message.fileUrl"
+                  v-if="
+                    message.fileType && message.fileType.startsWith('image/') && message.fileUrl
+                  "
                   class="flex flex-col gap-2 min-w-0"
                 >
                   <img
@@ -82,7 +102,7 @@
                     >
                     <button
                       @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 p-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded text-xs flex items-center flex-shrink-0"
+                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
                     >
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -110,7 +130,7 @@
                     >
                     <button
                       @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 p-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded text-xs flex items-center flex-shrink-0"
+                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
                     >
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -121,10 +141,12 @@
                 <!-- Other file types -->
                 <div v-else class="flex items-center gap-2 min-w-0">
                   <DocumentIcon class="h-4 w-4 flex-shrink-0" />
-                  <span class="truncate min-w-0">{{ message.content.replace('File received: ', '') }}</span>
+                  <span class="truncate min-w-0">{{
+                    message.content.replace('File received: ', '')
+                  }}</span>
                   <button
                     @click="downloadFileFromMessage(message)"
-                    class="ml-2 p-1 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded text-xs flex items-center flex-shrink-0"
+                    class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
                   >
                     <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                     <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -140,10 +162,15 @@
 
         <div
           v-if="chatMessages.length === 0"
-          class="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 text-center"
+          class="flex flex-col items-center justify-center h-full text-gray-600 dark:text-gray-400 text-center"
         >
-          <ChatBubbleLeftRightIcon class="h-12 w-12 mb-4" />
-          <p>{{ t('tools.webRtcMeeting.chat.placeholder') }}</p>
+          <div
+            class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4"
+          >
+            <ChatBubbleLeftRightIcon class="h-8 w-8" />
+          </div>
+          <h3 class="font-medium text-black dark:text-white mb-2">开始对话</h3>
+          <p class="text-sm">{{ t('tools.webRtcMeeting.chat.placeholder') }}</p>
         </div>
       </div>
 
@@ -151,35 +178,38 @@
       <div
         v-if="unreadMessageCount > 0"
         @click="() => scrollToBottom()"
-        class="flex items-center justify-center p-2 bg-blue-500 text-white text-sm cursor-pointer hover:bg-blue-600 transition-colors"
+        class="flex items-center justify-center p-3 bg-black dark:bg-white text-white dark:text-black text-sm cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
       >
-        {{ t('tools.webRtcMeeting.chat.unreadMessages', { count: unreadMessageCount }) }}
+        <span class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-white dark:bg-black rounded-full animate-pulse"></div>
+          {{ t('tools.webRtcMeeting.chat.unreadMessages', { count: unreadMessageCount }) }}
+        </span>
       </div>
 
       <div
-        class="flex gap-2 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700"
+        class="flex gap-3 p-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800"
       >
         <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
         <button
           @click="() => fileInputRef?.click()"
-          class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 flex items-center justify-center shadow-md"
+          class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
           :title="t('tools.webRtcMeeting.chat.sendFile')"
         >
-          <PaperClipIcon class="h-5 w-5" />
+          <PaperClipIcon class="h-4 w-4 text-black dark:text-white" />
         </button>
         <input
           v-model="newMessage"
           :placeholder="t('tools.webRtcMeeting.chat.placeholder')"
           @keyup.enter="sendMessage"
-          class="flex-1 bg-gray-50 dark:bg-gray-700 border-0 text-gray-800 dark:text-white rounded-xl shadow-md focus:ring-2 focus:ring-indigo-500 focus:outline-none px-4 py-2 input-field"
+          class="flex-1 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent focus:outline-none px-4 py-2 transition-all placeholder-gray-500 dark:placeholder-gray-400"
         />
         <button
           @click="sendMessage"
           :disabled="!newMessage.trim()"
-          class="w-10 h-10 rounded-full flex items-center justify-center shadow-md transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
           :title="t('tools.webRtcMeeting.chat.send')"
         >
-          <PaperAirplaneIcon class="h-5 w-5" />
+          <PaperAirplaneIcon class="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -187,7 +217,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { useMeetingStore } from '@/stores/meeting'
 import { Message } from '@arco-design/web-vue'
 import {
@@ -219,6 +248,11 @@ const unreadMessageCount = ref(0)
 
 const chatMessages = computed(() => meetingStore.chatMessages)
 const clientId = computed(() => meetingStore.clientId)
+
+// 计算参与者数量
+const participantCount = computed(() => {
+  return meetingStore.participantsList.length
+})
 
 function sendMessage() {
   const content = newMessage.value.trim()
@@ -296,31 +330,6 @@ function getAvatarText(name: string): string {
 function getParticipantAvatar(senderId: string): string | null {
   const participant = meetingStore.participants.get(senderId)
   return participant?.avatar || null
-}
-
-// 生成头像背景颜色类
-function getAvatarClass(senderId: string): string {
-  // 为不同用户生成不同的背景颜色
-  const colors = [
-    'bg-blue-500',
-    'bg-green-500',
-    'bg-purple-500',
-    'bg-pink-500',
-    'bg-indigo-500',
-    'bg-yellow-500',
-    'bg-red-500',
-    'bg-teal-500',
-    'bg-orange-500',
-    'bg-cyan-500'
-  ]
-
-  // 基于 senderId 生成一致的颜色索引
-  let hash = 0
-  for (let i = 0; i < senderId.length; i++) {
-    hash = senderId.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const index = Math.abs(hash) % colors.length
-  return colors[index]
 }
 
 // 检查用户是否在底部（允许一些像素的误差）
@@ -420,7 +429,7 @@ onUnmounted(() => {
 <style scoped>
 /* 自定义滚动条样式 */
 .overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
@@ -428,21 +437,21 @@ onUnmounted(() => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.5);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.7);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* 深色模式下的滚动条 */
 .dark .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.5);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(75, 85, 99, 0.7);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* 消息动画 */
@@ -462,64 +471,57 @@ onUnmounted(() => {
 }
 
 /* 头像悬停效果 */
-.w-8.h-8.rounded-full {
+.w-8.h-8.rounded-lg {
   transition: transform 0.2s ease;
 }
 
-.w-8.h-8.rounded-full:hover {
-  transform: scale(1.1);
+.w-8.h-8.rounded-lg:hover {
+  transform: scale(1.05);
 }
 
-/* 消息气泡尖角效果 */
-.relative.rounded-2xl::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 0;
-  height: 0;
-  border: 8px solid transparent;
+/* 按钮悬停效果 */
+button {
+  transition: all 0.2s ease-in-out;
 }
 
-/* 自己发送的消息 - 右侧尖角 */
-.relative.rounded-2xl.bg-blue-500::before {
-  right: -8px;
-  border-left-color: rgb(59 130 246);
-  border-top: none;
-  border-right: none;
-  border-bottom: none;
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 
-/* 别人发送的消息 - 左侧尖角 */
-.relative.rounded-2xl.bg-gray-100::before {
-  left: -8px;
-  border-right-color: rgb(243 244 246);
-  border-top: none;
-  border-left: none;
-  border-bottom: none;
+button:active {
+  transform: translateY(0);
 }
 
-.dark .relative.rounded-2xl.bg-gray-700::before {
-  left: -8px;
-  border-right-color: rgb(55 65 81);
-  border-top: none;
-  border-left: none;
-  border-bottom: none;
+button:disabled {
+  transform: none !important;
 }
 
-/* 文件消息尖角 */
-.relative.rounded-2xl.bg-yellow-100::before {
-  left: -8px;
-  border-right-color: rgb(254 249 195);
-  border-top: none;
-  border-left: none;
-  border-bottom: none;
+/* 消息气泡悬停效果 */
+.relative.rounded-lg {
+  transition: all 0.2s ease;
 }
 
-.dark .relative.rounded-2xl.bg-yellow-900::before {
-  left: -8px;
-  border-right-color: rgb(113 63 18);
-  border-top: none;
-  border-left: none;
-  border-bottom: none;
+.relative.rounded-lg:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .relative.rounded-lg:hover {
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>
