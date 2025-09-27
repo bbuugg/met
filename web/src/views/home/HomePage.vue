@@ -63,7 +63,7 @@
     </div>
 
     <!-- 居中的用户信息输入区域 -->
-    <div class="w-full max-w-md glass-card rounded-xl bg-white dark:bg-gray-800">
+    <div class="w-full max-w-md glass-card rounded-xl bg-white dark:bg-gray-800 shadow-xl">
       <div class="flex flex-col gap-6 p-8">
         <div class="text-center">
           <div
@@ -71,9 +71,9 @@
           >
             <VideoCameraIcon class="h-8 w-8 text-white" />
           </div>
-          <h2 class="text-2xl font-bold mb-2 text-gray-800 dark:text-white">
+          <h1 class="text-3xl font-bold mb-2 text-gray-800 dark:text-white">
             {{ t('tools.webRtcMeeting.title') }}
-          </h2>
+          </h1>
           <p class="text-gray-500 dark:text-gray-400 mb-6">
             {{ t('tools.webRtcMeeting.subtitle') }}
           </p>
@@ -86,13 +86,15 @@
               <label for="meetingName" class="font-semibold text-gray-700 dark:text-gray-300">
                 {{ t('tools.webRtcMeeting.entry.meetingName') }}
               </label>
-              <input
-                id="meetingName"
-                v-model="meetingName"
-                :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
-                class="input-field"
-                @keyup.enter="handleCreateAndJoin"
-              />
+              <div class="relative">
+                <input
+                  id="meetingName"
+                  v-model="meetingName"
+                  :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
+                  class="input-field w-full"
+                  @keyup.enter="handleCreateAndJoin"
+                />
+              </div>
             </div>
 
             <div class="flex justify-center">
@@ -101,6 +103,7 @@
                 size="large"
                 :loading="isCreating"
                 @click="handleCreateAndJoin"
+                class="w-full py-3 rounded-lg"
               >
                 <span>{{ t('tools.webRtcMeeting.entry.createAndJoinMeeting') }}</span>
                 <ArrowRightIcon class="h-5 w-5 ml-2" />
@@ -108,9 +111,9 @@
             </div>
           </div>
 
-          <div class="relative flex items-center justify-center my-4">
+          <div class="relative flex items-center justify-center">
             <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm">或</span>
+            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium">或</span>
             <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
           </div>
 
@@ -120,17 +123,25 @@
               <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">
                 {{ t('tools.webRtcMeeting.entry.meetingId') }}
               </label>
-              <input
-                id="meetingId"
-                v-model="meetingId"
-                :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
-                class="input-field"
-                @keyup.enter="handleJoin"
-              />
+              <div class="relative">
+                <input
+                  id="meetingId"
+                  v-model="meetingId"
+                  :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
+                  class="input-field w-full"
+                  @keyup.enter="handleJoin"
+                />
+              </div>
             </div>
 
             <div class="flex justify-center">
-              <a-button type="outline" size="large" :disabled="isJoinDisabled" @click="handleJoin">
+              <a-button 
+                type="outline" 
+                size="large" 
+                :disabled="isJoinDisabled" 
+                @click="handleJoin"
+                class="w-full py-3 rounded-lg"
+              >
                 <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
                 <ArrowRightIcon class="h-5 w-5 ml-2" />
               </a-button>
@@ -138,27 +149,38 @@
           </div>
 
           <!-- 房间列表 -->
-          <div v-if="roomList.length > 0" class="mt-6">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">我的会议</h3>
-            <div class="space-y-2 max-h-60 overflow-y-auto">
+          <div v-if="roomList.length > 0" class="mt-8">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">我的会议</h3>
+            <div class="space-y-3 max-h-80 overflow-y-auto pr-2">
               <div
                 v-for="room in roomList"
                 :key="room.uuid"
-                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:shadow-md transition-all duration-200"
               >
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-gray-800 dark:text-white truncate">
                     {{ room.name }}
                   </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {{ formatDate(room.createdAt) }}
                   </div>
                 </div>
-                <div class="flex gap-2">
-                  <a-button type="primary" size="small" @click="joinRoom(room.uuid)">
+                <div class="flex gap-2 ml-3">
+                  <a-button 
+                    type="primary" 
+                    size="small" 
+                    @click="joinRoom(room.uuid)"
+                    class="rounded-lg"
+                  >
                     加入
                   </a-button>
-                  <a-button type="outline" size="small" status="danger" @click="deleteRoomHandler(room.uuid)">
+                  <a-button 
+                    type="outline" 
+                    size="small" 
+                    status="danger" 
+                    @click="deleteRoomHandler(room.uuid)"
+                    class="rounded-lg"
+                  >
                     关闭
                   </a-button>
                 </div>
@@ -167,12 +189,25 @@
           </div>
         </template>
         <div class="flex flex-col gap-6 p-8" v-else>
-          相同会议需要使用不同账号，测试账号
-          <ul>
-            <li>邮箱：bug@bug.com 密码：bug@bug.com</li>
-            <li>邮箱：bbql@qq.com 密码：bbql@qq.com</li>
-          </ul>
-          <button @click="handleLogin" class="btn-primary">登录</button>
+          <div class="text-center">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">开始您的会议</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">
+              登录后即可创建或加入会议
+            </p>
+          </div>
+          <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 mb-4">
+            <h3 class="font-medium text-blue-800 dark:text-blue-200 mb-2">测试账号</h3>
+            <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <li>邮箱：bug@bug.com 密码：bug@bug.com</li>
+              <li>邮箱：bbql@qq.com 密码：bbql@qq.com</li>
+            </ul>
+          </div>
+          <button 
+            @click="handleLogin" 
+            class="btn-primary py-3 rounded-lg"
+          >
+            登录
+          </button>
         </div>
       </div>
     </div>

@@ -57,22 +57,13 @@ func (s *Server) GetRoomInfo(c *gin.Context) {
 func (s *Server) GetRoomList(c *gin.Context) {
 	user := auth.MustGetUserFromCtx(c)
 
-	var rooms []entity.Room
+	var rooms = make([]entity.Room, 0)
 	if err := database.DB(c).Where("user_id = ?", user.Id).Find(&rooms).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to fetch room list")))
 		return
 	}
 
-	var roomList []RoomListItem
-	for _, room := range rooms {
-		roomList = append(roomList, RoomListItem{
-			Uuid:      room.Uuid,
-			Name:      room.Name,
-			CreatedAt: room.CreatedAt,
-		})
-	}
-
-	c.JSON(http.StatusOK, api.Okay(api.WithData(roomList)))
+	c.JSON(http.StatusOK, api.Okay(api.WithData(rooms)))
 }
 
 // CreateRoom creates a new room
