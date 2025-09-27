@@ -63,7 +63,7 @@
                   currentUser?.name?.charAt(0).toUpperCase() || 'Y'
                 }}</span>
               </div>
-              <p class="text-white dark:text-black font-medium text-sm">
+              <p class="dark:text-white text-black font-medium text-sm">
                 {{ t('tools.webRtcMeeting.audioOnly') }}
               </p>
             </div>
@@ -144,7 +144,7 @@
                     participant.name?.charAt(0).toUpperCase() || 'U'
                   }}</span>
                 </div>
-                <p class="text-white dark:text-black font-medium text-sm">
+                <p class="dark:text-white text-black font-medium text-sm">
                   {{ t('tools.webRtcMeeting.audioOnly') }}
                 </p>
               </div>
