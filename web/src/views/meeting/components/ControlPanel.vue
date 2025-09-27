@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center items-center px-6 py-4 bg-white dark:bg-gray-800">
+  <div class="flex justify-center items-center px-6 py-3 bg-white dark:bg-gray-800">
     <div class="flex gap-3 items-center justify-center md:justify-between w-full">
       <div>
         <!-- 录屏按钮 -->
