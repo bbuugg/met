@@ -10,6 +10,7 @@ import i18n from './plugins/i18n'
 import ArcoVue from '@arco-design/web-vue'
 import '@arco-design/web-vue/dist/arco.css'
 import '@/api/interceptors'
+import * as Sentry from '@sentry/vue'
 
 if (import.meta.env.MODE !== 'development') {
   try {
@@ -57,6 +58,15 @@ observer.observe(document.documentElement, {
 console.log(adapter.browserDetails.browser)
 
 const app = createApp(App)
+
+Sentry.init({
+  app,
+  dsn: 'https://5479ba1faba383dcad6e5bc11988ca2d@o4507849415589888.ingest.us.sentry.io/4507849417424896',
+  // Adds request headers and IP for users, for more info visit:
+  // https://docs.sentry.io/platforms/javascript/guides/vue/configuration/options/#sendDefaultPii
+  sendDefaultPii: true,
+  integrations: []
+})
 
 app.use(createPinia())
 app.use(ArcoVue)

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
+    "@sentry/vue": "^10.15.0",
     "@vueuse/core": "^10.11.0",
     "axios": "^1.7.2",
     "dayjs": "^1.11.12",
