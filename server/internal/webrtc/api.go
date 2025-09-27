@@ -35,6 +35,13 @@ type CreateRoomResponse struct {
 	Name string `json:"name"`
 }
 
+// RoomListItem represents a room in the room list
+type RoomListItem struct {
+	Uuid      string    `json:"uuid"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 func (s *Server) GetRoomInfo(c *gin.Context) {
 	id := c.Param("id")
 	var room entity.Room
@@ -44,6 +51,28 @@ func (s *Server) GetRoomInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, api.Okay(api.WithData(room)))
+}
+
+// GetRoomList returns the list of rooms created by the current user
+func (s *Server) GetRoomList(c *gin.Context) {
+	user := auth.MustGetUserFromCtx(c)
+
+	var rooms []entity.Room
+	if err := database.DB(c).Where("user_id = ?", user.Id).Find(&rooms).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to fetch room list")))
+		return
+	}
+
+	var roomList []RoomListItem
+	for _, room := range rooms {
+		roomList = append(roomList, RoomListItem{
+			Uuid:      room.Uuid,
+			Name:      room.Name,
+			CreatedAt: room.CreatedAt,
+		})
+	}
+
+	c.JSON(http.StatusOK, api.Okay(api.WithData(roomList)))
 }
 
 // CreateRoom creates a new room
@@ -73,6 +102,25 @@ func (s *Server) CreateRoom(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, api.Okay(api.WithData(response)))
+}
+
+// DeleteRoom deletes a room by its UUID
+func (s *Server) DeleteRoom(c *gin.Context) {
+	uuid := c.Param("uuid")
+	user := auth.MustGetUserFromCtx(c)
+
+	var room entity.Room
+	if err := database.DB(c).Where("uuid = ? AND user_id = ?", uuid, user.Id).First(&room).Error; err != nil {
+		c.JSON(http.StatusNotFound, api.Fail(api.WithMessage("Room not found")))
+		return
+	}
+
+	if err := database.DB(c).Delete(&room).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to delete room")))
+		return
+	}
+
+	c.JSON(http.StatusOK, api.Okay(api.WithMessage("Room deleted successfully")))
 }
 
 // GetMonitoringData returns the monitoring data of all rooms

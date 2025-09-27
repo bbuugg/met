@@ -136,6 +136,35 @@
               </a-button>
             </div>
           </div>
+
+          <!-- 房间列表 -->
+          <div v-if="roomList.length > 0" class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">我的会议</h3>
+            <div class="space-y-2 max-h-60 overflow-y-auto">
+              <div
+                v-for="room in roomList"
+                :key="room.uuid"
+                class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+              >
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-gray-800 dark:text-white truncate">
+                    {{ room.name }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ formatDate(room.createdAt) }}
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <a-button type="primary" size="small" @click="joinRoom(room.uuid)">
+                    加入
+                  </a-button>
+                  <a-button type="outline" size="small" status="danger" @click="deleteRoomHandler(room.uuid)">
+                    关闭
+                  </a-button>
+                </div>
+              </div>
+            </div>
+          </div>
         </template>
         <div class="flex flex-col gap-6 p-8" v-else>
           相同会议需要使用不同账号，测试账号
@@ -175,7 +204,8 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { handleAvatarError } from '@/utils/helper'
-import { createRoom, getRoomInfo } from '@/api'
+import { createRoom, getRoomInfo, getRoomList, deleteRoom } from '@/api'
+import type { RoomListItem } from '@/types/room'
 
 const router = useRouter()
 const route = useRoute()
@@ -185,6 +215,7 @@ const { t, locale } = useI18n()
 const meetingId = ref((route.query.roomId as string) || '')
 const meetingName = ref('')
 const isCreating = ref(false)
+const roomList = ref<RoomListItem[]>([])
 
 // Reactive variable to track current language
 const currentLanguage = computed(() => locale.value)
@@ -217,11 +248,20 @@ const themeChangeListener = (newTheme: 'light' | 'dark') => {
   currentTheme.value = newTheme
 }
 
+// 格式化日期
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('zh-CN')
+}
+
 onMounted(() => {
   currentTheme.value = theme.getCurrentTheme()
 
   // 监听主题变化
   theme.addListener(themeChangeListener)
+
+  // 获取房间列表
+  fetchRoomList()
 })
 
 onUnmounted(() => {
@@ -234,6 +274,18 @@ const isJoinDisabled = computed(() => {
   return !meetingId.value.trim()
 })
 
+// 获取房间列表
+const fetchRoomList = async () => {
+  try {
+    const response = await getRoomList()
+    if (response.code === 0) {
+      roomList.value = response.data
+    }
+  } catch (error: any) {
+    console.error('获取房间列表失败:', error)
+  }
+}
+
 // Event handlers for components
 const handleJoin = async () => {
   if (isJoinDisabled.value) {
@@ -244,8 +296,8 @@ const handleJoin = async () => {
   const mid = meetingId.value.trim()
   try {
     await getRoomInfo(mid)
-  } catch (error) {
-    Message.error(error.message)
+  } catch (error: any) {
+    Message.error(error.message || '获取房间信息失败')
     return
   }
 
@@ -274,14 +326,41 @@ const handleCreateAndJoin = async () => {
       router.push({
         path: `/meeting/${roomId}`
       })
+      
+      // 创建成功后刷新房间列表
+      await fetchRoomList()
     } else {
       Message.error(response.data.message || '创建会议失败')
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('创建会议失败:', error)
     Message.error('创建会议失败')
   } finally {
     isCreating.value = false
+  }
+}
+
+// 加入房间
+const joinRoom = (roomId: string) => {
+  router.push({
+    path: `/meeting/${roomId}`
+  })
+}
+
+// 删除房间
+const deleteRoomHandler = async (roomId: string) => {
+  try {
+    const response = await deleteRoom(roomId)
+    if (response.code === 0) {
+      Message.success('房间已关闭')
+      // 删除成功后刷新房间列表
+      await fetchRoomList()
+    } else {
+      Message.error(response.message || '关闭房间失败')
+    }
+  } catch (error: any) {
+    console.error('关闭房间失败:', error)
+    Message.error('关闭房间失败')
   }
 }
 </script>

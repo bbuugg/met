@@ -24,3 +24,13 @@ export function getRoomInfo(id: string) {
 export function createRoom(data: { name: string }) {
   return axios.post('/api/room', data)
 }
+
+// 获取房间列表
+export function getRoomList() {
+  return axios.get('/api/rooms')
+}
+
+// 删除房间
+export function deleteRoom(uuid: string) {
+  return axios.delete(`/api/room/${uuid}`)
+}
