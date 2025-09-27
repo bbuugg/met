@@ -20,9 +20,9 @@
       </span>
       <!-- Logout Button -->
       <button
-        @click="handleLogout"
+        @click="showLogoutConfirm"
         class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
-:title="t('tools.webRtcMeeting.entry.logout')"
+        :title="t('tools.webRtcMeeting.entry.logout')"
       >
         {{ t('tools.webRtcMeeting.entry.logout') }}
       </button>
@@ -80,7 +80,11 @@
             {{ t('tools.webRtcMeeting.title') }}
           </h1>
           <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-            {{ t('tools.webRtcMeeting.subtitle') }}
+            {{
+              userStore.info.uuid
+                ? t('tools.webRtcMeeting.subtitle')
+                : t('tools.webRtcMeeting.entry.loginToCreateOrJoin')
+            }}
           </p>
         </div>
 
@@ -148,16 +152,12 @@
           </div>
         </template>
         <div class="flex flex-col gap-6" v-else>
-          <div class="text-center">
-            <h2 class="text-xl font-semibold text-black dark:text-white mb-3">{{ t('tools.webRtcMeeting.entry.startMeeting') }}</h2>
-            <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-              {{ t('tools.webRtcMeeting.entry.loginToCreateOrJoin') }}
-            </p>
-          </div>
           <div
             class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4"
           >
-            <h3 class="font-medium text-black dark:text-white mb-3">{{ t('tools.webRtcMeeting.entry.testAccounts') }}</h3>
+            <h3 class="font-medium text-black dark:text-white mb-3">
+              {{ t('tools.webRtcMeeting.entry.testAccounts') }}
+            </h3>
             <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <li class="font-mono">邮箱：bug@bug.com 密码：bug@bug.com</li>
               <li class="font-mono">邮箱：bbql@qq.com 密码：bbql@qq.com</li>
@@ -195,7 +195,11 @@
         <button
           @click="showMeetingList = !showMeetingList"
           class="p-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
-          :title="showMeetingList ? t('tools.webRtcMeeting.entry.collapse') : t('tools.webRtcMeeting.entry.expand')"
+          :title="
+            showMeetingList
+              ? t('tools.webRtcMeeting.entry.collapse')
+              : t('tools.webRtcMeeting.entry.expand')
+          "
         >
           <svg
             class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
@@ -266,7 +270,60 @@
         {{ t('tools.webRtcMeeting.entry.systemMonitoring') }}
       </router-link>
       <span class="text-gray-400 dark:text-gray-600">|</span>
-      <span class="text-gray-500 dark:text-gray-400"> {{ t('tools.webRtcMeeting.entry.copyright', { year: new Date().getFullYear() }) }} </span>
+      <span class="text-gray-500 dark:text-gray-400">
+        {{ t('tools.webRtcMeeting.entry.copyright', { year: new Date().getFullYear() }) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- 退出登录确认 Modal -->
+  <div
+    v-if="showLogoutModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    @click="cancelLogout"
+  >
+    <div
+      class="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      @click.stop
+    >
+      <!-- 模态框内容 -->
+      <div class="p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <!-- 标题区域 -->
+        <div class="text-center mb-4 sm:mb-6">
+          <div
+            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors"
+          >
+            <ArrowRightIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+          </div>
+          <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-black dark:text-white">
+            {{ t('tools.webRtcMeeting.entry.logoutConfirmTitle') }}
+          </h2>
+          <p
+            class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed px-2 sm:px-0"
+          >
+            {{ t('tools.webRtcMeeting.entry.logoutConfirmMessage') }}
+          </p>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button
+            @click="confirmLogout"
+            class="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
+          >
+            <ArrowRightIcon class="h-3.5 w-3.5" />
+            <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutConfirm') }}</span>
+            <span class="sm:hidden">退出</span>
+          </button>
+          <button
+            @click="cancelLogout"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
+          >
+            <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutCancel') }}</span>
+            <span class="sm:hidden">取消</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -294,6 +351,7 @@ const meetingName = ref('')
 const isCreating = ref(false)
 const roomList = ref<RoomListItem[]>([])
 const showMeetingList = ref(true) // 控制会议列表展开/收起
+const showLogoutModal = ref(false) // 控制退出登录确认 modal
 
 // Reactive variable to track current language
 const currentLanguage = computed(() => locale.value)
@@ -303,8 +361,20 @@ const handleLogin = () => {
   window.location.href = `/login?redirect_uri=${encodeURIComponent(window.location.href)}`
 }
 
-const handleLogout = () => {
+// 显示退出登录确认 modal
+const showLogoutConfirm = () => {
+  showLogoutModal.value = true
+}
+
+// 确认退出登录
+const confirmLogout = () => {
+  showLogoutModal.value = false
   window.location.href = `/logout?redirect_uri=${encodeURIComponent(window.location.href)}`
+}
+
+// 取消退出登录
+const cancelLogout = () => {
+  showLogoutModal.value = false
 }
 
 // Function to toggle between languages
@@ -483,6 +553,46 @@ const deleteRoomHandler = async (roomId: string) => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 自定义模态框样式 */
+.fixed.inset-0 {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fixed.inset-0 > div {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  .max-h-\[90vh\] {
+    max-height: calc(100vh - 2rem) !important;
+  }
+
+  .flex-col button {
+    min-height: 36px;
   }
 }
 </style>

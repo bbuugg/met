@@ -140,7 +140,7 @@
                       :to="`/meeting/${room.id}`"
                       class="font-medium text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-400 transition-colors truncate"
                     >
-                      {{ room.id }}
+                      {{ room.name }}
                     </router-link>
                     <div class="flex items-center gap-1">
                       <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

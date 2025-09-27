@@ -1,5 +1,6 @@
 export interface RoomInfo {
   id: string
+  name: string
   clientCount: number
   startTime: string
   clients: ClientInfo[]

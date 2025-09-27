@@ -17,6 +17,7 @@ import (
 // RoomInfo represents the information of a room for monitoring
 type RoomInfo struct {
 	Id          string    `json:"id"`
+	Name        string    `json:"name"`
 	ClientCount int       `json:"clientCount"`
 	StartTime   time.Time `json:"startTime"`
 	MaxOnline   int       `json:"maxOnline"`
@@ -119,6 +120,24 @@ func (s *Server) GetMonitoringData(c *gin.Context) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	// 收集所有房间ID用于IN查询
+	roomIds := make([]string, 0, len(s.rooms))
+	for _, room := range s.rooms {
+		roomIds = append(roomIds, room.Id)
+	}
+
+	// 使用IN查询一次性获取所有房间信息
+	var roomEntities []entity.Room
+	if len(roomIds) > 0 {
+		database.DB(context.Background()).Where("uuid IN ?", roomIds).Find(&roomEntities)
+	}
+
+	// 创建房间ID到房间名称的映射
+	roomNameMap := make(map[string]string)
+	for _, roomEntity := range roomEntities {
+		roomNameMap[roomEntity.Uuid] = roomEntity.Name
+	}
+
 	var rooms = make([]RoomInfo, 0)
 	for _, room := range s.rooms {
 		room.mu.RLock()
@@ -131,6 +150,7 @@ func (s *Server) GetMonitoringData(c *gin.Context) {
 
 		rooms = append(rooms, RoomInfo{
 			Id:          room.Id,
+			Name:        roomNameMap[room.Id],
 			ClientCount: clientCount,
 			StartTime:   room.StartTime,
 			MaxOnline:   room.MaxOnline,
