@@ -553,8 +553,10 @@ export class WebRTCService {
 
       if (this.desktopAudioTrack) {
         this.desktopAudioTrack.enabled = true
+        console.log('Desktop audio track enabled:', this.desktopAudioTrack.enabled)
       }
 
+      console.log('Screen share started with desktop audio:', !!this.desktopAudioTrack)
       this.broadcastMediaState()
       await this.replaceVideoTrack(this.desktopVideoTrack)
       await this.replaceAudioTrack(await this.createMixedAudioTrack())
@@ -663,19 +665,29 @@ export class WebRTCService {
 
   // 切换桌面音频（独立于麦克风音频）
   async toggleDesktopAudio(): Promise<boolean> {
-    console.log('toggleDesktopAudio', this.localStream, this.mediaState.screen)
+    console.log('toggleDesktopAudio called:', {
+      localStream: !!this.localStream,
+      screenSharing: this.mediaState.screen,
+      hasDesktopAudioTrack: !!this.desktopAudioTrack,
+      currentDesktopAudioState: this.mediaState.desktopAudio
+    })
+
     if (!this.mediaState.screen || !this.desktopAudioTrack) {
+      console.log('Cannot toggle desktop audio: not screen sharing or no desktop audio track')
       return false // 只有在屏幕共享时才能控制桌面音频
     }
 
     const newState = !this.mediaState.desktopAudio
     this.desktopAudioTrack.enabled = newState
+    console.log('Desktop audio track enabled set to:', newState)
 
     this.mediaState.desktopAudio = newState
     this.broadcastMediaState()
 
     // 更新音频轨道（混合或单一）
-    await this.replaceAudioTrack(await this.createMixedAudioTrack())
+    const newAudioTrack = await this.createMixedAudioTrack()
+    console.log('Created new mixed audio track:', !!newAudioTrack)
+    await this.replaceAudioTrack(newAudioTrack)
 
     return this.mediaState.desktopAudio
   }
@@ -685,16 +697,33 @@ export class WebRTCService {
     const micEnabled = !!this.audioTrack && this.mediaState.audio
     const deskEnabled = !!this.desktopAudioTrack && this.mediaState.desktopAudio
 
+    console.log('Creating mixed audio track:', {
+      micEnabled,
+      deskEnabled,
+      hasAudioTrack: !!this.audioTrack,
+      hasDesktopAudioTrack: !!this.desktopAudioTrack,
+      audioState: this.mediaState.audio,
+      desktopAudioState: this.mediaState.desktopAudio
+    })
+
     if (!micEnabled && !deskEnabled) {
+      console.log('No audio tracks enabled, returning null')
       return null
     }
 
     if (micEnabled && deskEnabled && this.audioTrack && this.desktopAudioTrack) {
+      console.log('Mixing both mic and desktop audio')
       return await this.mixAudioTracks(this.audioTrack, this.desktopAudioTrack)
     }
 
-    if (micEnabled && this.audioTrack) return this.audioTrack
-    if (deskEnabled && this.desktopAudioTrack) return this.desktopAudioTrack
+    if (micEnabled && this.audioTrack) {
+      console.log('Using mic audio only')
+      return this.audioTrack
+    }
+    if (deskEnabled && this.desktopAudioTrack) {
+      console.log('Using desktop audio only')
+      return this.desktopAudioTrack
+    }
     return null
   }
 
@@ -704,6 +733,13 @@ export class WebRTCService {
     desktopTrack: MediaStreamTrack
   ): Promise<MediaStreamTrack> {
     try {
+      console.log('Mixing audio tracks:', {
+        micTrack: micTrack.id,
+        desktopTrack: desktopTrack.id,
+        micEnabled: micTrack.enabled,
+        desktopEnabled: desktopTrack.enabled
+      })
+
       // 创建 AudioContext 来混合音频
       const audioContext = new AudioContext()
 
@@ -719,8 +755,8 @@ export class WebRTCService {
       const desktopGain = audioContext.createGain()
 
       // 设置音量（可以根据需要调整）
-      micGain.gain.value = 1.0 // 麦克风音量
-      desktopGain.gain.value = 0.7 // 桌面音频音量稍低，避免过响
+      micGain.gain.value = micTrack.enabled ? 1.0 : 0.0 // 麦克风音量
+      desktopGain.gain.value = desktopTrack.enabled ? 0.8 : 0.0 // 桌面音频音量
 
       // 创建混合器
       const mixer = audioContext.createGain()
@@ -737,21 +773,39 @@ export class WebRTCService {
 
       const mixed = destination.stream.getAudioTracks()[0]
       // 保存当前混合输出轨，用于后续替换时正确停止
+      if (this.mixedAudioTrack) {
+        try {
+          this.mixedAudioTrack.stop()
+        } catch (e) {
+          console.warn('Failed to stop previous mixed audio track:', e)
+        }
+      }
       this.mixedAudioTrack = mixed
+
+      console.log('Audio tracks mixed successfully:', mixed.id)
       return mixed
     } catch (error) {
-      console.warn('Failed to mix audio tracks, falling back to mic track:', error)
-      return micTrack // 如果混合失败，回退到麦克风
+      console.warn('Failed to mix audio tracks, falling back to desktop track:', error)
+      // 如果混合失败，优先使用桌面音频（因为用户正在共享屏幕）
+      return desktopTrack.enabled ? desktopTrack : micTrack
     }
   }
 
   // 替换所有 peer 的 audio track
   private async replaceAudioTrack(newTrack: MediaStreamTrack | null): Promise<void> {
+    console.log('Replacing audio track:', {
+      newTrack: newTrack ? newTrack.id : null,
+      newTrackEnabled: newTrack?.enabled,
+      peersCount: this.peers.size,
+      currentLocalAudioTracks: this.localStream.getAudioTracks().length
+    })
+
     const promises: Promise<void>[] = []
 
     // 保持本地流仅有一个音频轨道（混合后的或单一）
     this.localStream.getAudioTracks().forEach((track) => {
       try {
+        console.log('Removing old audio track from local stream:', track.id)
         this.localStream.removeTrack(track)
         // 停止旧的混合输出轨，避免残留
         if (this.mixedAudioTrack && track === this.mixedAudioTrack) {
@@ -762,16 +816,25 @@ export class WebRTCService {
         }
       } catch {}
     })
+
     if (newTrack) {
+      console.log('Adding new audio track to local stream:', newTrack.id)
       this.localStream.addTrack(newTrack)
     }
 
     this.peers.forEach((peer, peerId) => {
       const senders = peer.connection.getSenders()
       const audioSender = senders.find((s) => s.track && s.track.kind === 'audio')
+
+      console.log(`Processing peer ${peerId}:`, {
+        hasAudioSender: !!audioSender,
+        currentTrack: audioSender?.track?.id
+      })
+
       if (!audioSender) {
         if (newTrack) {
           try {
+            console.log(`Adding new audio track to peer ${peerId}`)
             peer.connection.addTrack(newTrack, this.localStream)
           } catch (e) {
             console.warn('Failed to add audio track, will renegotiate', e)
@@ -782,10 +845,10 @@ export class WebRTCService {
         }
       } else {
         if (newTrack) {
+          console.log(`Replacing audio track for peer ${peerId}`)
           promises.push(
             audioSender
               .replaceTrack(newTrack)
-              .then(() => this.renegotiateConnection(peerId))
               .catch((error) => {
                 console.error(`Failed to replace audio track for peer ${peerId}:`, error)
                 return this.renegotiateConnection(peerId)
@@ -794,6 +857,7 @@ export class WebRTCService {
         } else {
           // 禁用音频：移除发送器并重新协商
           try {
+            console.log(`Removing audio sender for peer ${peerId}`)
             peer.connection.removeTrack(audioSender)
           } catch (e) {
             console.warn('Failed to remove audio sender', e)
@@ -802,7 +866,9 @@ export class WebRTCService {
         }
       }
     })
+
     await Promise.all(promises)
+    console.log('Audio track replacement completed')
   }
 
   async toggleVideo(deviceId?: string) {
