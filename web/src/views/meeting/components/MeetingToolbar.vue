@@ -52,69 +52,73 @@
     </div>
   </div>
 
-  <!-- Share Meeting Modal using Arco Design -->
-  <a-modal
-    v-model:visible="shareModalVisible"
-    :title="t('tools.webRtcMeeting.meeting.shareMeeting')"
-    :ok-text="t('tools.webRtcMeeting.meeting.close')"
-    :cancel-text="null"
-    :width="420"
-    @ok="closeModal"
-    :footer="false"
+  <!-- Share Meeting Modal -->
+  <div
+    v-if="shareModalVisible"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    @click="closeModal"
   >
-    <div class="flex flex-col gap-6">
-      <div class="text-center">
-        <div
-          class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black dark:bg-white mb-6 shadow-sm transition-colors"
-        >
-          <LinkIcon class="h-8 w-8 text-white dark:text-black" />
-        </div>
-        <h2 class="text-2xl font-bold mb-3 text-black dark:text-white">
-          {{ t('tools.webRtcMeeting.meeting.shareMeeting') }}
-        </h2>
-        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
-          {{ t('tools.webRtcMeeting.meeting.invitedToMeeting') }}
-        </p>
-      </div>
-
-      <div class="flex flex-col gap-3">
-        <label class="font-semibold text-black dark:text-white text-sm">{{
-          t('tools.webRtcMeeting.meeting.meetingLink')
-        }}</label>
-        <div
-          class="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg flex items-center justify-between border border-gray-200 dark:border-gray-700 transition-colors"
-        >
-          <div class="flex items-center flex-1 min-w-0">
-            <LinkIcon class="h-5 w-5 text-gray-500 dark:text-gray-400 mr-3 flex-shrink-0" />
-            <span class="font-medium text-black dark:text-white truncate">{{ meetingLink }}</span>
+    <div
+      class="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      @click.stop
+    >
+      <!-- 模态框内容 -->
+      <div class="p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+        <!-- 标题区域 -->
+        <div class="text-center mb-6 sm:mb-8">
+          <div class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-black dark:bg-white mb-4 sm:mb-6 transition-colors">
+            <LinkIcon class="h-6 w-6 sm:h-8 sm:w-8 text-white dark:text-black" />
           </div>
+          <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-black dark:text-white">
+            {{ t('tools.webRtcMeeting.meeting.shareMeeting') }}
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed px-2 sm:px-0">
+            {{ t('tools.webRtcMeeting.meeting.invitedToMeeting') }}
+          </p>
+        </div>
+
+        <!-- 链接区域 -->
+        <div class="mb-6 sm:mb-8">
+          <label class="font-semibold text-black dark:text-white text-sm mb-3 block">{{
+            t('tools.webRtcMeeting.meeting.meetingLink')
+          }}</label>
+          <div
+            class="p-3 sm:p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+          >
+            <div class="flex items-center gap-3 mb-3">
+              <LinkIcon class="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span class="font-medium text-black dark:text-white truncate text-sm">{{ meetingLink }}</span>
+            </div>
+            <button
+              @click="copyLink"
+              class="w-full py-2 px-3 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            >
+              复制链接
+            </button>
+          </div>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="flex flex-col sm:flex-row gap-3">
           <button
             @click="copyLink"
-            class="ml-3 px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex-shrink-0"
+            class="flex-1 py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 order-2 sm:order-1"
           >
-            复制
+            <LinkIcon class="h-4 w-4" />
+            <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.copyLink') }}</span>
+            <span class="sm:hidden">复制</span>
+          </button>
+          <button
+            @click="closeModal"
+            class="px-4 sm:px-6 py-3 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2"
+          >
+            <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.close') }}</span>
+            <span class="sm:hidden">关闭</span>
           </button>
         </div>
       </div>
-      
-      <!-- 自定义按钮 -->
-      <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <button
-          @click="copyLink"
-          class="flex-1 py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
-        >
-          <LinkIcon class="h-4 w-4" />
-          {{ t('tools.webRtcMeeting.meeting.copyLink') }}
-        </button>
-        <button
-          @click="closeModal"
-          class="px-4 py-3 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-all"
-        >
-          {{ t('tools.webRtcMeeting.meeting.close') }}
-        </button>
-      </div>
     </div>
-  </a-modal>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -238,6 +242,46 @@ button:active {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 自定义模态框样式 */
+.fixed.inset-0 {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.fixed.inset-0 > div {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 640px) {
+  .max-h-\\[90vh\\] {
+    max-height: calc(100vh - 2rem) !important;
+  }
+  
+  .flex-col button {
+    min-height: 44px;
   }
 }
 </style>
