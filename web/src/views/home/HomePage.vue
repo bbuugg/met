@@ -22,9 +22,9 @@
       <button
         @click="handleLogout"
         class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
-        title="退出登录"
+:title="t('tools.webRtcMeeting.entry.logout')"
       >
-        退出
+        {{ t('tools.webRtcMeeting.entry.logout') }}
       </button>
     </div>
   </div>
@@ -117,7 +117,7 @@
             <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
             <span
               class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium bg-white dark:bg-black px-2"
-              >或</span
+              >{{ t('tools.webRtcMeeting.or') }}</span
             >
             <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
           </div>
