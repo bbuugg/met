@@ -242,29 +242,29 @@
       @click.stop
     >
       <!-- 模态框内容 -->
-      <div class="p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+      <div class="p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <!-- 标题区域 -->
-        <div class="text-center mb-6 sm:mb-8">
+        <div class="text-center mb-4 sm:mb-6">
           <div
-            class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-600 mb-4 sm:mb-6 transition-colors"
+            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors"
           >
-            <ArrowRightIcon class="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            <ArrowRightIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
-          <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-black dark:text-white">
+          <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-black dark:text-white">
             {{ t('tools.webRtcMeeting.meeting.leaveConfirmTitle') }}
           </h2>
-          <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed px-2 sm:px-0">
+          <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed px-2 sm:px-0">
             {{ t('tools.webRtcMeeting.meeting.leaveConfirmMessage') }}
           </p>
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col sm:flex-row gap-2">
           <button
             @click="confirmLeave"
-            class="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2 order-2 sm:order-1"
+            class="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
           >
-            <ArrowRightIcon class="h-4 w-4" />
+            <ArrowRightIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{
               t('tools.webRtcMeeting.meeting.leaveConfirm')
             }}</span>
@@ -272,7 +272,7 @@
           </button>
           <button
             @click="cancelLeave"
-            class="px-4 sm:px-6 py-3 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
+            class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-1.5 order-1 sm:order-2 text-sm"
           >
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.leaveCancel') }}</span>
             <span class="sm:hidden">取消</span>
@@ -684,12 +684,12 @@ button:active {
 
 /* 移动端优化 */
 @media (max-width: 640px) {
-  .max-h-\\[90vh\\] {
+  .max-h-\[90vh\] {
     max-height: calc(100vh - 2rem) !important;
   }
 
   .flex-col button {
-    min-height: 44px;
+    min-height: 36px;
   }
 }
 
