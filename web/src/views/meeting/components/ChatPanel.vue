@@ -524,17 +524,6 @@ onUnmounted(() => {
   animation: fadeInUp 0.3s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* 头像悬停效果 */
 .w-10.h-10.rounded-lg {
   transition: transform 0.2s ease;

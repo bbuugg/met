@@ -242,17 +242,6 @@ button:active {
   animation: fadeInUp 0.3s ease-out;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* 自定义模态框样式 */
 .fixed.inset-0 {
   animation: fadeIn 0.2s ease-out;
@@ -260,36 +249,5 @@ button:active {
 
 .fixed.inset-0 > div {
   animation: slideUp 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 移动端优化 */
-@media (max-width: 640px) {
-  .max-h-\[90vh\] {
-    max-height: calc(100vh - 2rem) !important;
-  }
-
-  .flex-col button {
-    min-height: 36px;
-  }
 }
 </style>

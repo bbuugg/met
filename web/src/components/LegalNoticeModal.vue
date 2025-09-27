@@ -237,16 +237,7 @@ button:disabled:hover {
   animation-delay: 0.2s;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+
 
 /* 图标容器脉冲效果 */
 .inline-flex.items-center.justify-center.w-16.h-16 {
@@ -299,36 +290,5 @@ button:disabled:hover {
 
 .fixed.inset-0 > div {
   animation: slideUp 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 移动端优化 */
-@media (max-width: 640px) {
-  .max-h-\[90vh\] {
-    max-height: calc(100vh - 2rem) !important;
-  }
-
-  .flex-col button {
-    min-height: 36px;
-  }
 }
 </style>

@@ -649,26 +649,6 @@ onUnmounted(() => {
   animation: slideUp 0.3s ease-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* 按钮悬停效果 */
 button {
   transition: all 0.2s ease-in-out;
@@ -680,23 +660,5 @@ button:hover:not(:disabled) {
 
 button:active {
   transform: translateY(0);
-}
-
-/* 移动端优化 */
-@media (max-width: 640px) {
-  .max-h-\[90vh\] {
-    max-height: calc(100vh - 2rem) !important;
-  }
-
-  .flex-col button {
-    min-height: 36px;
-  }
-}
-
-/* 确保模态框在所有屏幕尺寸下都能正确显示 */
-@media (max-height: 600px) {
-  .max-h-\\[90vh\\] {
-    max-height: calc(100vh - 1rem) !important;
-  }
 }
 </style>
