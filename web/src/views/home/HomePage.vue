@@ -1,27 +1,27 @@
 <template>
   <!-- User Info and Controls -->
-  <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
+  <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
     <!-- User Info (only show when logged in) -->
     <div
       v-if="userStore.info.uuid"
-      class="flex items-center gap-3 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg"
+      class="flex items-center gap-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2 shadow-sm"
     >
       <!-- User Avatar -->
       <img
         referrerpolicy="no-referrer"
         :src="userStore.info.avatar"
         :alt="userStore.info.name"
-        class="w-8 h-8 rounded-full object-cover"
+        class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
         @error="handleAvatarError"
       />
       <!-- User Name -->
-      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span class="text-sm font-medium text-black dark:text-white">
         {{ userStore.info.name }}
       </span>
       <!-- Logout Button -->
       <button
         @click="handleLogout"
-        class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+        class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
         title="退出登录"
       >
         退出
@@ -29,136 +29,120 @@
     </div>
   </div>
 
-  <div class="fixed bottom-4 left-4 z-50 flex gap-2">
+  <!-- Control Buttons -->
+  <div class="fixed top-6 left-6 z-50 flex gap-3">
+    <!-- Theme Switch Button -->
+    <button
+      @click="toggleTheme"
+      class="w-12 h-12 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+      :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'"
+    >
+      <MoonIcon v-if="currentTheme === 'light'" class="h-5 w-5" />
+      <SunIcon v-else class="h-5 w-5" />
+    </button>
+
     <!-- Language Switch Button -->
     <button
       @click="toggleLanguage"
-      class="w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-700 text-white font-bold text-lg flex items-center justify-center shadow-lg"
+      class="w-12 h-12 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
       :title="currentLanguage === 'en-US' ? 'Switch to Chinese' : '切换到英文'"
     >
       <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
     </button>
-
-    <!-- Theme Switch Button -->
-    <button
-      @click="toggleTheme"
-      class="w-12 h-12 rounded-full bg-gray-800 hover:bg-gray-700 text-white font-bold text-lg flex items-center justify-center shadow-lg"
-      :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'"
-    >
-      <MoonIcon v-if="currentTheme === 'light'" class="h-6 w-6" />
-      <SunIcon v-else class="h-6 w-6" />
-    </button>
   </div>
-  <div
-    class="min-h-screen flex flex-col items-center justify-center p-4 relative bg-gray-50 dark:bg-gray-900"
-  >
-    <!-- Background decoration -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div
-        class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 dark:opacity-20"
-      ></div>
-      <div
-        class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 dark:opacity-20"
-      ></div>
+
+  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-white dark:bg-black transition-colors">
+    <!-- Subtle background pattern -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, black 1px, transparent 0); background-size: 20px 20px;"></div>
     </div>
 
     <!-- 居中的用户信息输入区域 -->
-    <div class="w-full max-w-md glass-card rounded-xl bg-white dark:bg-gray-800 shadow-xl">
-      <div class="flex flex-col gap-6 p-8">
+    <div class="w-full max-w-md bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10">
+      <div class="flex flex-col gap-8 p-8">
         <div class="text-center">
           <div
-            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 mb-4 shadow-lg"
+            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black dark:bg-white mb-6 transition-colors"
           >
-            <VideoCameraIcon class="h-8 w-8 text-white" />
+            <VideoCameraIcon class="h-8 w-8 text-white dark:text-black" />
           </div>
-          <h1 class="text-3xl font-bold mb-2 text-gray-800 dark:text-white">
+          <h1 class="text-3xl font-bold mb-3 text-black dark:text-white">
             {{ t('tools.webRtcMeeting.title') }}
           </h1>
-          <p class="text-gray-500 dark:text-gray-400 mb-6">
+          <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
             {{ t('tools.webRtcMeeting.subtitle') }}
           </p>
         </div>
 
         <template v-if="userStore.info.uuid">
           <!-- 创建会议表单 -->
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-              <label for="meetingName" class="font-semibold text-gray-700 dark:text-gray-300">
+          <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-3">
+              <label for="meetingName" class="font-semibold text-black dark:text-white text-sm">
                 {{ t('tools.webRtcMeeting.entry.meetingName') }}
               </label>
-              <div class="relative">
-                <input
-                  id="meetingName"
-                  v-model="meetingName"
-                  :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
-                  class="input-field w-full"
-                  @keyup.enter="handleCreateAndJoin"
-                />
-              </div>
+              <input
+                id="meetingName"
+                v-model="meetingName"
+                :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
+                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                @keyup.enter="handleCreateAndJoin"
+              />
             </div>
 
-            <div class="flex justify-center">
-              <a-button
-                type="primary"
-                size="large"
-                :loading="isCreating"
-                @click="handleCreateAndJoin"
-                class="w-full py-3 rounded-lg"
-              >
-                <span>{{ t('tools.webRtcMeeting.entry.createAndJoinMeeting') }}</span>
-                <ArrowRightIcon class="h-5 w-5 ml-2" />
-              </a-button>
-            </div>
+            <button
+              :disabled="isCreating || !meetingName.trim()"
+              @click="handleCreateAndJoin"
+              class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              <span v-if="!isCreating">{{ t('tools.webRtcMeeting.entry.createAndJoinMeeting') }}</span>
+              <span v-else>创建中...</span>
+              <ArrowRightIcon v-if="!isCreating" class="h-4 w-4" />
+            </button>
           </div>
 
-          <div class="relative flex items-center justify-center">
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium">或</span>
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+          <div class="relative flex items-center justify-center my-2">
+            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium bg-white dark:bg-black px-2">或</span>
+            <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
           </div>
 
           <!-- 加入现有会议表单 -->
-          <div class="flex flex-col gap-4">
-            <div class="flex flex-col gap-2">
-              <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">
+          <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-3">
+              <label for="meetingId" class="font-semibold text-black dark:text-white text-sm">
                 {{ t('tools.webRtcMeeting.entry.meetingId') }}
               </label>
-              <div class="relative">
-                <input
-                  id="meetingId"
-                  v-model="meetingId"
-                  :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
-                  class="input-field w-full"
-                  @keyup.enter="handleJoin"
-                />
-              </div>
+              <input
+                id="meetingId"
+                v-model="meetingId"
+                :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
+                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                @keyup.enter="handleJoin"
+              />
             </div>
 
-            <div class="flex justify-center">
-              <a-button 
-                type="outline" 
-                size="large" 
-                :disabled="isJoinDisabled" 
-                @click="handleJoin"
-                class="w-full py-3 rounded-lg"
-              >
-                <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
-                <ArrowRightIcon class="h-5 w-5 ml-2" />
-              </a-button>
-            </div>
+            <button
+              :disabled="isJoinDisabled"
+              @click="handleJoin"
+              class="w-full py-3 px-4 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
+              <ArrowRightIcon class="h-4 w-4" />
+            </button>
           </div>
 
           <!-- 房间列表 -->
-          <div v-if="roomList.length > 0" class="mt-8">
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">我的会议</h3>
-            <div class="space-y-3 max-h-80 overflow-y-auto pr-2">
+          <div v-if="roomList.length > 0" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-black dark:text-white mb-4">我的会议</h3>
+            <div class="space-y-3 max-h-80 overflow-y-auto">
               <div
                 v-for="room in roomList"
                 :key="room.uuid"
-                class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:shadow-md transition-all duration-200"
+                class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-all"
               >
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium text-gray-800 dark:text-white truncate">
+                  <div class="font-medium text-black dark:text-white truncate">
                     {{ room.name }}
                   </div>
                   <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -166,45 +150,40 @@
                   </div>
                 </div>
                 <div class="flex gap-2 ml-3">
-                  <a-button 
-                    type="primary" 
-                    size="small" 
+                  <button 
                     @click="joinRoom(room.uuid)"
-                    class="rounded-lg"
+                    class="px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                   >
                     加入
-                  </a-button>
-                  <a-button 
-                    type="outline" 
-                    size="small" 
-                    status="danger" 
+                  </button>
+                  <button 
                     @click="deleteRoomHandler(room.uuid)"
-                    class="rounded-lg"
+                    class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-all"
                   >
                     关闭
-                  </a-button>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </template>
-        <div class="flex flex-col gap-6 p-8" v-else>
+        <div class="flex flex-col gap-6" v-else>
           <div class="text-center">
-            <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">开始您的会议</h2>
-            <p class="text-gray-600 dark:text-gray-300 mb-6">
+            <h2 class="text-xl font-semibold text-black dark:text-white mb-3">开始您的会议</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
               登录后即可创建或加入会议
             </p>
           </div>
-          <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 mb-4">
-            <h3 class="font-medium text-blue-800 dark:text-blue-200 mb-2">测试账号</h3>
-            <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-              <li>邮箱：bug@bug.com 密码：bug@bug.com</li>
-              <li>邮箱：bbql@qq.com 密码：bbql@qq.com</li>
+          <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+            <h3 class="font-medium text-black dark:text-white mb-3">测试账号</h3>
+            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <li class="font-mono">邮箱：bug@bug.com 密码：bug@bug.com</li>
+              <li class="font-mono">邮箱：bbql@qq.com 密码：bbql@qq.com</li>
             </ul>
           </div>
           <button 
             @click="handleLogin" 
-            class="btn-primary py-3 rounded-lg"
+            class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
           >
             登录
           </button>
@@ -212,19 +191,18 @@
       </div>
     </div>
 
-    <!-- 监控页面链接 -->
-    <div class="absolute bottom-16 text-center">
+    <!-- Footer -->
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-6 text-sm">
       <router-link
         to="/monitoring"
-        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 text-sm font-medium"
+        class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
       >
         系统监控
       </router-link>
-    </div>
-
-    <!-- Footer -->
-    <div class="absolute bottom-6 text-gray-500 text-sm dark:text-gray-400">
-      © {{ new Date().getFullYear() }} Met
+      <span class="text-gray-400 dark:text-gray-600">|</span>
+      <span class="text-gray-500 dark:text-gray-400">
+        © {{ new Date().getFullYear() }} Met
+      </span>
     </div>
   </div>
 </template>

@@ -3,26 +3,36 @@ export default {
   darkMode: 'class', // 启用基于class的暗色模式
   theme: {
     extend: {
-      // 亮色主题颜色
+      // 黑白主题颜色
       colors: {
-        // 亮色主题
+        // 亮色主题 - 纯黑白
         light: {
-          primary: '#3b82f6',
-          secondary: '#64748b',
-          background: '#f8fafc',
+          primary: '#000000',
+          secondary: '#666666',
+          background: '#ffffff',
           surface: '#ffffff',
-          text: '#1e293b',
-          border: '#e2e8f0'
+          text: '#000000',
+          border: '#e5e5e5'
         },
-        // 暗色主题
+        // 暗色主题 - 纯黑白
         dark: {
-          primary: '#3b82f6',
-          secondary: '#94a3b8',
-          background: '#0f172a',
-          surface: '#1e293b',
-          text: '#f1f5f9',
-          border: '#334155'
+          primary: '#ffffff',
+          secondary: '#999999',
+          background: '#000000',
+          surface: '#000000',
+          text: '#ffffff',
+          border: '#333333'
         }
+      },
+      // 添加黑白渐变
+      backgroundImage: {
+        'gradient-light': 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        'gradient-dark': 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)'
+      },
+      // 添加自定义阴影
+      boxShadow: {
+        'light': '0 2px 8px rgba(0, 0, 0, 0.1)',
+        'dark': '0 2px 8px rgba(255, 255, 255, 0.05)'
       }
     }
   },
