@@ -51,15 +51,25 @@
     </button>
   </div>
 
-  <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-white dark:bg-black transition-colors">
+  <div
+    class="min-h-screen flex flex-col items-center justify-center p-6 bg-white dark:bg-black transition-colors"
+  >
     <!-- Subtle background pattern -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
-      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, black 1px, transparent 0); background-size: 20px 20px;"></div>
+      <div
+        class="absolute inset-0"
+        style="
+          background-image: radial-gradient(circle at 1px 1px, black 1px, transparent 0);
+          background-size: 20px 20px;
+        "
+      ></div>
     </div>
 
     <!-- 居中的用户信息输入区域 -->
-    <div class="w-full max-w-md bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10">
-      <div class="flex flex-col gap-8 p-8">
+    <div
+      class="w-full max-w-md bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10"
+    >
+      <div class="flex flex-col gap-4 p-8">
         <div class="text-center">
           <div
             class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-black dark:bg-white mb-6 transition-colors"
@@ -95,7 +105,9 @@
               @click="handleCreateAndJoin"
               class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
-              <span v-if="!isCreating">{{ t('tools.webRtcMeeting.entry.createAndJoinMeeting') }}</span>
+              <span v-if="!isCreating">{{
+                t('tools.webRtcMeeting.entry.createAndJoinMeeting')
+              }}</span>
               <span v-else>创建中...</span>
               <ArrowRightIcon v-if="!isCreating" class="h-4 w-4" />
             </button>
@@ -103,7 +115,10 @@
 
           <div class="relative flex items-center justify-center my-2">
             <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium bg-white dark:bg-black px-2">或</span>
+            <span
+              class="mx-4 text-gray-500 dark:text-gray-400 text-sm font-medium bg-white dark:bg-black px-2"
+              >或</span
+            >
             <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
           </div>
 
@@ -131,41 +146,6 @@
               <ArrowRightIcon class="h-4 w-4" />
             </button>
           </div>
-
-          <!-- 房间列表 -->
-          <div v-if="roomList.length > 0" class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-semibold text-black dark:text-white mb-4">我的会议</h3>
-            <div class="space-y-3 max-h-80 overflow-y-auto">
-              <div
-                v-for="room in roomList"
-                :key="room.uuid"
-                class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-all"
-              >
-                <div class="flex-1 min-w-0">
-                  <div class="font-medium text-black dark:text-white truncate">
-                    {{ room.name }}
-                  </div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {{ formatDate(room.createdAt) }}
-                  </div>
-                </div>
-                <div class="flex gap-2 ml-3">
-                  <button 
-                    @click="joinRoom(room.uuid)"
-                    class="px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-                  >
-                    加入
-                  </button>
-                  <button 
-                    @click="deleteRoomHandler(room.uuid)"
-                    class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-sm font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-black dark:hover:text-white transition-all"
-                  >
-                    关闭
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </template>
         <div class="flex flex-col gap-6" v-else>
           <div class="text-center">
@@ -174,15 +154,17 @@
               登录后即可创建或加入会议
             </p>
           </div>
-          <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+          <div
+            class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4"
+          >
             <h3 class="font-medium text-black dark:text-white mb-3">测试账号</h3>
             <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <li class="font-mono">邮箱：bug@bug.com 密码：bug@bug.com</li>
               <li class="font-mono">邮箱：bbql@qq.com 密码：bbql@qq.com</li>
             </ul>
           </div>
-          <button 
-            @click="handleLogin" 
+          <button
+            @click="handleLogin"
             class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
           >
             登录
@@ -191,8 +173,92 @@
       </div>
     </div>
 
+    <!-- 会议列表浮动面板 - 右下角 -->
+    <div
+      v-if="userStore.info.uuid && roomList.length > 0"
+      class="fixed bottom-20 right-6 z-40 w-72 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg transition-all duration-300"
+      :class="{ 'h-auto': showMeetingList, 'h-14': !showMeetingList }"
+    >
+      <!-- 标题栏 -->
+      <div
+        class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800"
+      >
+        <h3 class="text-sm font-semibold text-black dark:text-white flex items-center gap-2">
+          <VideoCameraIcon class="h-4 w-4" />
+          我的会议
+          <span
+            class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full"
+          >
+            {{ roomList.length }}
+          </span>
+        </h3>
+        <button
+          @click="showMeetingList = !showMeetingList"
+          class="p-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
+          :title="showMeetingList ? '收起' : '展开'"
+        >
+          <svg
+            class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
+            :class="{ 'rotate-180': !showMeetingList }"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- 会议列表内容 -->
+      <div v-show="showMeetingList" class="p-3 space-y-2 max-h-60 overflow-y-auto">
+        <div
+          v-for="room in roomList"
+          :key="room.uuid"
+          class="group flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-all"
+        >
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-black dark:text-white truncate text-sm">
+              {{ room.name }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ formatDate(room.createdAt) }}
+            </div>
+          </div>
+          <div class="flex gap-1.5 ml-3 opacity-70 group-hover:opacity-100 transition-opacity">
+            <button
+              @click="joinRoom(room.uuid)"
+              class="px-2.5 py-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              title="加入会议"
+            >
+              加入
+            </button>
+            <button
+              @click="deleteRoomHandler(room.uuid)"
+              class="px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-xs font-medium rounded hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-600 transition-all"
+              title="关闭会议"
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div
+          v-if="roomList.length === 0"
+          class="text-center py-6 text-gray-500 dark:text-gray-400 text-sm"
+        >
+          暂无会议
+        </div>
+      </div>
+    </div>
+
     <!-- Footer -->
-    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-6 text-sm">
+    <div class="fixed bottom-6 left-6 flex items-center gap-6 text-sm">
       <router-link
         to="/monitoring"
         class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
@@ -200,9 +266,7 @@
         系统监控
       </router-link>
       <span class="text-gray-400 dark:text-gray-600">|</span>
-      <span class="text-gray-500 dark:text-gray-400">
-        © {{ new Date().getFullYear() }} Met
-      </span>
+      <span class="text-gray-500 dark:text-gray-400"> © {{ new Date().getFullYear() }} Met </span>
     </div>
   </div>
 </template>
@@ -229,6 +293,7 @@ const meetingId = ref((route.query.roomId as string) || '')
 const meetingName = ref('')
 const isCreating = ref(false)
 const roomList = ref<RoomListItem[]>([])
+const showMeetingList = ref(true) // 控制会议列表展开/收起
 
 // Reactive variable to track current language
 const currentLanguage = computed(() => locale.value)
@@ -339,7 +404,7 @@ const handleCreateAndJoin = async () => {
       router.push({
         path: `/meeting/${roomId}`
       })
-      
+
       // 创建成功后刷新房间列表
       await fetchRoomList()
     } else {
@@ -377,3 +442,47 @@ const deleteRoomHandler = async (roomId: string) => {
   }
 }
 </script>
+
+<style scoped>
+/* 自定义滚动条样式 */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* 会议列表动画 */
+.group {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
