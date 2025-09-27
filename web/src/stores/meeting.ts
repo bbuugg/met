@@ -16,6 +16,7 @@ export const useMeetingStore = defineStore('meeting', () => {
   const isJoining = ref(false)
   const currentUser = ref<Peer | null>(null)
   const roomId = ref('')
+  const roomName = ref('')
   const clientId = ref('')
 
   // Additional state for HomeView.vue.bak compatibility
@@ -42,6 +43,7 @@ export const useMeetingStore = defineStore('meeting', () => {
 
     isJoining.value = true
     roomId.value = signedData.roomId
+    roomName.value = signedData.roomName
     clientId.value = signedData.userId
 
     try {
@@ -236,16 +238,16 @@ export const useMeetingStore = defineStore('meeting', () => {
         video: false,
         audio: audioDeviceId
           ? {
-            deviceId: { exact: audioDeviceId },
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
+              deviceId: { exact: audioDeviceId },
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
           : {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
+            }
       }
 
       // 获取音频流
@@ -336,7 +338,11 @@ export const useMeetingStore = defineStore('meeting', () => {
     if (!webrtcService.value || !currentUser.value) return false
 
     const enabled = await webrtcService.value.toggleVideo(deviceId)
-    console.log('Local stream tracks after toggleVideo:', currentUser.value.mediaState.video, enabled)
+    console.log(
+      'Local stream tracks after toggleVideo:',
+      currentUser.value.mediaState.video,
+      enabled
+    )
     currentUser.value.mediaState.video = enabled
     if (enabled) {
       // 摄像头开启后，屏幕共享应为关闭状态
@@ -512,6 +518,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     isJoining,
     currentUser,
     roomId,
+    roomName,
     clientId,
     webrtcService, // 导出webrtcService
 

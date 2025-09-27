@@ -15,3 +15,8 @@ export function generateSignature(params: any) {
 export function getMinitorData() {
   return axios.get('/api/monitoring')
 }
+
+// 添加创建房间的API接口
+export function createRoom(data: { name: string }) {
+  return axios.post('/api/room', data)
+}

@@ -3,7 +3,7 @@
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
         <UserGroupIcon class="h-5 w-5 text-indigo-400" />
-        <span class="text-gray-800 dark:text-white font-medium">{{ roomId }}</span>
+        <span class="text-gray-800 dark:text-white font-medium">{{ meetingStore.roomName }}</span>
       </div>
     </div>
 

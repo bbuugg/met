@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		<-quit
+		// todo 移除房间，写入会议数据
 		log.Println("Shutdown Server ...")
 
 		return nil

@@ -19,11 +19,15 @@ const enUS = {
       entry: {
         meetingId: 'Meeting ID',
         meetingIdPlaceholder: 'Enter meeting ID',
+        meetingName: 'Meeting Name',
+        meetingNamePlaceholder: 'Enter meeting name',
+        createAndJoinMeeting: 'Create and Join Meeting',
         createMeeting: 'Create Meeting',
         joinMeeting: 'Join Meeting'
       },
       errors: {
         meetingIdRequired: 'Meeting ID is required',
+        meetingNameRequired: 'Meeting name is required',
         connectionFailed: 'Failed to connect to server'
       },
       status: {
@@ -145,11 +149,15 @@ const zhCN = {
       entry: {
         meetingId: '会议 ID',
         meetingIdPlaceholder: '输入会议 ID',
+        meetingName: '会议名称',
+        meetingNamePlaceholder: '输入会议名称',
+        createAndJoinMeeting: '创建并加入会议',
         createMeeting: '创建会议',
         joinMeeting: '加入会议'
       },
       errors: {
         meetingIdRequired: '会议 ID 是必需的',
+        meetingNameRequired: '会议名称是必需的',
         connectionFailed: '连接服务器失败'
       },
       status: {

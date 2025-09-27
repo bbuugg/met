@@ -1,6 +1,7 @@
 package webrtc
 
 import (
+	"context"
 	"meeting/internal/model/entity"
 	"meeting/pkg/api"
 	"meeting/pkg/auth"
@@ -44,17 +45,15 @@ func (s *Server) CreateRoom(c *gin.Context) {
 
 	user := auth.MustGetUserFromCtx(c)
 
-	// Create room entity
-	room := &entity.Room{
-		Uuid:   uuid.New().String(),
-		UserId: user.Id,
-		Name:   req.Name,
-	}
-
-	// Save to database
-	if err := database.DB(c).Create(room).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to create room")))
-		return
+	var room entity.Room
+	if database.DB(context.Background()).Where("user_id=?", user.Id).Where("name", req.Name).Find(&room); room.Id == 0 {
+		room.Uuid = uuid.New().String()
+		room.UserId = user.Id
+		room.Name = req.Name
+		if err := database.DB(c).Create(&room).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage("Failed to create room")))
+			return
+		}
 	}
 
 	response := CreateRoomResponse{
@@ -97,6 +96,11 @@ func (s *Server) GetMonitoringData(c *gin.Context) {
 	c.JSON(http.StatusOK, api.Okay(api.WithData(rooms)))
 }
 
+type SignRes struct {
+	SignatureResponse
+	RoomName string `json:"roomName"`
+}
+
 func (s *Server) GenerateSignature(c *gin.Context) {
 	var req SignatureRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -105,14 +109,29 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 	}
 	user := auth.MustGetUserFromCtx(c)
 	req.UserId = user.Uuid
-	if req.Name == "" {
-		req.Name = user.Name
+	req.Name = user.Name
+	req.Avatar = user.Avatar
+	var room entity.Room
+	if database.DB(c).Where("uuid=?", req.RoomId).Find(&room); room.Id == 0 {
+		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage("room not found")))
+		return
 	}
+
+	var role = RoleUser
+	if room.UserId == user.Id {
+		role = RoleMaster
+	}
+
+	req.Role = role
+
 	sign, err := GenerateSignature(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage(err.Error())))
 		return
 	}
 
-	c.JSON(http.StatusOK, api.Okay(api.WithData(sign)))
+	c.JSON(http.StatusOK, api.Okay(api.WithData(&SignRes{
+		SignatureResponse: *sign,
+		RoomName:          room.Name,
+	})))
 }

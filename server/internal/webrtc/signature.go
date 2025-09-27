@@ -8,7 +8,7 @@ import (
 	"fmt"
 )
 
-const Secret = "secret"
+const Secret = "X8#kP2!9mQ5$zR7*3fT1&bY4%nH6@gS0"
 
 var (
 	ErrMissingRequiredFields = errors.New("missing required fields")
@@ -17,10 +17,11 @@ var (
 
 // SignatureRequest represents the request structure for generating signatures
 type SignatureRequest struct {
-	RoomId    string `json:"roomId" form:"roomId"`
-	UserId    string `json:"userId" form:"userId"`
-	Name      string `json:"name"    form:"name"`
-	Role      Role   `json:"role"    form:"role"`
+	RoomId    string `json:"roomId"    form:"roomId"`
+	UserId    string `json:"userId"    form:"userId"`
+	Avatar    string `json:"avatar"    form:"avatar"`
+	Name      string `json:"name"      form:"name"`
+	Role      Role   `json:"role"      form:"role"`
 	Timestamp int    `json:"timestamp" form:"timestamp"`
 }
 

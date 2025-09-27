@@ -3,11 +3,11 @@
     <!-- Background decoration -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div
-        class="absolute -top-40 -right-40 w-80 h-80 bg-indigo-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20">
-      </div>
+        class="absolute -top-40 -right-40 w-80 h-80 bg-indigo-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20"
+      ></div>
       <div
-        class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20">
-      </div>
+        class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20"
+      ></div>
     </div>
 
     <div class="flex-1 flex flex-col overflow-hidden">
@@ -16,32 +16,47 @@
       <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative">
         <VideoGrid class="flex-1" />
         <!-- 聊天面板 - 可收起 -->
-        <ChatPanel v-if="showChatPanel" :class="[
-          'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
-          'fixed md:relative z-40',
-          'inset-0 md:inset-auto md:w-96',
-          'bg-white dark:bg-gray-800'
-        ]" @close="toggleChatPanel" />
-
-
+        <ChatPanel
+          v-if="showChatPanel"
+          :class="[
+            'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
+            'fixed md:relative z-40',
+            'inset-0 md:inset-auto md:w-96',
+            'bg-white dark:bg-gray-800'
+          ]"
+          @close="toggleChatPanel"
+        />
       </div>
-      <ControlPanel :showChatPanel="showChatPanel" :unreadMessagesCount="unreadMessagesCount"
-        @toggleChatPanel="toggleChatPanel" />
+      <ControlPanel
+        :showChatPanel="showChatPanel"
+        :unreadMessagesCount="unreadMessagesCount"
+        @toggleChatPanel="toggleChatPanel"
+      />
     </div>
     <!-- Loading overlay -->
-    <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div
+      v-if="isJoining"
+      class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+    >
       <div class="flex flex-col items-center gap-4 text-white">
         <!-- 自定义加载动画 -->
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div
+          class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+        ></div>
         <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.connecting') }}</p>
       </div>
     </div>
 
     <!-- Reconnecting overlay -->
-    <div v-if="isReconnecting" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div
+      v-if="isReconnecting"
+      class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+    >
       <div class="flex flex-col items-center gap-4 text-white">
         <!-- 自定义加载动画 -->
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div
+          class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+        ></div>
         <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.reconnecting') }}</p>
       </div>
     </div>
@@ -84,7 +99,9 @@ const showChatPanel = ref(false) // 聊天面板显示状态
 
 // 计算未读消息数量
 const unreadMessagesCount = computed(() => {
-  return meetingStore.chatMessages.filter(msg => !msg.read && msg.senderId !== meetingStore.clientId).length
+  return meetingStore.chatMessages.filter(
+    (msg) => !msg.read && msg.senderId !== meetingStore.clientId
+  ).length
 })
 
 // 切换聊天面板显示状态
@@ -159,7 +176,7 @@ async function initializeMeeting(clientId: string) {
     const signRes = await generateSignature({
       timestamp: Date.now(),
       name: clientId,
-      roomId,
+      roomId
     })
 
     await meetingStore.joinMeeting(wsUrl, signRes.data)

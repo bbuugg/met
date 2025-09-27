@@ -8,8 +8,16 @@
 
       <a-card>
         <a-typography-title :heading="4" style="margin-bottom: 16px">在线会议室</a-typography-title>
-        <a-table :columns="columns" :data="rooms" :loading="loading" :pagination="false"
-          :bordered="{ wrapper: true, cell: true }">
+        <a-table
+          :columns="columns"
+          :data="rooms"
+          :loading="loading"
+          :pagination="false"
+          :bordered="{ wrapper: true, cell: true }"
+        >
+          <template #id="{ record }">
+            <RouterLink :to="`/meeting/${record.id}`">{{ record.id }}</RouterLink>
+          </template>
           <template #clientCount="{ record }">
             <a-tag color="green">{{ record.clientCount }} 人</a-tag>
           </template>
@@ -20,8 +28,13 @@
       </a-card>
 
       <!-- Room Details Modal -->
-      <a-modal v-model:visible="showRoomDetails" :title="`房间详情 - ${selectedRoom?.id}`" @cancel="closeRoomDetails"
-        @ok="closeRoomDetails" :width="800">
+      <a-modal
+        v-model:visible="showRoomDetails"
+        :title="`房间详情 - ${selectedRoom?.id}`"
+        @cancel="closeRoomDetails"
+        @ok="closeRoomDetails"
+        :width="800"
+      >
         <a-spin :loading="roomDetailLoading">
           <div v-if="selectedRoom">
             <a-descriptions title="房间信息" :column="2" style="margin-bottom: 20px">
@@ -39,7 +52,9 @@
               <a-list-item v-for="client in selectedRoom.clients" :key="client.id">
                 <a-list-item-meta>
                   <template #avatar>
-                    <a-avatar :style="{ backgroundColor: client.role === 'master' ? '#6268ff' : '#165dff' }">
+                    <a-avatar
+                      :style="{ backgroundColor: client.role === 'master' ? '#6268ff' : '#165dff' }"
+                    >
                       {{ client.name.charAt(0) }}
                     </a-avatar>
                   </template>
@@ -67,7 +82,7 @@
 <script setup lang="ts">
 import type { RoomInfo } from '@/types/monitoring'
 import axios from 'axios'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, render } from 'vue'
 import {
   TypographyTitle as ATypographyTitle,
   TypographyParagraph as ATypographyParagraph,
@@ -86,6 +101,7 @@ import {
   Empty as AEmpty
 } from '@arco-design/web-vue'
 import { getMinitorData } from '@/api'
+import { RouterLink } from 'vue-router'
 
 const rooms = ref<RoomInfo[]>([])
 const showRoomDetails = ref(false)
@@ -97,7 +113,8 @@ const roomDetailLoading = ref(false)
 const columns = [
   {
     title: '房间ID',
-    dataIndex: 'id'
+    dataIndex: 'id',
+    slotName: 'id'
   },
   {
     title: '开始时间',

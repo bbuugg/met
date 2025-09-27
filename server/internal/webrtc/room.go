@@ -102,7 +102,7 @@ func (r *Room) Run() {
 				r.lastAlive = time.Now()
 			}
 			r.mu.RUnlock()
-			if r.lastAlive.Add(time.Minute * 5).Before(time.Now()) {
+			if r.lastAlive.Add(time.Minute * 30).Before(time.Now()) {
 				r.server.RemoveRoom(r.Id)
 				return
 			}

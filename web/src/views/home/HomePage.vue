@@ -80,24 +80,66 @@
         </div>
 
         <template v-if="userStore.info.uuid">
-          <div class="flex flex-col gap-2">
-            <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">{{
-              t('tools.webRtcMeeting.entry.meetingId')
-            }}</label>
-            <input
-              id="meetingId"
-              v-model="meetingId"
-              :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
-              class="input-field"
-              @keyup.enter="handleJoin"
-            />
+          <!-- 创建会议表单 -->
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="meetingName" class="font-semibold text-gray-700 dark:text-gray-300">
+                {{ t('tools.webRtcMeeting.entry.meetingName') }}
+              </label>
+              <input
+                id="meetingName"
+                v-model="meetingName"
+                :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
+                class="input-field"
+                @keyup.enter="handleCreateAndJoin"
+              />
+            </div>
+
+            <div class="flex justify-center">
+              <a-button 
+                type="primary" 
+                size="large" 
+                :loading="isCreating"
+                @click="handleCreateAndJoin"
+              >
+                <span>{{ t('tools.webRtcMeeting.entry.createAndJoinMeeting') }}</span>
+                <ArrowRightIcon class="h-5 w-5 ml-2" />
+              </a-button>
+            </div>
           </div>
 
-          <div class="flex justify-center pt-2">
-            <a-button type="primary" size="large" @click="handleJoin">
-              <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
-              <ArrowRightIcon class="h-5 w-5 ml-2" />
-            </a-button>
+          <div class="relative flex items-center justify-center my-4">
+            <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+            <span class="mx-4 text-gray-500 dark:text-gray-400 text-sm">或</span>
+            <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+          </div>
+
+          <!-- 加入现有会议表单 -->
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="meetingId" class="font-semibold text-gray-700 dark:text-gray-300">
+                {{ t('tools.webRtcMeeting.entry.meetingId') }}
+              </label>
+              <input
+                id="meetingId"
+                v-model="meetingId"
+                :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
+                class="input-field"
+                @keyup.enter="handleJoin"
+              />
+            </div>
+
+            <div class="flex justify-center">
+              <a-button 
+                type="outline" 
+                size="large" 
+                :disabled="isJoinDisabled"
+                @click="handleJoin"
+              >
+                <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
+                <ArrowRightIcon class="h-5 w-5 ml-2" />
+              </a-button>
+            </div>
           </div>
         </template>
         <div class="flex flex-col gap-6 p-8" v-else>
@@ -138,6 +180,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { handleAvatarError } from '@/utils/helper'
+import { createRoom } from '@/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -145,6 +188,8 @@ const userStore = useUserStore()
 const { t, locale } = useI18n()
 
 const meetingId = ref((route.query.roomId as string) || '')
+const meetingName = ref('')
+const isCreating = ref(false)
 
 // Reactive variable to track current language
 const currentLanguage = computed(() => locale.value)
@@ -205,6 +250,34 @@ const handleJoin = () => {
     router.push({
       path: `/meeting/${meetingId.value.trim()}`
     })
+  }
+}
+
+// 创建会议并加入
+const handleCreateAndJoin = async () => {
+  if (!meetingName.value.trim()) {
+    Message.error('请输入会议名称')
+    return
+  }
+
+  try {
+    isCreating.value = true
+    // 调用后端接口创建会议
+    const response = await createRoom({ name: meetingName.value.trim() })
+    if (response.code === 0) {
+      // 使用创建的会议ID加入会议
+      const roomId = response.data.uuid
+      router.push({
+        path: `/meeting/${roomId}`
+      })
+    } else {
+      Message.error(response.data.message || '创建会议失败')
+    }
+  } catch (error) {
+    console.error('创建会议失败:', error)
+    Message.error('创建会议失败')
+  } finally {
+    isCreating.value = false
   }
 }
 </script>
