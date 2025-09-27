@@ -17,7 +17,7 @@
         <VideoGrid class="flex-1" />
         <!-- 聊天面板 - 可收起 -->
         <ChatPanel
-          v-if="showChatPanel"
+          v-show="showChatPanel"
           :class="[
             'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
             'fixed md:relative z-40',

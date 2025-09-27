@@ -1,7 +1,6 @@
 <template>
   <a-modal
     v-model:visible="visible"
-    :title="null"
     :closable="false"
     :mask-closable="false"
     :footer="false"
