@@ -272,7 +272,7 @@
           </button>
           <button
             @click="cancelLeave"
-            class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-1.5 order-1 sm:order-2 text-sm"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-1.5 order-1 sm:order-2 text-sm"
           >
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.leaveCancel') }}</span>
             <span class="sm:hidden">取消</span>

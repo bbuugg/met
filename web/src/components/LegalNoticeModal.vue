@@ -110,7 +110,7 @@
           </button>
           <button
             @click="onDecline"
-            class="px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
           >
             <XMarkIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('legalNotice.decline') }}</span>
