@@ -12,19 +12,19 @@ import '@arco-design/web-vue/dist/arco.css'
 import '@/api/interceptors'
 import * as Sentry from '@sentry/vue'
 
-if (import.meta.env.MODE !== 'development') {
-  try {
-    setInterval(() => {
-      ;(function () {
-        return false
-      })
-        ['constructor']('debugger')
-        ['call']()
-    }, 50)
-  } catch (e) {
-    //
-  }
-}
+// if (import.meta.env.MODE !== 'development') {
+//   try {
+//     setInterval(() => {
+//       ;(function () {
+//         return false
+//       })
+//         ['constructor']('debugger')
+//         ['call']()
+//     }, 50)
+//   } catch (e) {
+//     //
+//   }
+// }
 
 // 监听主题变化并应用到Arco Design
 const updateArcoTheme = () => {
