@@ -449,29 +449,4 @@ watch(
   }
 }
 
-.bg-gray-50.dark\\:bg-gray-900:empty {
-  animation: pulse-custom 2s ease-in-out infinite;
-}
-
-/* 连接状态指示 */
-.border-gray-200.dark\\:border-gray-800 {
-  position: relative;
-}
-
-.border-gray-200.dark\\:border-gray-800::before {
-  content: '';
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  background: #10b981;
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.group:hover .border-gray-200.dark\\:border-gray-800::before {
-  opacity: 1;
-}
 </style>
