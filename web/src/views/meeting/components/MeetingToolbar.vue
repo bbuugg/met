@@ -224,19 +224,6 @@ function copyLink() {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* 按钮悬停效果 */
-button {
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover {
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
 /* 模态框内容动画 */
 .flex.flex-col.gap-6 > * {
   animation: fadeInUp 0.3s ease-out;

@@ -8,7 +8,7 @@
         <button
           v-if="isGetDisplayMediaSupported"
           @click="toggleRecording"
-          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1"
           :class="{
             'bg-red-600 hover:bg-red-700 text-white border-red-600': meetingStore.isRecording,
             'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
@@ -27,11 +27,11 @@
       <div class="flex flex-wrap gap-3 items-center justify-center">
         <!-- 麦克风设备选择 -->
         <div
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleAudio"
-            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1"
+            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
                 !currentUser?.mediaState.audio,
@@ -91,11 +91,11 @@
 
         <!-- 摄像头设备选择 -->
         <div
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleVideo"
-            class="px-3 h-full border shadow-sm flex flex-col items-center justify-center gap-1"
+            class="px-3 h-full border shadow-sm flex flex-col items-center justify-center gap-1 transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
                 !currentUser?.mediaState.video,
@@ -156,11 +156,11 @@
         <!-- 屏幕共享按钮组 -->
         <div
           v-if="isGetDisplayMediaSupported"
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleScreenShare"
-            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 rounded-lg"
+            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 rounded-lg transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white':
                 currentUser?.mediaState.screen,
@@ -200,7 +200,7 @@
         <!-- 聊天按钮 -->
         <button
           @click="toggleChatPanel"
-          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 relative"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1 relative"
           :class="{
             'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white':
               props.showChatPanel,
@@ -222,7 +222,7 @@
         <!-- 离开按钮 -->
         <button
           @click="showLeaveConfirm"
-          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600"
         >
           <ArrowRightIcon class="h-5 w-5" />
           <span class="text-xs font-medium max-sm:hidden">{{ t('tools.webRtcMeeting.meeting.leave') }}</span>
@@ -639,25 +639,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 自定义模态框样式 */
 .fixed.inset-0 {
   animation: fadeIn 0.2s ease-out;
 }
 
 .fixed.inset-0 > div {
   animation: slideUp 0.3s ease-out;
-}
-
-/* 按钮悬停效果 */
-button {
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0);
 }
 </style>

@@ -16,7 +16,7 @@
       </div>
       <button
         @click="$emit('close')"
-        class="w-8 h-8 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg flex items-center justify-center transition-colors"
+        class="w-8 h-8 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
         :title="t('tools.webRtcMeeting.chat.close')"
       >
         <XMarkIcon class="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -101,7 +101,7 @@
                     >
                     <button
                       @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
+                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
                     >
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -129,7 +129,7 @@
                     >
                     <button
                       @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
+                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
                     >
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -145,7 +145,7 @@
                   }}</span>
                   <button
                     @click="downloadFileFromMessage(message)"
-                    class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-colors"
+                    class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                     <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
@@ -177,7 +177,7 @@
       <div
         v-if="unreadMessageCount > 0"
         @click="scrollToBottomAndMarkRead"
-        class="flex items-center justify-center p-3 bg-black dark:bg-white text-white dark:text-black text-sm cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-100 transition-all transform hover:scale-[1.02]"
+        class="flex items-center justify-center p-3 bg-black dark:bg-white text-white dark:text-black text-sm cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-0.5 active:translate-y-0"
       >
         <span class="flex items-center gap-2">
           <div class="w-2 h-2 bg-white dark:bg-black rounded-full animate-pulse"></div>
@@ -192,7 +192,7 @@
         <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
         <button
           @click="() => fileInputRef?.click()"
-          class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+          class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
           :title="t('tools.webRtcMeeting.chat.sendFile')"
         >
           <PaperClipIcon class="h-4 w-4 text-black dark:text-white" />
@@ -206,7 +206,7 @@
         <button
           @click="sendMessage"
           :disabled="!newMessage.trim()"
-          class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
+          class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:translate-y-0"
           :title="t('tools.webRtcMeeting.chat.send')"
         >
           <PaperAirplaneIcon class="h-4 w-4" />
@@ -250,11 +250,6 @@ const totalMessageCount = ref(0)
 
 const chatMessages = computed(() => meetingStore.chatMessages)
 const clientId = computed(() => meetingStore.clientId)
-
-// 计算参与者数量
-const participantCount = computed(() => {
-  return meetingStore.participantsList.length
-})
 
 // 初始化聊天面板
 function initializeChatPanel() {
@@ -533,31 +528,14 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
-/* 按钮悬停效果 */
-button {
-  transition: all 0.2s ease-in-out;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-button:disabled {
-  transform: none !important;
-}
-
 /* 消息气泡悬停效果 */
 .relative.rounded-lg {
   transition: all 0.2s ease;
 }
 
 .relative.rounded-lg:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .dark .relative.rounded-lg:hover {

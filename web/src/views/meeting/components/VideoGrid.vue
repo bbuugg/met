@@ -29,7 +29,7 @@
         <!-- Local video - always show if current user exists -->
         <div
           v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group"
+          class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:-translate-y-0.5"
         >
           <!-- 视频元素 -->
           <video
@@ -95,11 +95,11 @@
           </div>
           <!-- Local video controls -->
           <div
-            class="video-controls absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+            class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           >
             <button
               @click="toggleFullscreen('local')"
-              class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+              class="size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="w-4 h-4" />
               <ArrowsPointingOutIcon v-else class="w-4 h-4" />
@@ -111,7 +111,7 @@
         <template v-for="participant in participantsWithStreams" :key="participant.id">
           <div
             v-if="!fullscreenParticipantId || fullscreenParticipantId === participant.id"
-            class="video-tile remote-video relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:shadow-md"
+            class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:shadow-md hover:-translate-y-0.5"
           >
             <!-- 视频元素 -->
             <video
@@ -183,11 +183,11 @@
 
             <!-- Remote video controls -->
             <div
-              class="video-controls absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              class="absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             >
               <button
                 @click="toggleFullscreen(participant.id)"
-                class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+                class="size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <ArrowsPointingInIcon
                   v-if="fullscreenParticipantId === participant.id"
@@ -197,7 +197,7 @@
               </button>
               <button
                 @click="toggleRemoteAudio(participant.id)"
-                class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+                class="size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105 active:scale-95"
                 :class="{ 'text-red-500 dark:text-red-400': isRemoteAudioMuted(participant.id) }"
               >
                 <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="w-4 h-4" />
@@ -377,28 +377,6 @@ watch(
 </script>
 
 <style scoped>
-/* 视频容器悬停效果 */
-.group {
-  transition: all 0.3s ease;
-}
-
-.group:hover {
-  transform: translateY(-2px);
-}
-
-/* 控制按钮悬停效果 */
-.control-button {
-  transition: all 0.2s ease-in-out;
-}
-
-.control-button:hover {
-  transform: scale(1.05);
-}
-
-.control-button:active {
-  transform: scale(0.95);
-}
-
 /* 响应式网格优化 */
 @media (max-width: 768px) {
   .grid {
@@ -422,7 +400,6 @@ watch(
     padding: 0.5rem;
   }
 
-
   .w-24.h-24 {
     width: 3rem;
     height: 3rem;
@@ -432,17 +409,17 @@ watch(
     font-size: 1.25rem;
   }
 
-  .video-controls {
+  .absolute.top-3.right-3 {
     top: 0.5rem;
     right: 0.5rem;
   }
 
-  .control-button {
+  .size-8 {
     width: 1.75rem;
     height: 1.75rem;
   }
 
-  .control-button svg {
+  .size-8 svg {
     width: 0.875rem;
     height: 0.875rem;
   }
@@ -463,9 +440,8 @@ watch(
 }
 
 /* 加载状态动画 */
-@keyframes pulse {
-  0%,
-  100% {
+@keyframes pulse-custom {
+  0%, 100% {
     opacity: 1;
   }
   50% {
@@ -474,7 +450,7 @@ watch(
 }
 
 .bg-gray-50.dark\\:bg-gray-900:empty {
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse-custom 2s ease-in-out infinite;
 }
 
 /* 连接状态指示 */
