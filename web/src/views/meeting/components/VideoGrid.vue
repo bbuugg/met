@@ -151,7 +151,7 @@
             </div>
 
             <div
-              class="video-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 rounded-b-xl"
+              class="video-overlay absolute bottom-0 left-0 right-0 p-4 rounded-b-xl"
             >
               <div class="participant-info flex justify-between items-center">
                 <span class="participant-name text-white font-semibold text-sm">{{
