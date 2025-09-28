@@ -31,7 +31,7 @@ export class WebRTCService {
   private readonly PING_INTERVAL = 10000 // 10 seconds
   private wsUrl: string = ''
   private reconnectAttempts: number = 0
-  private maxReconnectAttempts: number = 5
+  private maxReconnectAttempts: number = 100
   private reconnectDelay: number = 1000 // Initial delay of 1 second
   private maxReconnectDelay: number = 30000 // Maximum delay of 30 seconds
   private reconnectTimeout: number | null = null
@@ -811,10 +811,14 @@ export class WebRTCService {
         if (this.mixedAudioTrack && track === this.mixedAudioTrack) {
           try {
             track.stop()
-          } catch {}
+          } catch {
+            //
+          }
           this.mixedAudioTrack = null
         }
-      } catch {}
+      } catch {
+        //
+      }
     })
 
     if (newTrack) {
@@ -847,12 +851,10 @@ export class WebRTCService {
         if (newTrack) {
           console.log(`Replacing audio track for peer ${peerId}`)
           promises.push(
-            audioSender
-              .replaceTrack(newTrack)
-              .catch((error) => {
-                console.error(`Failed to replace audio track for peer ${peerId}:`, error)
-                return this.renegotiateConnection(peerId)
-              })
+            audioSender.replaceTrack(newTrack).catch((error) => {
+              console.error(`Failed to replace audio track for peer ${peerId}:`, error)
+              return this.renegotiateConnection(peerId)
+            })
           )
         } else {
           // 禁用音频：移除发送器并重新协商
@@ -882,15 +884,11 @@ export class WebRTCService {
       console.log('Started camera with video device:', deviceId)
     }
 
-    // 打开摄像头时关闭屏幕共享
-    if (!this.mediaState.video && this.mediaState.screen) {
-      await this.stopScreenShare()
-    }
-
     if (!this.mediaState.video) {
-      this.localStream.getVideoTracks().forEach((track) => {
-        this.localStream.removeTrack(track)
-      })
+      if (this.mediaState.screen) {
+        await this.stopScreenShare()
+      }
+      this.localStream.getVideoTracks().forEach((track) => this.localStream.removeTrack(track))
       this.localStream.addTrack(this.videoTrack)
       await this.replaceVideoTrack(this.videoTrack)
       this.mediaState.video = true
@@ -908,10 +906,10 @@ export class WebRTCService {
     if (!this.mediaState.screen) {
       await this.startScreenShare()
       return true
-    } else {
-      await this.stopScreenShare()
-      return false
     }
+
+    await this.stopScreenShare()
+    return false
   }
 
   async switchVideoDevice(deviceId?: string) {
@@ -935,12 +933,16 @@ export class WebRTCService {
       try {
         this.localStream.removeTrack(track)
         track.stop()
-      } catch {}
+      } catch {
+        //
+      }
     })
     if (this.videoTrack) {
       try {
         this.videoTrack.stop()
-      } catch {}
+      } catch {
+        //
+      }
     }
     this.videoTrack = null
 
