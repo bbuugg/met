@@ -47,10 +47,24 @@ func (s *Server) startRoom(id string) *Room {
 	return r
 }
 
+func (s *Server) FindRoom(id string) *Room {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.rooms[id]
+}
+
 func (s *Server) RemoveRoom(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.rooms, id)
+}
+
+func (s *Server) CloseRoom(id string) {
+	r := s.FindRoom(id)
+	if r != nil {
+		r.KickAllUser()
+		s.RemoveRoom(id)
+	}
 }
 
 func (s *Server) HandleWebSocket(c *gin.Context) {

@@ -55,6 +55,13 @@ func (r *Room) AllClients() []*Client {
 	return clients
 }
 
+func (r *Room) KickAllUser() {
+	for _, client := range r.AllClients() {
+		client.handleKick()
+		r.UnregisterClient(client)
+	}
+}
+
 // Run starts the room's main loop
 func (r *Room) Run() {
 	ticker := time.NewTicker(10 * time.Second)
