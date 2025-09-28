@@ -8,7 +8,7 @@
         <button
           v-if="isGetDisplayMediaSupported"
           @click="toggleRecording"
-          class="min-w-[80px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1"
           :class="{
             'bg-red-600 hover:bg-red-700 text-white border-red-600': meetingStore.isRecording,
             'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
@@ -17,7 +17,7 @@
         >
           <div v-if="meetingStore.isRecording" class="w-4 h-4 bg-white rounded-sm"></div>
           <VideoCameraIcon v-else class="h-5 w-5" />
-          <span class="text-xs font-medium">{{
+          <span class="text-xs font-medium max-sm:hidden">{{
             meetingStore.isRecording
               ? t('tools.webRtcMeeting.meeting.stopRecording')
               : t('tools.webRtcMeeting.meeting.startRecording')
@@ -27,11 +27,11 @@
       <div class="flex flex-wrap gap-3 items-center justify-center">
         <!-- 麦克风设备选择 -->
         <div
-          class="relative min-w-[80px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleAudio"
-            class="min-w-[80px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1"
+            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1"
             :class="{
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
                 !currentUser?.mediaState.audio,
@@ -43,7 +43,7 @@
           >
             <MicrophoneDisabledIcon v-if="currentUser?.mediaState.audio" class="h-5 w-5" />
             <MicrophoneIcon v-else class="h-5 w-5" />
-            <span class="text-xs font-medium">{{
+            <span class="text-xs font-medium max-sm:hidden">{{
               currentUser?.mediaState.audio
                 ? t('tools.webRtcMeeting.controls.muteMic')
                 : t('tools.webRtcMeeting.controls.unmuteMic')
@@ -91,7 +91,7 @@
 
         <!-- 摄像头设备选择 -->
         <div
-          class="relative min-w-[80px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleVideo"
@@ -107,7 +107,7 @@
           >
             <VideoCameraIcon v-if="!currentUser?.mediaState.video" class="h-5 w-5" />
             <VideoCameraSlashIcon v-else class="h-5 w-5" />
-            <span class="text-xs font-medium">{{
+            <span class="text-xs font-medium max-sm:hidden">{{
               currentUser?.mediaState.video
                 ? t('tools.webRtcMeeting.controls.turnOffCamera')
                 : t('tools.webRtcMeeting.controls.turnOnCamera')
@@ -156,11 +156,11 @@
         <!-- 屏幕共享按钮组 -->
         <div
           v-if="isGetDisplayMediaSupported"
-          class="relative min-w-[80px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
         >
           <button
             @click="toggleScreenShare"
-            class="min-w-[80px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 rounded-lg"
+            class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 rounded-lg"
             :class="{
               'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white':
                 currentUser?.mediaState.screen,
@@ -169,7 +169,7 @@
             }"
           >
             <ComputerDesktopIcon class="h-5 w-5" />
-            <span class="text-xs font-medium">{{
+            <span class="text-xs font-medium max-sm:hidden">{{
               currentUser?.mediaState.screen
                 ? t('tools.webRtcMeeting.controls.stopScreenShare')
                 : t('tools.webRtcMeeting.controls.startScreenShare')
@@ -200,7 +200,7 @@
         <!-- 聊天按钮 -->
         <button
           @click="toggleChatPanel"
-          class="min-w-[80px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 relative"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 relative"
           :class="{
             'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white':
               props.showChatPanel,
@@ -209,7 +209,7 @@
           }"
         >
           <ChatBubbleLeftRightIcon class="h-5 w-5" />
-          <span class="text-xs font-medium">{{ t('tools.webRtcMeeting.chat.title') }}</span>
+          <span class="text-xs font-medium max-sm:hidden">{{ t('tools.webRtcMeeting.chat.title') }}</span>
           <!-- 未读消息计数 -->
           <div
             v-if="props.unreadMessagesCount > 0"
@@ -222,10 +222,10 @@
         <!-- 离开按钮 -->
         <button
           @click="showLeaveConfirm"
-          class="min-w-[80px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600"
         >
           <ArrowRightIcon class="h-5 w-5" />
-          <span class="text-xs font-medium">{{ t('tools.webRtcMeeting.meeting.leave') }}</span>
+          <span class="text-xs font-medium max-sm:hidden">{{ t('tools.webRtcMeeting.meeting.leave') }}</span>
         </button>
       </div>
     </div>

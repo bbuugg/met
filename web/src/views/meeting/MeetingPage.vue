@@ -14,7 +14,7 @@
       <MeetingToolbar />
       <!-- 在移动端设备上，视频区域和聊天区域上下分布 -->
       <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden relative">
-        <VideoGrid class="flex-1" />
+        <VideoGrid class="flex-1 justify-center" />
         <!-- 聊天面板 - 可收起 -->
         <ChatPanel
           v-show="showChatPanel"

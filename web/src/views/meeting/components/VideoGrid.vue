@@ -29,7 +29,7 @@
         <!-- Local video - always show if current user exists -->
         <div
           v-show="currentUser && (!fullscreenParticipantId || fullscreenParticipantId === 'local')"
-          class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group hover:shadow-md"
+          class="relative bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden min-h-[200px] shadow-sm border border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out flex items-center justify-center group"
         >
           <!-- 视频元素 -->
           <video
@@ -73,22 +73,22 @@
             class="absolute bottom-0 left-0 right-0 p-4 rounded-b-xl"
           >
             <div class="flex justify-between items-center">
-              <span class="text-white font-semibold text-sm">{{
+              <span class="dark:text-white font-semibold text-sm">{{
                 `${currentUser?.name} (${t('tools.webRtcMeeting.you')})`
               }}</span>
               <div class="flex gap-2 items-center">
-                <div class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
+                <div class="size-7 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
                   <MicrophoneDisabledIcon
-                    class="size-4 text-red-400"
+                    class="w-4 h-4 text-red-400"
                     v-if="!currentUser?.mediaState.audio"
                   />
-                  <MicrophoneIcon v-else class="size-4 text-green-400" />
+                  <MicrophoneIcon v-else class="w-4 h-4 text-green-400" />
                 </div>
                 <div
                   v-if="currentUser?.mediaState.screen"
-                  class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
+                  class="size-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                 >
-                  <ComputerDesktopIcon class="size-4 text-white" />
+                  <ComputerDesktopIcon class="w-4 h-4 text-white" />
                 </div>
               </div>
             </div>
@@ -99,10 +99,10 @@
           >
             <button
               @click="toggleFullscreen('local')"
-              class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+              class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
             >
-              <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="h-4 w-4" />
-              <ArrowsPointingOutIcon v-else class="h-4 w-4" />
+              <ArrowsPointingInIcon v-if="fullscreenParticipantId === 'local'" class="w-4 h-4" />
+              <ArrowsPointingOutIcon v-else class="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -154,28 +154,28 @@
               class="video-overlay absolute bottom-0 left-0 right-0 p-4 rounded-b-xl"
             >
               <div class="participant-info flex justify-between items-center">
-                <span class="participant-name text-white font-semibold text-sm">{{
+                <span class="participant-name dark:text-white font-semibold text-sm">{{
                   participant.name
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
-                  <div class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
+                  <div class="size-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
                     <MicrophoneDisabledIcon
                       v-if="!participant.mediaState.audio"
-                      class="size-4 text-red-400"
+                      class="w-4 h-4 text-red-400"
                     />
-                    <MicrophoneIcon v-else class="size-4 text-green-400" />
+                    <MicrophoneIcon v-else class="w-4 h-4 text-green-400" />
                   </div>
                   <div
                     v-if="participant.mediaState.video"
-                    class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
+                    class="size-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                   >
-                    <VideoCameraIcon class="size-4 text-white" />
+                    <VideoCameraIcon class="w-4 h-4 text-white" />
                   </div>
                   <div
                     v-if="participant.mediaState.screen"
-                    class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
+                    class="size-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                   >
-                    <ComputerDesktopIcon class="size-4 text-white" />
+                    <ComputerDesktopIcon class="w-4 h-4 text-white" />
                   </div>
                 </div>
               </div>
@@ -187,21 +187,21 @@
             >
               <button
                 @click="toggleFullscreen(participant.id)"
-                class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+                class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
               >
                 <ArrowsPointingInIcon
                   v-if="fullscreenParticipantId === participant.id"
-                  class="h-4 w-4"
+                  class="w-4 h-4"
                 />
-                <ArrowsPointingOutIcon v-else class="h-4 w-4" />
+                <ArrowsPointingOutIcon v-else class="w-4 h-4" />
               </button>
               <button
                 @click="toggleRemoteAudio(participant.id)"
-                class="control-button w-8 h-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
+                class="control-button size-8 rounded-lg bg-white/90 dark:bg-black/90 hover:bg-white dark:hover:bg-black border border-gray-200/50 dark:border-gray-700/50 text-black dark:text-white flex items-center justify-center shadow-sm transition-all duration-200 hover:scale-105"
                 :class="{ 'text-red-500 dark:text-red-400': isRemoteAudioMuted(participant.id) }"
               >
-                <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="h-4 w-4" />
-                <SpeakerXMarkIcon v-else class="h-4 w-4" />
+                <SpeakerWaveIcon v-if="!isRemoteAudioMuted(participant.id)" class="w-4 h-4" />
+                <SpeakerXMarkIcon v-else class="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -399,40 +399,11 @@ watch(
   transform: scale(0.95);
 }
 
-/* 视频元素样式 */
-video {
-  transition: opacity 0.3s ease;
-}
-
-/* 头像容器动画 */
-.w-24.h-24 {
-  transition: transform 0.3s ease;
-}
-
-.group:hover .w-24.h-24 {
-  transform: scale(1.05);
-}
-
-/* 状态指示器样式 */
-.w-6.h-6.rounded-full {
-  backdrop-filter: blur(4px);
-  transition: all 0.2s ease;
-}
-
-/* 视频覆盖层渐变优化 */
-.video-overlay {
-  backdrop-filter: blur(2px);
-}
-
 /* 响应式网格优化 */
 @media (max-width: 768px) {
   .grid {
     gap: 0.75rem;
     padding: 0.75rem;
-  }
-
-  .min-h-\\[200px\\] {
-    min-height: 150px;
   }
 
   .w-24.h-24 {
@@ -451,9 +422,6 @@ video {
     padding: 0.5rem;
   }
 
-  .min-h-\\[200px\\] {
-    min-height: 120px;
-  }
 
   .w-24.h-24 {
     width: 3rem;
