@@ -262,7 +262,7 @@
         <div class="flex flex-col sm:flex-row gap-2">
           <button
             @click="confirmLeave"
-            class="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
+            class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"
           >
             <ArrowRightIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{
@@ -272,7 +272,7 @@
           </button>
           <button
             @click="cancelLeave"
-            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-1.5 order-1 sm:order-2 text-sm"
+            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-2 order-1 sm:order-2 text-sm"
           >
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.leaveCancel') }}</span>
             <span class="sm:hidden">取消</span>
@@ -288,15 +288,14 @@ import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vu
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
 import {
-  Modal as AModal,
-  Message,
+  Doption as ADoption,
   Dropdown as ADropdown,
-  Doption as ADoption
+  Message
 } from '@arco-design/web-vue'
 import {
   ArrowRightIcon,
-  MicrophoneIcon,
   ChatBubbleLeftRightIcon,
+  MicrophoneIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon
 } from '@heroicons/vue/24/outline'

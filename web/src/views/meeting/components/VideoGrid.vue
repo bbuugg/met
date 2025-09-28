@@ -70,25 +70,25 @@
           </div>
 
           <div
-            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 rounded-b-xl"
+            class="absolute bottom-0 left-0 right-0 p-4 rounded-b-xl"
           >
             <div class="flex justify-between items-center">
               <span class="text-white font-semibold text-sm">{{
                 `${currentUser?.name} (${t('tools.webRtcMeeting.you')})`
               }}</span>
               <div class="flex gap-2 items-center">
-                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                <div class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
                   <MicrophoneDisabledIcon
-                    class="h-3 w-3 text-red-400"
+                    class="size-4 text-red-400"
                     v-if="!currentUser?.mediaState.audio"
                   />
-                  <MicrophoneIcon v-else class="h-3 w-3 text-green-400" />
+                  <MicrophoneIcon v-else class="size-4 text-green-400" />
                 </div>
                 <div
                   v-if="currentUser?.mediaState.screen"
-                  class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                  class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                 >
-                  <ComputerDesktopIcon class="h-3 w-3 text-white" />
+                  <ComputerDesktopIcon class="size-4 text-white" />
                 </div>
               </div>
             </div>
@@ -158,24 +158,24 @@
                   participant.name
                 }}</span>
                 <div class="media-indicators flex gap-2 items-center">
-                  <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <div class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center">
                     <MicrophoneDisabledIcon
                       v-if="!participant.mediaState.audio"
-                      class="h-3 w-3 text-red-400"
+                      class="size-4 text-red-400"
                     />
-                    <MicrophoneIcon v-else class="h-3 w-3 text-green-400" />
+                    <MicrophoneIcon v-else class="size-4 text-green-400" />
                   </div>
                   <div
                     v-if="participant.mediaState.video"
-                    class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                    class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                   >
-                    <VideoCameraIcon class="h-3 w-3 text-white" />
+                    <VideoCameraIcon class="size-4 text-white" />
                   </div>
                   <div
                     v-if="participant.mediaState.screen"
-                    class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                    class="w-8 h-8 rounded-lg bg-gray-800/20 dark:bg-white/20 flex items-center justify-center"
                   >
-                    <ComputerDesktopIcon class="h-3 w-3 text-white" />
+                    <ComputerDesktopIcon class="size-4 text-white" />
                   </div>
                 </div>
               </div>
