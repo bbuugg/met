@@ -435,10 +435,77 @@ async function toggleVideo() {
 async function startRecording() {
   try {
     // 获取屏幕媒体流
-    const stream = await navigator.mediaDevices.getDisplayMedia({
+    const displayStream = await navigator.mediaDevices.getDisplayMedia({
       video: true,
       audio: true
     })
+
+    let finalStream = displayStream
+
+    // 如果麦克风打开，混合桌面音频和麦克风音频
+    if (meetingStore.webrtcService?.getMediaState().audio) {
+      try {
+        // 获取麦克风音频流
+        const micStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          video: false
+        })
+
+        // 创建音频上下文来混合音频
+        const audioContext = new AudioContext()
+        const displayAudioTracks = displayStream.getAudioTracks()
+        const micAudioTracks = micStream.getAudioTracks()
+
+        if (displayAudioTracks.length > 0 && micAudioTracks.length > 0) {
+          // 创建音频源
+          const displaySource = audioContext.createMediaStreamSource(new MediaStream(displayAudioTracks))
+          const micSource = audioContext.createMediaStreamSource(micStream)
+
+          // 创建增益节点来控制音量
+          const displayGain = audioContext.createGain()
+          const micGain = audioContext.createGain()
+
+          // 设置音量（桌面音频稍微降低，避免过响）
+          displayGain.gain.value = 0.8
+          micGain.gain.value = 1.0
+
+          // 创建混合器
+          const mixer = audioContext.createGain()
+
+          // 连接音频节点
+          displaySource.connect(displayGain)
+          micSource.connect(micGain)
+          displayGain.connect(mixer)
+          micGain.connect(mixer)
+
+          // 创建输出流
+          const destination = audioContext.createMediaStreamDestination()
+          mixer.connect(destination)
+
+          // 创建包含视频和混合音频的最终流
+          const videoTracks = displayStream.getVideoTracks()
+          const mixedAudioTracks = destination.stream.getAudioTracks()
+
+          finalStream = new MediaStream([...videoTracks, ...mixedAudioTracks])
+
+          console.log('录制将包含桌面音频和麦克风音频')
+        } else if (micAudioTracks.length > 0) {
+          // 只有麦克风音频，添加到显示流中
+          const videoTracks = displayStream.getVideoTracks()
+          finalStream = new MediaStream([...videoTracks, ...micAudioTracks])
+          console.log('录制将包含桌面视频和麦克风音频')
+        }
+      } catch (micError) {
+        console.warn('无法获取麦克风音频，将只录制桌面音频:', micError)
+        Message.warning('无法获取麦克风音频，将只录制桌面音频')
+      }
+    } else {
+      console.log('麦克风关闭，只录制桌面音频')
+    }
 
     // 创建 MediaRecorder 实例
     const options = { mimeType: 'video/webm;codecs=vp9' }
@@ -451,7 +518,7 @@ async function startRecording() {
       }
     }
 
-    const recorder = new MediaRecorder(stream, options)
+    const recorder = new MediaRecorder(finalStream, options)
 
     // 清空之前录制的数据
     recordedChunks.value = []
@@ -467,7 +534,7 @@ async function startRecording() {
     // 监听停止事件
     recorder.onstop = () => {
       // 停止所有轨道
-      stream.getTracks().forEach((track) => track.stop())
+      finalStream.getTracks().forEach((track: MediaStreamTrack) => track.stop())
 
       // 保存录制状态
       meetingStore.isRecording = false
@@ -486,11 +553,17 @@ async function startRecording() {
     meetingStore.isRecording = true
 
     // 显示开始录制提示
-    Message.success(t('tools.webRtcMeeting.meeting.recordingStarted'))
+    const audioInfo = meetingStore.webrtcService?.getMediaState().audio
+      ? '（包含桌面音频和麦克风音频）'
+      : '（仅桌面音频）'
+    Message.success(t('tools.webRtcMeeting.meeting.recordingStarted') + audioInfo)
 
     // 监听屏幕共享结束事件
-    stream.getVideoTracks()[0].onended = () => {
-      stopRecording()
+    const videoTrack = finalStream.getVideoTracks()[0]
+    if (videoTrack) {
+      videoTrack.onended = () => {
+        stopRecording()
+      }
     }
   } catch (error: any) {
     console.error(t('tools.webRtcMeeting.meeting.recordingFailed') + ':', error)
@@ -570,13 +643,17 @@ async function toggleScreenShare() {
     if (currentUser.value?.mediaState.screen) {
       await meetingStore.stopScreenShare()
       // 屏幕共享关闭后，保持按钮状态一致
-      currentUser.value.mediaState.screen = false
+      if (currentUser.value) {
+        currentUser.value.mediaState.screen = false
+      }
       Message.info(t('tools.webRtcMeeting.controls.stopScreenShare'))
     } else {
       await meetingStore.startScreenShare()
       // 启动屏幕共享会自动关闭摄像头
-      currentUser.value.mediaState.screen = true
-      currentUser.value.mediaState.video = false
+      if (currentUser.value) {
+        currentUser.value.mediaState.screen = true
+        currentUser.value.mediaState.video = false
+      }
       Message.success(t('tools.webRtcMeeting.controls.startScreenShare'))
     }
   } catch (error: any) {
