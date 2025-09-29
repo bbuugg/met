@@ -4,7 +4,7 @@
       <!-- 当没有任何参与者时显示提示 -->
       <div
         v-show="!currentUser && participantsWithStreams.length === 0"
-        class="flex items-center justify-center h-full bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800 transition-colors"
+        class="flex items-center justify-center h-full rounded-xl border border-gray-200 dark:border-gray-800 transition-colors"
       >
         <div class="text-center p-8">
           <div
@@ -23,7 +23,7 @@
 
       <!-- 视频网格 -->
       <div
-        class="bg-white dark:bg-black flex-1 grid gap-4 h-full w-full p-4 rounded-xl transition-colors"
+        class="flex-1 grid gap-4 h-full w-full p-4 rounded-xl transition-colors"
         :class="gridClass"
       >
         <!-- Local video - always show if current user exists -->

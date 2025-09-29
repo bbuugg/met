@@ -307,7 +307,7 @@ func (s *Server) JoinRoom(c *gin.Context) {
 		roomUser := entity.RoomUser{
 			RoomId:  room.Id,
 			UserId:  user.Id,
-			Role:    entity.RoleMaster,
+			Role:    entity.RoleUser,
 			Blocked: false,
 		}
 		if err := database.DB(c).Create(&roomUser).Error; err != nil {

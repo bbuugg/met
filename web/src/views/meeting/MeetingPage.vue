@@ -22,7 +22,6 @@
             'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
             'fixed md:relative z-40',
             'inset-0 md:inset-auto md:w-96',
-            'bg-white dark:bg-gray-800'
           ]"
           @close="toggleChatPanel"
         />
