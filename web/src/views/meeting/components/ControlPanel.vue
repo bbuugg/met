@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-center items-center px-6 py-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 transition-colors">
+    class="flex justify-center items-center px-6 py-2 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-800 transition-colors">
     <div class="flex gap-3 items-center justify-center md:justify-between w-full">
       <div>
         <!-- 录屏按钮 -->
