@@ -1,49 +1,36 @@
 <template>
-  <div class="h-screen flex flex-col text-gray-900 dark:text-white relative">
-    <!-- Background decoration -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div
-        class="absolute -top-40 -right-40 w-80 h-80 bg-indigo-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20">
-      </div>
-      <div
-        class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-900 rounded-full mix-blend-soft-light filter blur-3xl opacity-20">
-      </div>
+  <div class="h-full text-gray-900 dark:text-white relative flex flex-col overflow-hidden justify-between">
+    <MeetingToolbar />
+    <!-- 在移动端设备上，视频区域和聊天区域上下分布 -->
+    <div class="flex-1 flex flex-col justify-start md:flex-row">
+      <VideoGrid class="md:flex-1" />
+      <ChatPanel :class="[
+        'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
+        'inset-0 md:inset-auto md:w-96 max-md:flex-1',
+      ]" />
     </div>
-
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <MeetingToolbar />
-      <!-- 在移动端设备上，视频区域和聊天区域上下分布 -->
-      <div class="flex-1 flex flex-col justify-start md:flex-row h-full overflow-hidden relative">
-        <VideoGrid class="flex-1 justify-start" />
-        <!-- 聊天面板 - 可收起 -->
-        <ChatPanel :class="[
-          'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
-          'inset-0 md:inset-auto md:w-96 max-md:flex-1',
-        ]" />
-      </div>
-      <ControlPanel :unreadMessagesCount="unreadMessagesCount" />
-    </div>
-    <!-- Loading overlay -->
-    <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div class="flex flex-col items-center gap-4 text-white">
-        <!-- 自定义加载动画 -->
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.connecting') }}</p>
-      </div>
-    </div>
-
-    <!-- Reconnecting overlay -->
-    <div v-if="isReconnecting" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div class="flex flex-col items-center gap-4 text-white">
-        <!-- 自定义加载动画 -->
-        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.reconnecting') }}</p>
-      </div>
-    </div>
-
-    <!-- Legal Notice Modal -->
-    <LegalNoticeModal v-if="showLegalNotice" @accept="handleLegalNoticeAccept" />
+    <ControlPanel :unreadMessagesCount="unreadMessagesCount" />
   </div>
+  <!-- Loading overlay -->
+  <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="flex flex-col items-center gap-4 text-white">
+      <!-- 自定义加载动画 -->
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.connecting') }}</p>
+    </div>
+  </div>
+
+  <!-- Reconnecting overlay -->
+  <div v-if="isReconnecting" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="flex flex-col items-center gap-4 text-white">
+      <!-- 自定义加载动画 -->
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-lg m-0">{{ t('tools.webRtcMeeting.status.reconnecting') }}</p>
+    </div>
+  </div>
+
+  <!-- Legal Notice Modal -->
+  <LegalNoticeModal v-if="showLegalNotice" @accept="handleLegalNoticeAccept" />
 </template>
 
 <script setup lang="ts">

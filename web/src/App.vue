@@ -1,5 +1,5 @@
 <template>
-  <div class="relative bg-white dark:bg-black" :class="{ 'arco-theme-dark': isDarkTheme }">
+  <div class="h-screen relative bg-white dark:bg-black" :class="{ 'arco-theme-dark': isDarkTheme }">
     <RouterView />
   </div>
 </template>
