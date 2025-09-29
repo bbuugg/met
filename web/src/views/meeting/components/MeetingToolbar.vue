@@ -5,9 +5,6 @@
     <!-- 左侧：会议信息 -->
     <div class="flex items-center gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-black dark:bg-white flex items-center justify-center">
-          <UserGroupIcon class="h-4 w-4 text-white dark:text-black" />
-        </div>
         <div class="flex flex-col">
           <span class="text-black dark:text-white font-semibold text-sm">{{
             meetingStore.roomName
@@ -145,13 +142,13 @@
 </template>
 
 <script setup lang="ts">
+import RoomManagement from '@/components/RoomManagement.vue'
+import theme from '@/services/theme'
 import { useMeetingStore } from '@/stores/meeting'
-import { Modal as AModal, Message } from '@arco-design/web-vue'
-import { LinkIcon, UserGroupIcon, MoonIcon, SunIcon, ShareIcon, CogIcon } from '@heroicons/vue/24/outline'
+import { Message } from '@arco-design/web-vue'
+import { CogIcon, LinkIcon, MoonIcon, ShareIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { computed, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import theme from '@/services/theme'
-import RoomManagement from '@/components/RoomManagement.vue'
 
 const { t, locale } = useI18n()
 const meetingStore = useMeetingStore()

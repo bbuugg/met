@@ -98,11 +98,11 @@
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex flex-col sm:flex-row gap-4">
           <button
             @click="onAccept"
             :disabled="!hasReadTerms"
-            class="flex-1 py-2 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
+            class="flex-1 py-2.5 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
           >
             <CheckIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('legalNotice.accept') }}</span>
@@ -110,7 +110,7 @@
           </button>
           <button
             @click="onDecline"
-            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
+            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
           >
             <XMarkIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('legalNotice.decline') }}</span>

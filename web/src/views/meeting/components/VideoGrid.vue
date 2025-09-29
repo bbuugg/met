@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col md:h-full">
     <div class="h-72 md:h-full">
       <!-- 当没有任何参与者时显示提示 -->
       <div
