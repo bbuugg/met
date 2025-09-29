@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"meeting/internal/model/entity"
+	"time"
 )
 
 const Secret = "X8#kP2!9mQ5$zR7*3fT1&bY4%nH6@gS0"
@@ -14,6 +15,7 @@ const Secret = "X8#kP2!9mQ5$zR7*3fT1&bY4%nH6@gS0"
 var (
 	ErrMissingRequiredFields = errors.New("missing required fields")
 	ErrInvalidSignature      = errors.New("invalid signature")
+	ErrSignatureExpired      = errors.New("signature expired")
 )
 
 // SignatureRequest represents the request structure for generating signatures
@@ -21,7 +23,7 @@ type SignatureRequest struct {
 	RoomId    string      `json:"roomId"    form:"roomId"`
 	UserId    string      `json:"userId"    form:"userId"`
 	Role      entity.Role `json:"role"      form:"role"`
-	Timestamp int         `json:"timestamp" form:"timestamp"`
+	Timestamp int64       `json:"timestamp" form:"timestamp"`
 }
 
 // SignatureResponse represents the response structure for generating signatures
@@ -68,6 +70,10 @@ func ValidateSignature(req SignatureResponse) error {
 
 	if !hmac.Equal([]byte(req.Signature), []byte(resp.Signature)) {
 		return ErrInvalidSignature
+	}
+
+	if time.Now().UnixMilli() > req.Timestamp+5*60*1000 {
+		return ErrSignatureExpired
 	}
 
 	return nil

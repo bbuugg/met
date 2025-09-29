@@ -129,11 +129,7 @@ async function initializeMeeting(clientId: string) {
       // 继续执行，即使用户信息加载失败
     }
 
-    const signRes = await generateSignature({
-      timestamp: Date.now(),
-      name: clientId,
-      roomId
-    })
+    const signRes = await generateSignature({ roomId })
 
     await meetingStore.joinMeeting(wsUrl, signRes.data)
 

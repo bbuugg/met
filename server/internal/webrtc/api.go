@@ -260,7 +260,7 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 	}
 
 	req.Role = role
-
+	req.Timestamp = time.Now().UnixMilli()
 	sign, err := GenerateSignature(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage(err.Error())))
