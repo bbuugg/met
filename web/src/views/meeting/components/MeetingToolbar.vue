@@ -1,6 +1,6 @@
 <template>
   <div
-    class="px-6 py-4 flex justify-between items-center bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 transition-colors"
+    class="px-6 py-4 flex justify-between items-center bg-white dark:bg-black transition-colors"
   >
     <!-- 左侧：会议信息 -->
     <div class="flex items-center gap-3">
@@ -70,7 +70,7 @@
     @click="closeModal"
   >
     <div
-      class="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
       @click.stop
     >
       <!-- 模态框内容 -->

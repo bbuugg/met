@@ -4,7 +4,7 @@
       <!-- 当没有任何参与者时显示提示 -->
       <div
         v-show="!currentUser && participantsWithStreams.length === 0"
-        class="flex items-center justify-center h-full rounded-xl border border-gray-200 dark:border-gray-800 transition-colors"
+        class="flex items-center justify-center h-full transition-colors"
       >
         <div class="text-center p-8">
           <div
@@ -45,7 +45,7 @@
           <!-- 只有音频时显示头像占位符 -->
           <div
             v-if="!showLocalVideo"
-            class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors"
+            class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 transition-colors"
           >
             <div class="text-center">
               <div
@@ -126,7 +126,7 @@
             <!-- 只有音频或无视频时显示头像占位符 -->
             <div
               v-if="!showRemoteVideo(participant.id)"
-              class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 transition-colors"
+              class="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 transition-colors"
             >
               <div class="text-center">
                 <div

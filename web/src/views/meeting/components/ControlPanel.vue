@@ -163,7 +163,7 @@
   <div v-if="showLeaveModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
     @click="cancelLeave">
     <div
-      class="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
       @click.stop>
       <!-- 模态框内容 -->
       <div class="p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
