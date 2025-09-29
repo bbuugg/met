@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"log"
-	"math"
+	"meeting/internal/model/entity"
 	"net/http"
 	"time"
 
@@ -38,21 +38,12 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type Role uint8
-
-const (
-	RoleMaster Role = iota + 1
-	RoleUser
-)
-
-const RoleAll Role = math.MaxUint8
-
 type User struct {
 	Id     string `json:"id"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 	// Client Role (bitmap)
-	Role Role `json:"role"`
+	Role entity.Role `json:"role"`
 }
 
 // Client is a middleman between the websocket connection and the room.
@@ -72,7 +63,7 @@ type Client struct {
 	lastMessageTime time.Time
 }
 
-// newClient creates a new client with a specific Role
+// newClient creates a new client with a specific entity.Role
 func newClient(conn *websocket.Conn, user *User) *Client {
 	return &Client{
 		User:            user,
@@ -103,13 +94,13 @@ func (c *Client) Send(msg *Message) {
 	c.send <- msg
 }
 
-func (c *Client) HasRole(role Role) bool {
+func (c *Client) HasRole(role entity.Role) bool {
 	return (c.Role & role) != 0
 }
 
 func (c *Client) newMessage(t MessageType, data any, receiver Receiver) *Message {
 	if receiver == nil {
-		receiver = &RoleReceiver{Role: RoleAll}
+		receiver = &RoleReceiver{Role: entity.RoleAll}
 	}
 	return &Message{
 		Type:     t,

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"meeting/internal/model/entity"
 )
 
 const Secret = "X8#kP2!9mQ5$zR7*3fT1&bY4%nH6@gS0"
@@ -17,17 +18,18 @@ var (
 
 // SignatureRequest represents the request structure for generating signatures
 type SignatureRequest struct {
-	RoomId    string `json:"roomId"    form:"roomId"`
-	UserId    string `json:"userId"    form:"userId"`
-	Avatar    string `json:"avatar"    form:"avatar"`
-	Name      string `json:"name"      form:"name"`
-	Role      Role   `json:"role"      form:"role"`
-	Timestamp int    `json:"timestamp" form:"timestamp"`
+	RoomId    string      `json:"roomId"    form:"roomId"`
+	UserId    string      `json:"userId"    form:"userId"`
+	Role      entity.Role `json:"role"      form:"role"`
+	Timestamp int         `json:"timestamp" form:"timestamp"`
 }
 
 // SignatureResponse represents the response structure for generating signatures
 type SignatureResponse struct {
 	SignatureRequest
+	Name      string `json:"name"`
+	Avatar    string `json:"avatar"`
+	RoomName  string `json:"roomName"`
 	Signature string `json:"signature" form:"signature"`
 }
 
@@ -38,7 +40,7 @@ func GenerateSignature(req SignatureRequest) (*SignatureResponse, error) {
 		return nil, ErrMissingRequiredFields
 	}
 
-	data := fmt.Sprintf("%s%s%s%d%d", req.RoomId, req.UserId, req.Name, req.Role, req.Timestamp)
+	data := fmt.Sprintf("%s%s%d%d", req.RoomId, req.UserId, req.Role, req.Timestamp)
 	// Create a new HMAC by defining the hash type and the key
 	h := hmac.New(sha256.New, []byte(Secret))
 

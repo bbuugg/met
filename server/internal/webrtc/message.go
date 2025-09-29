@@ -1,5 +1,7 @@
 package webrtc
 
+import "meeting/internal/model/entity"
+
 type MessageType string
 
 const (
@@ -26,7 +28,7 @@ type Receiver interface {
 }
 
 type RoleReceiver struct {
-	Role Role
+	Role entity.Role
 }
 
 func (r *RoleReceiver) Can(c *Client) bool {

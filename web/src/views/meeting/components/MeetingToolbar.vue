@@ -45,6 +45,16 @@
         <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
       </button>
 
+      <!-- Room Management Button (只有管理员可见) -->
+      <button
+        v-if="isRoomAdmin"
+        @click="showRoomManagement"
+        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+        title="房间管理"
+      >
+        <CogIcon class="h-4 w-4" />
+      </button>
+
       <!-- Share Button -->
       <button
         @click="showShareModal"
@@ -123,19 +133,30 @@
       </div>
     </div>
   </div>
+
+  <!-- 房间管理弹窗 -->
+  <RoomManagement
+    v-if="roomManagementVisible"
+    :room-uuid="roomId"
+    :initial-name="meetingStore.roomName"
+    @close="closeRoomManagement"
+    @updated="handleRoomUpdated"
+  />
 </template>
 
 <script setup lang="ts">
 import { useMeetingStore } from '@/stores/meeting'
 import { Modal as AModal, Message } from '@arco-design/web-vue'
-import { LinkIcon, UserGroupIcon, MoonIcon, SunIcon, ShareIcon } from '@heroicons/vue/24/outline'
+import { LinkIcon, UserGroupIcon, MoonIcon, SunIcon, ShareIcon, CogIcon } from '@heroicons/vue/24/outline'
 import { computed, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import theme from '@/services/theme'
+import RoomManagement from '@/components/RoomManagement.vue'
 
 const { t, locale } = useI18n()
 const meetingStore = useMeetingStore()
 const shareModalVisible = ref(false)
+const roomManagementVisible = ref(false)
 const roomId = computed(() => meetingStore.roomId)
 
 // Reactive variable to track current language
@@ -145,6 +166,13 @@ const currentTheme = ref<'light' | 'dark'>('dark')
 // 计算参与者数量
 const participantCount = computed(() => {
   return meetingStore.participantsList.length
+})
+
+// 判断当前用户是否为房间管理员
+const isRoomAdmin = computed(() => {
+  // 这里需要从WebRTC服务或store中获取当前用户的角色信息
+  // 暂时使用isHost作为判断依据
+  return meetingStore.isHost
 })
 
 // Initialize theme
@@ -190,6 +218,20 @@ function showShareModal() {
 
 function closeModal() {
   shareModalVisible.value = false
+}
+
+// 房间管理相关函数
+function showRoomManagement() {
+  roomManagementVisible.value = true
+}
+
+function closeRoomManagement() {
+  roomManagementVisible.value = false
+}
+
+function handleRoomUpdated() {
+  // 房间信息更新后的处理
+  Message.success('房间信息已更新')
 }
 
 function copyLink() {

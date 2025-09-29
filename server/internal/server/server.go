@@ -51,8 +51,15 @@ func NewServer() *Server {
 		p.GET("/api/room/:id", s.webrtcServer.GetRoomInfo)
 		p.GET("/api/rooms", s.webrtcServer.GetRoomList)            // 添加获取房间列表接口
 		p.POST("/api/room", s.webrtcServer.CreateRoom)             // 添加创建房间接口
-		p.DELETE("/api/room/:uuid", s.webrtcServer.DeleteRoom)     // 添加删除房间接口
+		p.DELETE("/api/room/:id", s.webrtcServer.DeleteRoom)       // 修改为使用 :id
 		p.GET("/api/monitoring", s.webrtcServer.GetMonitoringData) // 添加监控接口路由
+
+		// 房间管理接口 - 使用不同的路径避免冲突
+		p.POST("/api/rooms/:id/join", s.webrtcServer.JoinRoom)         // 加入房间
+		p.PUT("/api/rooms/:id/update", s.webrtcServer.UpdateRoom)      // 更新房间信息
+		p.POST("/api/rooms/:id/kick", s.webrtcServer.KickUser)         // 踢出用户
+		p.POST("/api/rooms/:id/block", s.webrtcServer.BlockUser)       // 拉黑用户
+		p.GET("/api/rooms/:id/members", s.webrtcServer.GetRoomMembers) // 获取房间成员
 	}
 
 	s.httpServer = r
