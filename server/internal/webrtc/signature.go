@@ -29,9 +29,9 @@ type SignatureRequest struct {
 // SignatureResponse represents the response structure for generating signatures
 type SignatureResponse struct {
 	SignatureRequest
-	Name      string `json:"name"`
-	Avatar    string `json:"avatar"`
-	RoomName  string `json:"roomName"`
+	Name      string `json:"name" form:"name"`
+	Avatar    string `json:"avatar" form:"avatar"`
+	RoomName  string `json:"roomName" form:"roomName"`
 	Signature string `json:"signature" form:"signature"`
 }
 
