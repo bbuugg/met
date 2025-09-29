@@ -236,7 +236,7 @@
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2">
           <button
             @click="confirmLeave"
             class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"

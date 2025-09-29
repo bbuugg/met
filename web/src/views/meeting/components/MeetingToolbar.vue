@@ -110,7 +110,7 @@
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2">
           <button
             @click="copyLink"
             class="flex-1 py-2.5 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"

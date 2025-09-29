@@ -98,7 +98,7 @@
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex gap-2">
           <button
             @click="onAccept"
             :disabled="!hasReadTerms"

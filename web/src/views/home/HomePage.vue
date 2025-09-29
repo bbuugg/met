@@ -269,15 +269,15 @@
         </div>
 
         <!-- 按钮区域 -->
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex gap-2">
           <button @click="confirmLogout"
-            class="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm">
+            class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm">
             <ArrowRightIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutConfirm') }}</span>
             <span class="sm:hidden">退出</span>
           </button>
           <button @click="cancelLogout"
-            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5">
+            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5">
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutCancel') }}</span>
             <span class="sm:hidden">取消</span>
           </button>
