@@ -20,8 +20,8 @@
             <div
               class="w-10 h-10 rounded-lg flex items-center justify-center text-base font-semibold overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors"
               :class="message.senderId === clientId
-                  ? 'bg-black dark:bg-white text-white dark:text-black'
-                  : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
+                ? 'bg-black dark:bg-white text-white dark:text-black'
+                : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
                 " :title="message.senderName">
               <img v-if="getParticipantAvatar(message.senderId)" :src="getParticipantAvatar(message.senderId)!"
                 :alt="message.senderName" class="w-full h-full object-cover rounded-lg" />
@@ -59,7 +59,7 @@
                     <DocumentIcon class="h-4 w-4 flex-shrink-0" />
                     <span class="truncate min-w-0">{{ message.fileName }}</span>
                     <span class="text-xs whitespace-nowrap flex-shrink-0">({{ formatFileSize(message.fileSize || 0)
-                      }})</span>
+                    }})</span>
                     <button @click="downloadFile(message.fileUrl, message.fileName)"
                       class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
@@ -77,7 +77,7 @@
                     <DocumentIcon class="h-4 w-4 flex-shrink-0" />
                     <span class="truncate min-w-0">{{ message.fileName }}</span>
                     <span class="text-xs whitespace-nowrap flex-shrink-0">({{ formatFileSize(message.fileSize || 0)
-                      }})</span>
+                    }})</span>
                     <button @click="downloadFile(message.fileUrl, message.fileName)"
                       class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
@@ -91,7 +91,7 @@
                   <DocumentIcon class="h-4 w-4 flex-shrink-0" />
                   <span class="truncate min-w-0">{{
                     message.content.replace('File received: ', '')
-                    }}</span>
+                  }}</span>
                   <button @click="downloadFileFromMessage(message)"
                     class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
                     <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
@@ -125,22 +125,21 @@
           <span class="opacity-75">点击查看</span>
         </span>
       </div>
-
-      <div class="flex gap-3 p-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800">
-        <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
-        <button @click="() => fileInputRef?.click()"
-          class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
-          :title="t('tools.webRtcMeeting.chat.sendFile')">
-          <PaperClipIcon class="h-4 w-4 text-black dark:text-white" />
-        </button>
-        <input v-model="newMessage" :placeholder="t('tools.webRtcMeeting.chat.placeholder')" @keyup.enter="sendMessage"
-          class="flex-1 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent focus:outline-none px-4 py-2 transition-all placeholder-gray-500 dark:placeholder-gray-400" />
-        <button @click="sendMessage" :disabled="!newMessage.trim()"
-          class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:translate-y-0"
-          :title="t('tools.webRtcMeeting.chat.send')">
-          <PaperAirplaneIcon class="h-4 w-4" />
-        </button>
-      </div>
+    </div>
+    <div class="flex gap-3 p-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800">
+      <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
+      <button @click="() => fileInputRef?.click()"
+        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+        :title="t('tools.webRtcMeeting.chat.sendFile')">
+        <PaperClipIcon class="h-4 w-4 text-black dark:text-white" />
+      </button>
+      <input v-model="newMessage" :placeholder="t('tools.webRtcMeeting.chat.placeholder')" @keyup.enter="sendMessage"
+        class="flex-1 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent focus:outline-none px-4 py-2 transition-all placeholder-gray-500 dark:placeholder-gray-400" />
+      <button @click="sendMessage" :disabled="!newMessage.trim()"
+        class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:translate-y-0"
+        :title="t('tools.webRtcMeeting.chat.send')">
+        <PaperAirplaneIcon class="h-4 w-4" />
+      </button>
     </div>
   </div>
 </template>
