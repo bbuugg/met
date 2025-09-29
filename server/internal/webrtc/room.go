@@ -91,15 +91,20 @@ func (r *Room) Run() {
 			client.handleLeave()
 			delete(r.clients, client.Id)
 			r.mu.Unlock()
-		case msg := <-r.broadcast:
-			if msg.From == nil {
+		case message := <-r.broadcast:
+			if message.From == nil {
+				continue
+			}
+			message.To = nil
+			msg, err := message.Bytes()
+			if err != nil {
 				continue
 			}
 			r.mu.RLock()
 			for _, c := range r.clients {
 				// Don't send message back to sender
-				if c.Id != msg.From.Id {
-					c.Send(msg)
+				if c.Id != message.From.Id {
+					c.send <- msg
 				}
 			}
 			r.mu.RUnlock()

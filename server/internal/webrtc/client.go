@@ -58,7 +58,7 @@ type Client struct {
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
-	send chan *Message
+	send chan []byte
 
 	lastMessageTime time.Time
 }
@@ -68,7 +68,7 @@ func newClient(conn *websocket.Conn, user *User) *Client {
 	return &Client{
 		User:            user,
 		conn:            conn,
-		send:            make(chan *Message, 256),
+		send:            make(chan []byte, 256),
 		lastMessageTime: time.Now(),
 	}
 }
@@ -86,11 +86,18 @@ func (c *Client) handleLeave() {
 }
 
 func (c *Client) handleKick() {
-	c.send <- c.newMessage(MessageTypeKick, nil, nil)
+	c.Send(c.newMessage(MessageTypeKick, nil, nil))
 }
 
 // Send sends a message to the client
-func (c *Client) Send(msg *Message) {
+func (c *Client) Send(message *Message) {
+	message.To = nil
+	msg, err := message.Bytes()
+	if err != nil {
+		log.Printf("Error marshalling message: %v", err)
+		return
+	}
+
 	c.send <- msg
 }
 
@@ -165,29 +172,20 @@ func (c *Client) writePump() {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			message, err := json.Marshal(msg)
-			if err != nil {
-				log.Printf("Error marshalling message: %v", err)
-				return
-			}
+
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			w.Write(msg)
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				msg = <-c.send
-				message, err = json.Marshal(msg)
-				if err != nil {
-					log.Printf("Error marshalling message: %v", err)
-					continue
-				}
 				w.Write(newline)
-				w.Write(message)
+				w.Write(msg)
 			}
 			c.lastMessageTime = time.Now()
 			if err = w.Close(); err != nil {

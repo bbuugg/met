@@ -1,6 +1,10 @@
 package webrtc
 
-import "meeting/internal/model/entity"
+import (
+	"encoding/json"
+	"log"
+	"meeting/internal/model/entity"
+)
 
 type MessageType string
 
@@ -21,6 +25,15 @@ type Message struct {
 	To       *Client     `json:"to,omitempty"` // todo 这里需要修改，不一定只是发送给一个人
 	Data     any         `json:"data,omitempty"`
 	receiver Receiver
+}
+
+func (m *Message) Bytes() ([]byte, error) {
+	b, err := json.Marshal(m)
+	if err != nil {
+		log.Println("marshal message error:", err)
+		return nil, err
+	}
+	return b, nil
 }
 
 type Receiver interface {

@@ -41,6 +41,5 @@ func (c *Client) handleWebRTCEvent(message *Message) {
 		log.Printf("Target client %s not found for offer", message.To.Id)
 		return
 	}
-
 	targetClient.Send(message)
 }
