@@ -1,22 +1,18 @@
 <template>
   <div
-    class="flex justify-center items-center px-6 py-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 transition-colors"
-  >
+    class="flex justify-center items-center px-6 py-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 transition-colors">
     <div class="flex gap-3 items-center justify-center md:justify-between w-full">
       <div>
         <!-- 录屏按钮 -->
-        <button
-          v-if="isGetDisplayMediaSupported"
-          @click="toggleRecording"
+        <button v-if="isGetDisplayMediaSupported" @click="toggleRecording"
           class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1"
           :class="{
             'bg-red-600 hover:bg-red-700 text-white border-red-600': meetingStore.isRecording,
             'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
               !meetingStore.isRecording
-          }"
-        >
+          }">
           <div v-if="meetingStore.isRecording" class="w-4 h-4 bg-white rounded-sm"></div>
-          <VideoCameraIcon v-else class="h-5 w-5" />
+          <RecorderIcon v-else class="h-5 w-5" />
           <span class="text-xs font-medium max-sm:hidden">{{
             meetingStore.isRecording
               ? t('tools.webRtcMeeting.meeting.stopRecording')
@@ -27,10 +23,8 @@
       <div class="flex flex-wrap gap-3 items-center justify-center">
         <!-- 麦克风设备选择 -->
         <div
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
-        >
-          <button
-            @click="toggleAudio"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+          <button @click="toggleAudio"
             class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
@@ -39,8 +33,7 @@
                 currentUser?.mediaState.audio,
               'rounded-lg': audioDevices.length <= 1,
               'rounded-l-lg': audioDevices.length > 1
-            }"
-          >
+            }">
             <MicrophoneDisabledIcon v-if="currentUser?.mediaState.audio" class="h-5 w-5" />
             <MicrophoneIcon v-else class="h-5 w-5" />
             <span class="text-xs font-medium max-sm:hidden">{{
@@ -51,38 +44,24 @@
           </button>
 
           <!-- 音频设备下拉菜单 -->
-          <a-dropdown
-            v-if="audioDevices.length > 1"
-            trigger="click"
-            position="top"
-            :popup-max-height="240"
-          >
-            <button
-              class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm"
-              :class="{
-                'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
-                  !currentUser?.mediaState.audio,
-                'bg-red-500 hover:bg-red-600 text-white border-red-500':
-                  currentUser?.mediaState.audio
-              }"
-            >
+          <a-dropdown v-if="audioDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
+            <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
+              'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
+                !currentUser?.mediaState.audio,
+              'bg-red-500 hover:bg-red-600 text-white border-red-500':
+                currentUser?.mediaState.audio
+            }">
               <ChevronDownIcon class="h-4 w-4" />
             </button>
             <template #content>
-              <a-doption
-                v-for="device in audioDevices"
-                :key="device.deviceId"
-                :value="device.deviceId"
-                @click="selectAudioDevice(device.deviceId)"
-              >
+              <a-doption v-for="device in audioDevices" :key="device.deviceId" :value="device.deviceId"
+                @click="selectAudioDevice(device.deviceId)">
                 <div class="flex items-center whitespace-nowrap">
-                  <CheckIcon
-                    v-if="device.deviceId === currentAudioDeviceId"
-                    class="h-4 w-4 text-black dark:text-white mr-2 flex-shrink-0"
-                  />
+                  <CheckIcon v-if="device.deviceId === currentAudioDeviceId"
+                    class="h-4 w-4 text-black dark:text-white mr-2 flex-shrink-0" />
                   <span class="truncate">{{
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-                  }}</span>
+                    }}</span>
                 </div>
               </a-doption>
             </template>
@@ -91,10 +70,8 @@
 
         <!-- 摄像头设备选择 -->
         <div
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
-        >
-          <button
-            @click="toggleVideo"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+          <button @click="toggleVideo"
             class="px-3 h-full border shadow-sm flex flex-col items-center justify-center gap-1 transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
@@ -103,8 +80,7 @@
                 currentUser?.mediaState.video,
               'rounded-lg': videoDevices.length <= 1,
               'rounded-l-lg': videoDevices.length > 1
-            }"
-          >
+            }">
             <VideoCameraIcon v-if="!currentUser?.mediaState.video" class="h-5 w-5" />
             <VideoCameraSlashIcon v-else class="h-5 w-5" />
             <span class="text-xs font-medium max-sm:hidden">{{
@@ -115,38 +91,24 @@
           </button>
 
           <!-- 视频设备下拉菜单 -->
-          <a-dropdown
-            v-if="videoDevices.length > 1"
-            trigger="click"
-            position="top"
-            :popup-max-height="240"
-          >
-            <button
-              class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm"
-              :class="{
-                'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
-                  !currentUser?.mediaState.video,
-                'bg-red-500 hover:bg-red-600 text-white border-red-500':
-                  currentUser?.mediaState.video
-              }"
-            >
+          <a-dropdown v-if="videoDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
+            <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
+              'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
+                !currentUser?.mediaState.video,
+              'bg-red-500 hover:bg-red-600 text-white border-red-500':
+                currentUser?.mediaState.video
+            }">
               <ChevronDownIcon class="h-4 w-4" />
             </button>
             <template #content>
-              <a-doption
-                v-for="device in videoDevices"
-                :key="device.deviceId"
-                :value="device.deviceId"
-                @click="selectVideoDevice(device.deviceId)"
-              >
+              <a-doption v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId"
+                @click="selectVideoDevice(device.deviceId)">
                 <div class="flex items-center whitespace-nowrap">
-                  <CheckIcon
-                    v-if="device.deviceId === currentVideoDeviceId"
-                    class="h-4 w-4 text-black dark:text-white mr-2 flex-shrink-0"
-                  />
+                  <CheckIcon v-if="device.deviceId === currentVideoDeviceId"
+                    class="h-4 w-4 text-black dark:text-white mr-2 flex-shrink-0" />
                   <span class="truncate">{{
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
-                  }}</span>
+                    }}</span>
                 </div>
               </a-doption>
             </template>
@@ -154,20 +116,16 @@
         </div>
 
         <!-- 屏幕共享按钮组 -->
-        <div
-          v-if="isGetDisplayMediaSupported"
-          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center"
-        >
-          <button
-            @click="toggleScreenShare"
+        <div v-if="isGetDisplayMediaSupported"
+          class="relative min-w-[60px] sm:min-w-[90px] h-12 rounded-lg transform hover:scale-105 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center">
+          <button @click="toggleScreenShare"
             class="min-w-[60px] sm:min-w-[90px] h-full px-3 border shadow-sm flex flex-col items-center justify-center gap-1 rounded-lg transition-all duration-200 active:translate-y-0"
             :class="{
               'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white':
                 currentUser?.mediaState.screen,
               'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
                 !currentUser?.mediaState.screen
-            }"
-          >
+            }">
             <ComputerDesktopIcon class="h-5 w-5" />
             <span class="text-xs font-medium max-sm:hidden">{{
               currentUser?.mediaState.screen
@@ -177,30 +135,23 @@
           </button>
 
           <!-- 桌面音频控制按钮 - 仅当屏幕共享且存在桌面音频轨道时显示 -->
-          <button
-            v-if="currentUser?.mediaState.screen && hasDesktopAudioTrack"
-            @click="toggleDesktopAudio"
+          <button v-if="currentUser?.mediaState.screen && hasDesktopAudioTrack" @click="toggleDesktopAudio"
             class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white dark:border-black shadow-sm flex items-center justify-center transform hover:scale-110 transition-all duration-200"
             :class="{
               'bg-green-500 hover:bg-green-600 text-white': currentUser?.mediaState.desktopAudio,
               'bg-gray-400 hover:bg-gray-500 text-white': !currentUser?.mediaState.desktopAudio
-            }"
-            :title="
-              currentUser?.mediaState.desktopAudio
+            }" :title="currentUser?.mediaState.desktopAudio
                 ? t('tools.webRtcMeeting.controls.muteDesktopAudio')
                 : t('tools.webRtcMeeting.controls.unmuteDesktopAudio')
-            "
-          >
+              ">
             <SpeakerWaveIcon v-if="currentUser?.mediaState.desktopAudio" class="h-3 w-3" />
             <SpeakerXMarkIcon v-else class="h-3 w-3" />
           </button>
         </div>
       </div>
       <div class="flex gap-3 items-center">
-        <button
-          @click="showLeaveConfirm"
-          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600"
-        >
+        <button @click="showLeaveConfirm"
+          class="min-w-[60px] sm:min-w-[90px] h-12 px-3 rounded-lg border shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex flex-col items-center justify-center gap-1 bg-red-600 hover:bg-red-700 text-white border-red-600">
           <ArrowRightIcon class="h-5 w-5" />
           <span class="text-xs font-medium max-sm:hidden">{{ t('tools.webRtcMeeting.meeting.leave') }}</span>
         </button>
@@ -209,22 +160,17 @@
   </div>
 
   <!-- 退出确认 Modal -->
-  <div
-    v-if="showLeaveModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    @click="cancelLeave"
-  >
+  <div v-if="showLeaveModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    @click="cancelLeave">
     <div
       class="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
-      @click.stop
-    >
+      @click.stop>
       <!-- 模态框内容 -->
       <div class="p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <!-- 标题区域 -->
         <div class="text-center mb-4 sm:mb-6">
           <div
-            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors"
-          >
+            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors">
             <ArrowRightIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-black dark:text-white">
@@ -237,20 +183,16 @@
 
         <!-- 按钮区域 -->
         <div class="flex gap-2">
-          <button
-            @click="confirmLeave"
-            class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"
-          >
+          <button @click="confirmLeave"
+            class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm">
             <ArrowRightIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{
               t('tools.webRtcMeeting.meeting.leaveConfirm')
-            }}</span>
+              }}</span>
             <span class="sm:hidden">离开</span>
           </button>
-          <button
-            @click="cancelLeave"
-            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-2 order-1 sm:order-2 text-sm"
-          >
+          <button @click="cancelLeave"
+            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all flex items-center justify-center gap-2 order-1 sm:order-2 text-sm">
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.leaveCancel') }}</span>
             <span class="sm:hidden">取消</span>
           </button>
@@ -262,6 +204,7 @@
 
 <script setup lang="ts">
 import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
+import RecorderIcon from '@/components/icons/RecorderIcon.vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
 import {
@@ -271,7 +214,6 @@ import {
 } from '@arco-design/web-vue'
 import {
   ArrowRightIcon,
-  ChatBubbleLeftRightIcon,
   MicrophoneIcon,
   SpeakerWaveIcon,
   SpeakerXMarkIcon
@@ -685,7 +627,7 @@ onUnmounted(() => {
   animation: fadeIn 0.2s ease-out;
 }
 
-.fixed.inset-0 > div {
+.fixed.inset-0>div {
   animation: slideUp 0.3s ease-out;
 }
 </style>
