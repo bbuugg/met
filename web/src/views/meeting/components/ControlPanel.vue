@@ -44,17 +44,19 @@
           </button>
 
           <!-- 音频设备下拉菜单 -->
-          <a-dropdown v-if="audioDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
-            <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
-              'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
-                !currentUser?.mediaState.audio,
-              'bg-red-500 hover:bg-red-600 text-white border-red-500':
-                currentUser?.mediaState.audio
-            }">
-              <ChevronDownIcon class="h-4 w-4" />
-            </button>
+          <Dropdown v-if="audioDevices.length > 1" trigger="click" position="top" :popup-max-height="240" class="h-full">
+            <template #trigger>
+              <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
+                'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
+                  !currentUser?.mediaState.audio,
+                'bg-red-500 hover:bg-red-600 text-white border-red-500':
+                  currentUser?.mediaState.audio
+              }">
+                <ChevronDownIcon class="h-4 w-4" />
+              </button>
+            </template>
             <template #content>
-              <a-doption v-for="device in audioDevices" :key="device.deviceId" :value="device.deviceId"
+              <DropdownOption v-for="device in audioDevices" :key="device.deviceId" :value="device.deviceId"
                 @click="selectAudioDevice(device.deviceId)">
                 <div class="flex items-center whitespace-nowrap">
                   <CheckIcon v-if="device.deviceId === currentAudioDeviceId"
@@ -63,9 +65,9 @@
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
                     }}</span>
                 </div>
-              </a-doption>
+              </DropdownOption>
             </template>
-          </a-dropdown>
+          </Dropdown>
         </div>
 
         <!-- 摄像头设备选择 -->
@@ -91,17 +93,19 @@
           </button>
 
           <!-- 视频设备下拉菜单 -->
-          <a-dropdown v-if="videoDevices.length > 1" trigger="click" position="top" :popup-max-height="240">
-            <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
-              'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
-                !currentUser?.mediaState.video,
-              'bg-red-500 hover:bg-red-600 text-white border-red-500':
-                currentUser?.mediaState.video
-            }">
-              <ChevronDownIcon class="h-4 w-4" />
-            </button>
+          <Dropdown v-if="videoDevices.length > 1" trigger="click" position="top" :popup-max-height="240" class="h-full">
+            <template #trigger>
+              <button class="w-5 h-full flex items-center justify-center rounded-r-lg border shadow-sm" :class="{
+                'bg-white dark:bg-black border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-black dark:text-white':
+                  !currentUser?.mediaState.video,
+                'bg-red-500 hover:bg-red-600 text-white border-red-500':
+                  currentUser?.mediaState.video
+              }">
+                <ChevronDownIcon class="h-4 w-4" />
+              </button>
+            </template>
             <template #content>
-              <a-doption v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId"
+              <DropdownOption v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId"
                 @click="selectVideoDevice(device.deviceId)">
                 <div class="flex items-center whitespace-nowrap">
                   <CheckIcon v-if="device.deviceId === currentVideoDeviceId"
@@ -110,9 +114,9 @@
                     device.label || t('tools.webRtcMeeting.controls.unnamedDevice')
                     }}</span>
                 </div>
-              </a-doption>
+              </DropdownOption>
             </template>
-          </a-dropdown>
+          </Dropdown>
         </div>
 
         <!-- 屏幕共享按钮组 -->
@@ -205,13 +209,11 @@
 <script setup lang="ts">
 import MicrophoneDisabledIcon from '@/components/icons/MicrophoneDisabledIcon.vue'
 import RecorderIcon from '@/components/icons/RecorderIcon.vue'
+import Dropdown from '@/components/Dropdown.vue'
+import DropdownOption from '@/components/DropdownOption.vue'
 import { useMeetingStore } from '@/stores/meeting'
 import { getMediaDevices } from '@/utils/helper'
-import {
-  Doption as ADoption,
-  Dropdown as ADropdown,
-  Message
-} from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 import {
   ArrowRightIcon,
   MicrophoneIcon,
@@ -283,7 +285,7 @@ async function fetchMediaDevices() {
     videoDevices.value = video
     audioDevices.value = audio
   } catch (error) {
-    Message.error(t('tools.webRtcMeeting.controls.deviceError'))
+    toast.error(t('tools.webRtcMeeting.controls.deviceError'))
     console.error('Failed to fetch media devices:', error)
   }
 }
@@ -293,10 +295,10 @@ async function switchVideoDevice(deviceId: string) {
   if (currentVideoDeviceId.value === deviceId) return
   try {
     await meetingStore.switchVideoDevice(deviceId)
-    Message.success(t('tools.webRtcMeeting.controls.cameraSwitched'))
+    toast.success(t('tools.webRtcMeeting.controls.cameraSwitched'))
   } catch (error) {
     console.error('Failed to switch video device:', error)
-    Message.error(t('tools.webRtcMeeting.controls.cameraSwitchFailed'))
+    toast.error(t('tools.webRtcMeeting.controls.cameraSwitchFailed'))
   }
 }
 
@@ -308,13 +310,13 @@ async function switchAudioDevice(deviceId: string) {
     currentAudioDeviceId.value = deviceId
     const enabled = await meetingStore.switchAudioDevice(deviceId)
     if (enabled) {
-      Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
+      toast.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
     } else {
-      Message.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
+      toast.success(t('tools.webRtcMeeting.controls.microphoneSwitched'))
     }
   } catch (error) {
     console.error('Failed to switch audio device:', error)
-    Message.error(t('tools.webRtcMeeting.controls.microphoneSwitchFailed'))
+    toast.error(t('tools.webRtcMeeting.controls.microphoneSwitchFailed'))
   }
 }
 
@@ -322,12 +324,12 @@ async function toggleAudio() {
   try {
     const enabled = await meetingStore.toggleAudio(currentAudioDeviceId.value || undefined)
     if (enabled) {
-      Message.success(t('tools.webRtcMeeting.controls.unmuteMic'))
+      toast.success(t('tools.webRtcMeeting.controls.unmuteMic'))
     } else {
-      Message.info(t('tools.webRtcMeeting.controls.muteMic'))
+      toast.info(t('tools.webRtcMeeting.controls.muteMic'))
     }
   } catch (error) {
-    Message.error(`${t('tools.webRtcMeeting.controls.microphoneSwitchFailed')} ${error}`)
+    toast.error(`${t('tools.webRtcMeeting.controls.microphoneSwitchFailed')} ${error}`)
   }
 }
 
@@ -339,7 +341,7 @@ async function toggleVideo() {
       currentUser.value.mediaState.screen = false
     }
   } catch (error) {
-    Message.error(`${t('tools.webRtcMeeting.controls.turnOnCameraFailed')} ${error}`)
+    toast.error(`${t('tools.webRtcMeeting.controls.turnOnCameraFailed')} ${error}`)
   }
 }
 
@@ -413,7 +415,7 @@ async function startRecording() {
         }
       } catch (micError) {
         console.warn('无法获取麦克风音频，将只录制桌面音频:', micError)
-        Message.warning('无法获取麦克风音频，将只录制桌面音频')
+        toast.warning('无法获取麦克风音频，将只录制桌面音频')
       }
     } else {
       console.log('麦克风关闭，只录制桌面音频')
@@ -468,7 +470,7 @@ async function startRecording() {
     const audioInfo = meetingStore.webrtcService?.getMediaState().audio
       ? '（包含桌面音频和麦克风音频）'
       : '（仅桌面音频）'
-    Message.success(t('tools.webRtcMeeting.meeting.recordingStarted') + audioInfo)
+    toast.success(t('tools.webRtcMeeting.meeting.recordingStarted') + audioInfo)
 
     // 监听屏幕共享结束事件
     const videoTrack = finalStream.getVideoTracks()[0]
@@ -479,7 +481,7 @@ async function startRecording() {
     }
   } catch (error: any) {
     console.error(t('tools.webRtcMeeting.meeting.recordingFailed') + ':', error)
-    Message.error(t('tools.webRtcMeeting.meeting.recordingFailed'))
+    toast.error(t('tools.webRtcMeeting.meeting.recordingFailed'))
     meetingStore.isRecording = false
   }
 }
@@ -500,14 +502,14 @@ function stopRecording() {
     }
 
     // 显示停止录制提示
-    Message.info(t('tools.webRtcMeeting.meeting.recordingStopped'))
+    toast.info(t('tools.webRtcMeeting.meeting.recordingStopped'))
   }
 }
 
 // 下载录制文件
 function downloadRecording() {
   if (recordedChunks.value.length === 0) {
-    Message.error(t('tools.webRtcMeeting.meeting.noRecordingData'))
+    toast.error(t('tools.webRtcMeeting.meeting.noRecordingData'))
     return
   }
 
@@ -534,10 +536,10 @@ function downloadRecording() {
     recordedChunks.value = []
 
     // 显示下载成功提示
-    Message.success(t('tools.webRtcMeeting.meeting.recordingSaved'))
+    toast.success(t('tools.webRtcMeeting.meeting.recordingSaved'))
   } catch (error: any) {
     console.error(t('tools.webRtcMeeting.meeting.downloadRecordingFailed'), error)
-    Message.error(t('tools.webRtcMeeting.meeting.recordingSaveFailed'))
+    toast.error(t('tools.webRtcMeeting.meeting.recordingSaveFailed'))
   }
 }
 
@@ -558,7 +560,7 @@ async function toggleScreenShare() {
       if (currentUser.value) {
         currentUser.value.mediaState.screen = false
       }
-      Message.info(t('tools.webRtcMeeting.controls.stopScreenShare'))
+      toast.info(t('tools.webRtcMeeting.controls.stopScreenShare'))
     } else {
       await meetingStore.startScreenShare()
       // 启动屏幕共享会自动关闭摄像头
@@ -566,10 +568,10 @@ async function toggleScreenShare() {
         currentUser.value.mediaState.screen = true
         currentUser.value.mediaState.video = false
       }
-      Message.success(t('tools.webRtcMeeting.controls.startScreenShare'))
+      toast.success(t('tools.webRtcMeeting.controls.startScreenShare'))
     }
   } catch (error: any) {
-    Message.error(`${t('tools.webRtcMeeting.controls.startScreenShareFailed')} ${error}`)
+    toast.error(`${t('tools.webRtcMeeting.controls.startScreenShareFailed')} ${error}`)
   }
 }
 
@@ -577,12 +579,12 @@ async function toggleDesktopAudio() {
   try {
     const enabled = await meetingStore.toggleDesktopAudio()
     if (enabled) {
-      Message.success(t('tools.webRtcMeeting.controls.unmuteDesktopAudio'))
+      toast.success(t('tools.webRtcMeeting.controls.unmuteDesktopAudio'))
     } else {
-      Message.info(t('tools.webRtcMeeting.controls.muteDesktopAudio'))
+      toast.info(t('tools.webRtcMeeting.controls.muteDesktopAudio'))
     }
   } catch (error: any) {
-    Message.error(`${t('tools.webRtcMeeting.controls.desktopAudioToggleFailed')} ${error}`)
+    toast.error(`${t('tools.webRtcMeeting.controls.desktopAudioToggleFailed')} ${error}`)
   }
 }
 

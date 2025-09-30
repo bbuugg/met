@@ -150,7 +150,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Message } from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 import { updateRoom, kickUser as kickUserAPI, blockUser as blockUserAPI, getRoomMembers } from '@/api'
 import { Role, type RoomMemberInfo } from '@/types/room'
 import {
@@ -188,14 +188,14 @@ const fetchMembers = async () => {
     }
   } catch (error: any) {
     console.error('获取房间成员失败:', error)
-    Message.error('获取房间成员失败')
+    toast.error('获取房间成员失败')
   }
 }
 
 // 更新房间信息
 const updateRoomInfo = async () => {
   if (!roomName.value.trim()) {
-    Message.error('请输入房间名称')
+    toast.error('请输入房间名称')
     return
   }
 
@@ -207,14 +207,14 @@ const updateRoomInfo = async () => {
     })
 
     if (response.code === 0) {
-      Message.success('房间信息更新成功')
+      toast.success('房间信息更新成功')
       emit('updated')
     } else {
-      Message.error(response.message || '更新失败')
+      toast.error(response.message || '更新失败')
     }
   } catch (error: any) {
     console.error('更新房间信息失败:', error)
-    Message.error(error.response?.data?.message || '更新失败')
+    toast.error(error.response?.data?.message || '更新失败')
   } finally {
     updating.value = false
   }
@@ -225,14 +225,14 @@ const kickUser = async (userId: number) => {
   try {
     const response = await kickUserAPI(props.roomUuid, { userId })
     if (response.code === 0) {
-      Message.success('用户已被踢出')
+      toast.success('用户已被踢出')
       await fetchMembers() // 刷新成员列表
     } else {
-      Message.error(response.message || '踢出失败')
+      toast.error(response.message || '踢出失败')
     }
   } catch (error: any) {
     console.error('踢出用户失败:', error)
-    Message.error(error.response?.data?.message || '踢出失败')
+    toast.error(error.response?.data?.message || '踢出失败')
   }
 }
 
@@ -241,14 +241,14 @@ const blockUser = async (userId: number) => {
   try {
     const response = await blockUserAPI(props.roomUuid, { userId })
     if (response.code === 0) {
-      Message.success('用户已被拉黑')
+      toast.success('用户已被拉黑')
       await fetchMembers() // 刷新成员列表
     } else {
-      Message.error(response.message || '拉黑失败')
+      toast.error(response.message || '拉黑失败')
     }
   } catch (error: any) {
     console.error('拉黑用户失败:', error)
-    Message.error(error.response?.data?.message || '拉黑失败')
+    toast.error(error.response?.data?.message || '拉黑失败')
   }
 }
 

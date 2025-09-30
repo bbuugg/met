@@ -27,7 +27,6 @@
     "webrtc-adapter": "^9.0.1"
   },
   "devDependencies": {
-    "@arco-design/web-vue": "^2.57.0",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.7",

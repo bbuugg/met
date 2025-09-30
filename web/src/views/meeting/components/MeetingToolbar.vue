@@ -145,7 +145,7 @@
 import RoomManagement from '@/components/RoomManagement.vue'
 import theme from '@/services/theme'
 import { useMeetingStore } from '@/stores/meeting'
-import { Message } from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 import { CogIcon, LinkIcon, MoonIcon, ShareIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { computed, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -228,21 +228,21 @@ function closeRoomManagement() {
 
 function handleRoomUpdated() {
   // 房间信息更新后的处理
-  Message.success('房间信息已更新')
+  toast.success('房间信息已更新')
 }
 
 function copyLink() {
   navigator.clipboard
     .writeText(meetingLink.value)
     .then(() => {
-      Message.success(t('tools.webRtcMeeting.meeting.copySuccess'))
+      toast.success(t('tools.webRtcMeeting.meeting.copySuccess'))
       // 复制成功后自动关闭模态框
       setTimeout(() => {
         closeModal()
       }, 1000)
     })
     .catch(() => {
-      Message.error(t('tools.webRtcMeeting.meeting.copyFailed'))
+      toast.error(t('tools.webRtcMeeting.meeting.copyFailed'))
     })
 }
 </script>

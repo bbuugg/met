@@ -39,7 +39,7 @@ import LegalNoticeModal from '@/components/LegalNoticeModal.vue'
 import { wsUrl } from '@/config'
 import { useMeetingStore } from '@/stores/meeting'
 import { useUserStore } from '@/stores/user'
-import { Message } from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -113,7 +113,7 @@ async function initializeMeeting(clientId: string) {
   const roomId = props.roomId
 
   if (!roomId) {
-    Message.error(t('tools.webRtcMeeting.errors.meetingIdRequired'))
+    toast.error(t('tools.webRtcMeeting.errors.meetingIdRequired'))
     router.push('/')
     return
   }
@@ -149,7 +149,7 @@ async function initializeMeeting(clientId: string) {
     }
   } catch (error: any) {
     console.error('Failed to join meeting:', error)
-    Message.error(t('tools.webRtcMeeting.errors.connectionFailed'))
+    toast.error(t('tools.webRtcMeeting.errors.connectionFailed'))
     router.push('/')
   } finally {
     isJoining.value = false

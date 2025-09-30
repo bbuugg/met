@@ -146,7 +146,7 @@
 
 <script setup lang="ts">
 import { useMeetingStore } from '@/stores/meeting'
-import { Message } from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 import {
   ArrowDownTrayIcon,
   ChatBubbleLeftRightIcon,
@@ -208,9 +208,9 @@ async function handleFileSelect(event: Event) {
     for (const file of Array.from(files)) {
       try {
         await meetingStore.sendFile(file)
-        Message.success(t('tools.webRtcMeeting.chat.sendFile'))
+        toast.success(t('tools.webRtcMeeting.chat.sendFile'))
       } catch (error) {
-        Message.error(t('tools.webRtcMeeting.chat.sendFileFailed'))
+        toast.error(t('tools.webRtcMeeting.chat.sendFileFailed'))
       }
     }
 
@@ -222,7 +222,7 @@ async function handleFileSelect(event: Event) {
 function downloadFile(url: string, fileName?: string) {
   if (!url || !fileName) {
     // Fallback to old method for non-preview files
-    Message.info(t('tools.webRtcMeeting.chat.download'))
+    toast.info(t('tools.webRtcMeeting.chat.download'))
     return
   }
 
@@ -238,7 +238,7 @@ function downloadFileFromMessage(_message: any) {
   // For non-preview files, we need to handle them differently
   // In a real implementation, you would need to have the actual file data
   // For now, we'll just show a message
-  Message.info(t('tools.webRtcMeeting.chat.download'))
+  toast.info(t('tools.webRtcMeeting.chat.download'))
 }
 
 function formatTime(timestamp: number): string {

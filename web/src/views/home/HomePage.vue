@@ -292,7 +292,7 @@
 <script setup lang="ts">
 import theme from '@/services/theme'
 import { useUserStore } from '@/stores/user'
-import { Message } from '@arco-design/web-vue'
+import toast from '@/utils/toast'
 import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { ArrowRightIcon, VideoCameraIcon } from '@heroicons/vue/24/solid'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
@@ -408,7 +408,7 @@ const fetchRoomList = async () => {
 // Event handlers for components
 const handleJoin = async () => {
   if (isJoinDisabled.value) {
-    Message.error('请输入会议ID')
+    toast.error('请输入会议ID')
     return
   }
 
@@ -423,13 +423,13 @@ const handleJoin = async () => {
     })
   } catch (error: any) {
     if (error.response?.status === 401) {
-      Message.error('房间密码错误')
+      toast.error('房间密码错误')
     } else if (error.response?.status === 403) {
-      Message.error('您已被该房间拉黑')
+      toast.error('您已被该房间拉黑')
     } else if (error.response?.status === 404) {
-      Message.error('房间不存在')
+      toast.error('房间不存在')
     } else {
-      Message.error(error.response?.data?.message || '加入房间失败')
+      toast.error(error.response?.data?.message || '加入房间失败')
     }
   }
 }
@@ -437,7 +437,7 @@ const handleJoin = async () => {
 // 创建会议并加入
 const handleCreateAndJoin = async () => {
   if (!meetingName.value.trim()) {
-    Message.error('请输入会议名称')
+    toast.error('请输入会议名称')
     return
   }
 
@@ -458,11 +458,11 @@ const handleCreateAndJoin = async () => {
       // 创建成功后刷新房间列表
       await fetchRoomList()
     } else {
-      Message.error(response.data.message || '创建会议失败')
+      toast.error(response.data.message || '创建会议失败')
     }
   } catch (error: any) {
     console.error('创建会议失败:', error)
-    Message.error('创建会议失败')
+    toast.error('创建会议失败')
   } finally {
     isCreating.value = false
   }
@@ -484,11 +484,11 @@ const joinRoom = async (roomId: string) => {
       })
     } catch (error: any) {
       if (error.response?.status === 401) {
-        Message.error('房间密码错误')
+        toast.error('房间密码错误')
       } else if (error.response?.status === 403) {
-        Message.error('您已被该房间拉黑')
+        toast.error('您已被该房间拉黑')
       } else {
-        Message.error(error.response?.data?.message || '加入房间失败')
+        toast.error(error.response?.data?.message || '加入房间失败')
       }
     }
   } else {
@@ -500,9 +500,9 @@ const joinRoom = async (roomId: string) => {
       })
     } catch (error: any) {
       if (error.response?.status === 403) {
-        Message.error('您已被该房间拉黑')
+        toast.error('您已被该房间拉黑')
       } else {
-        Message.error(error.response?.data?.message || '加入房间失败')
+        toast.error(error.response?.data?.message || '加入房间失败')
       }
     }
   }
@@ -515,15 +515,15 @@ const deleteRoomHandler = async (roomId: string) => {
   try {
     const response = await deleteRoom(roomId)
     if (response.code === 0) {
-      Message.success('房间已关闭')
+      toast.success('房间已关闭')
       // 删除成功后刷新房间列表
       await fetchRoomList()
     } else {
-      Message.error(response.message || '关闭房间失败')
+      toast.error(response.message || '关闭房间失败')
     }
   } catch (error: any) {
     console.error('关闭房间失败:', error)
-    Message.error('关闭房间失败')
+    toast.error('关闭房间失败')
   }
 }
 </script>
