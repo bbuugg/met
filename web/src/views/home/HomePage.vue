@@ -1,9 +1,9 @@
 <template>
   <!-- User Info and Controls -->
-  <div class="fixed top-6 right-6 z-50 flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
+  <div v-if="userStore.info.uuid"
+    class="fixed top-6 right-6 z-50 flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
     <!-- User Info (only show when logged in) -->
-    <a :href="getUserCenterUrl()" v-if="userStore.info.uuid"
-      class="cursor-pointer flex items-center gap-2">
+    <a :href="getUserCenterUrl()" class="cursor-pointer flex items-center gap-2">
       <!-- User Avatar -->
       <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
         class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
