@@ -1,7 +1,7 @@
 <template>
-  <div class="w-full md:w-96 h-full flex flex-col transition-colors">
+  <div class="w-full h-full flex flex-col transition-colors overflow-hidden">
     <!-- 聊天面板头部 -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+    <div class="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
       <div class="flex items-center gap-3">
         <div>
           <h3 class="text-sm font-semibold text-black dark:text-white">
@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col overflow-y-auto">
+    <div class="flex-1 flex flex-col overflow-hidden min-h-0">
       <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 scroll-smooth" ref="messagesContainer">
         <div v-for="message in chatMessages" :key="message.id" class="flex gap-4"
           :class="{ 'flex-row-reverse': message.senderId === clientId }">
@@ -126,7 +126,7 @@
         </span>
       </div>
     </div>
-    <div class="flex gap-2 p-3 border-t border-gray-200 dark:border-gray-800">
+    <div class="flex-shrink-0 flex gap-2 p-3 border-t border-gray-200 dark:border-gray-800">
       <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
       <button @click="() => fileInputRef?.click()"
         class="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"

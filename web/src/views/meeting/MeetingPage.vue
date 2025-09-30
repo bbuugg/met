@@ -1,15 +1,12 @@
 <template>
-  <div class="h-full text-gray-900 dark:text-white relative flex flex-col overflow-hidden justify-between">
-    <MeetingToolbar />
+  <div class="h-screen text-gray-900 dark:text-white relative flex flex-col overflow-hidden">
+    <MeetingToolbar class="flex-shrink-0" />
     <!-- 在移动端设备上，视频区域和聊天区域上下分布 -->
-    <div class="flex-1 flex flex-col justify-start md:flex-row">
-      <VideoGrid class="md:flex-1" />
-      <ChatPanel :class="[
-        'h-full flex-shrink-0 transition-all duration-300 ease-in-out',
-        'inset-0 md:inset-auto md:w-96 max-md:flex-1',
-      ]" />
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
+      <VideoGrid class="md:flex-1 flex-shrink-0" />
+      <ChatPanel class="flex-shrink-0 md:w-96 max-md:flex-1 min-h-0" />
     </div>
-    <ControlPanel :unreadMessagesCount="unreadMessagesCount" />
+    <ControlPanel :unreadMessagesCount="unreadMessagesCount" class="flex-shrink-0" />
   </div>
   <!-- Loading overlay -->
   <div v-if="isJoining" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
