@@ -6,7 +6,7 @@
     @click="onDecline"
   >
     <div
-      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
       @click.stop
     >
       <!-- 模态框内容 -->

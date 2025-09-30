@@ -1,42 +1,42 @@
 <template>
-  <!-- User Info and Controls -->
-  <div v-if="userStore.info.uuid"
-    class="fixed top-6 right-6 z-50 flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
-    <!-- User Info (only show when logged in) -->
-    <a :href="getUserCenterUrl()" class="cursor-pointer flex items-center gap-2">
-      <!-- User Avatar -->
-      <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
-        class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
-        @error="handleAvatarError" />
-      <!-- User Name -->
-      <span class="text-sm font-medium text-black dark:text-white">
-        {{ userStore.info.name }}
-      </span>
-    </a>
-    <!-- Logout Button -->
-    <button @click="showLogoutConfirm"
-      class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
-      :title="t('tools.webRtcMeeting.entry.logout')">
-      {{ t('tools.webRtcMeeting.entry.logout') }}
-    </button>
-  </div>
+  <div class="z-50 fixed top-6 w-full flex justify-between items-center px-6">
+    <div class="flex gap-3">
+      <!-- Theme Switch Button -->
+      <button @click="toggleTheme"
+        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+        :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'">
+        <MoonIcon v-if="currentTheme === 'light'" class="h-4 w-4" />
+        <SunIcon v-else class="h-4 w-4" />
+      </button>
 
-  <!-- Control Buttons -->
-  <div class="fixed top-6 left-6 z-50 flex gap-3">
-    <!-- Theme Switch Button -->
-    <button @click="toggleTheme"
-      class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
-      :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'">
-      <MoonIcon v-if="currentTheme === 'light'" class="h-4 w-4" />
-      <SunIcon v-else class="h-4 w-4" />
-    </button>
+      <!-- Language Switch Button -->
+      <button @click="toggleLanguage"
+        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
+        :title="currentLanguage === 'en-US' ? 'Switch to Chinese' : '切换到英文'">
+        <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
+      </button>
+    </div>
 
-    <!-- Language Switch Button -->
-    <button @click="toggleLanguage"
-      class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
-      :title="currentLanguage === 'en-US' ? 'Switch to Chinese' : '切换到英文'">
-      <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
-    </button>
+    <div v-if="userStore.info.uuid"
+      class="flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
+      <!-- User Info (only show when logged in) -->
+      <a :href="getUserCenterUrl()" class="cursor-pointer flex items-center gap-2">
+        <!-- User Avatar -->
+        <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
+          class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+          @error="handleAvatarError" />
+        <!-- User Name -->
+        <span class="text-sm font-medium text-black dark:text-white">
+          {{ userStore.info.name }}
+        </span>
+      </a>
+      <!-- Logout Button -->
+      <button @click="showLogoutConfirm"
+        class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
+        :title="t('tools.webRtcMeeting.entry.logout')">
+        {{ t('tools.webRtcMeeting.entry.logout') }}
+      </button>
+    </div>
   </div>
 
   <div class="min-h-screen flex flex-col items-center justify-center p-6 bg-white dark:bg-black transition-colors">
@@ -50,8 +50,8 @@
 
     <!-- 居中的用户信息输入区域 -->
     <div
-      class="w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10">
-      <div class="flex flex-col gap-4 p-8">
+      class="w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm relative z-10">
+      <div class="flex flex-col gap-4 p-6">
         <div class="flex justify-center">
           <img class="h-16" src="/images/logo.png" alt="" />
         </div>
@@ -162,7 +162,7 @@
 
     <!-- 会议列表浮动面板 - 右下角 -->
     <div v-if="userStore.info.uuid && roomList.length > 0"
-      class="fixed bottom-20 right-6 z-40 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg transition-all duration-300"
+      class="fixed bottom-20 right-6 z-40 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm transition-all duration-300"
       :class="{ 'h-auto': showMeetingList, '': !showMeetingList }">
       <!-- 标题栏 -->
       <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
