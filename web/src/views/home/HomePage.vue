@@ -1,9 +1,9 @@
 <template>
   <!-- User Info and Controls -->
-  <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
+  <div class="fixed top-6 right-6 z-50 flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
     <!-- User Info (only show when logged in) -->
     <a :href="getUserCenterUrl()" v-if="userStore.info.uuid"
-      class="cursor-pointer flex items-center gap-2 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
+      class="cursor-pointer flex items-center gap-2">
       <!-- User Avatar -->
       <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
         class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
@@ -12,13 +12,13 @@
       <span class="text-sm font-medium text-black dark:text-white">
         {{ userStore.info.name }}
       </span>
-      <!-- Logout Button -->
-      <button @click.stop="showLogoutConfirm"
-        class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
-        :title="t('tools.webRtcMeeting.entry.logout')">
-        {{ t('tools.webRtcMeeting.entry.logout') }}
-      </button>
     </a>
+    <!-- Logout Button -->
+    <button @click="showLogoutConfirm"
+      class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
+      :title="t('tools.webRtcMeeting.entry.logout')">
+      {{ t('tools.webRtcMeeting.entry.logout') }}
+    </button>
   </div>
 
   <!-- Control Buttons -->
