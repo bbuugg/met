@@ -18,7 +18,7 @@
             <button
               @click="fetchMonitoringData"
               :disabled="loading"
-              class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all disabled:opacity-50"
+              class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all disabled:opacity-50"
               title="刷新数据"
             >
               <ArrowPathIcon class="h-4 w-4" :class="{ 'animate-spin': loading }" />
@@ -33,8 +33,8 @@
       <!-- 页面标题 -->
       <div class="mb-8">
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-lg bg-black dark:bg-white flex items-center justify-center">
-            <ChartBarIcon class="h-6 w-6 text-white dark:text-black" />
+          <div class="w-10 h-10 rounded-lg bg-black dark:bg-white flex items-center justify-center">
+            <ChartBarIcon class="h-5 w-5 text-white dark:text-black" />
           </div>
           <div>
             <h1 class="text-2xl font-bold text-black dark:text-white">
@@ -57,9 +57,9 @@
                 <p class="text-2xl font-bold text-black dark:text-white">{{ rooms.length }}</p>
               </div>
               <div
-                class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
               >
-                <HomeIcon class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <HomeIcon class="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </div>
@@ -73,9 +73,9 @@
                 <p class="text-2xl font-bold text-black dark:text-white">{{ totalParticipants }}</p>
               </div>
               <div
-                class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
               >
-                <UsersIcon class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <UsersIcon class="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </div>
@@ -89,9 +89,9 @@
                 <p class="text-sm font-medium text-black dark:text-white">{{ lastUpdateTime }}</p>
               </div>
               <div
-                class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
+                class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center"
               >
-                <ClockIcon class="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <ClockIcon class="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </div>

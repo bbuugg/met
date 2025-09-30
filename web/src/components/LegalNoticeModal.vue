@@ -6,7 +6,7 @@
     @click="onDecline"
   >
     <div
-      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden"
       @click.stop
     >
       <!-- 模态框内容 -->
@@ -14,7 +14,7 @@
         <!-- 标题区域 -->
         <div class="text-center mb-4 sm:mb-6">
           <div
-            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black dark:bg-white mb-3 sm:mb-4 transition-colors"
+            class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white mb-3 sm:mb-4 transition-colors"
           >
             <ShieldCheckIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white dark:text-black" />
           </div>
@@ -102,7 +102,7 @@
           <button
             @click="onAccept"
             :disabled="!hasReadTerms"
-            class="flex-1 py-2.5 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
+            class="flex-1 py-2 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm"
           >
             <CheckIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('legalNotice.accept') }}</span>
@@ -110,7 +110,7 @@
           </button>
           <button
             @click="onDecline"
-            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5"
           >
             <XMarkIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('legalNotice.decline') }}</span>

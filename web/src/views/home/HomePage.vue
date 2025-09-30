@@ -3,10 +3,10 @@
   <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
     <!-- User Info (only show when logged in) -->
     <a :href="getUserCenterUrl()" v-if="userStore.info.uuid"
-      class="cursor-pointer flex items-center gap-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2 shadow-sm">
+      class="cursor-pointer flex items-center gap-2 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 shadow-sm">
       <!-- User Avatar -->
       <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
-        class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+        class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-700"
         @error="handleAvatarError" />
       <!-- User Name -->
       <span class="text-sm font-medium text-black dark:text-white">
@@ -25,15 +25,15 @@
   <div class="fixed top-6 left-6 z-50 flex gap-3">
     <!-- Theme Switch Button -->
     <button @click="toggleTheme"
-      class="w-12 h-12 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+      class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
       :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'">
-      <MoonIcon v-if="currentTheme === 'light'" class="h-5 w-5" />
-      <SunIcon v-else class="h-5 w-5" />
+      <MoonIcon v-if="currentTheme === 'light'" class="h-4 w-4" />
+      <SunIcon v-else class="h-4 w-4" />
     </button>
 
     <!-- Language Switch Button -->
     <button @click="toggleLanguage"
-      class="w-12 h-12 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
+      class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
       :title="currentLanguage === 'en-US' ? 'Switch to Chinese' : '切换到英文'">
       <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
     </button>
@@ -64,9 +64,9 @@
         </p>
         <template v-if="userStore.info.uuid">
           <!-- Tab 切换按钮 -->
-          <div class="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-1 mb-6">
+          <div class="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-1 mb-4">
             <button @click="activeTab = 'create'" :class="[
-              'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
+              'flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all',
               activeTab === 'create'
                 ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
@@ -74,7 +74,7 @@
               创建会议
             </button>
             <button @click="activeTab = 'join'" :class="[
-              'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
+              'flex-1 py-1.5 px-3 text-sm font-medium rounded-md transition-all',
               activeTab === 'join'
                 ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
@@ -84,28 +84,28 @@
           </div>
 
           <!-- 创建会议表单 -->
-          <div v-show="activeTab === 'create'" class="flex flex-col gap-5">
-            <div class="flex flex-col gap-3">
+          <div v-show="activeTab === 'create'" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
               <label for="meetingName" class="font-semibold text-black dark:text-white text-sm">
                 {{ t('tools.webRtcMeeting.entry.meetingName') }}
               </label>
               <input id="meetingName" v-model="meetingName"
                 :placeholder="t('tools.webRtcMeeting.entry.meetingNamePlaceholder')"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all text-sm"
                 @keyup.enter="handleCreateAndJoin" />
             </div>
 
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
               <label for="roomPassword" class="font-semibold text-black dark:text-white text-sm">
                 房间密码 (可选)
               </label>
               <input id="roomPassword" v-model="roomPassword" type="password" placeholder="设置房间密码，留空则无密码"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all text-sm"
                 @keyup.enter="handleCreateAndJoin" />
             </div>
 
             <button :disabled="isCreating || !meetingName.trim()" @click="handleCreateAndJoin"
-              class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+              class="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm">
               <span v-if="!isCreating">{{
                 t('tools.webRtcMeeting.entry.createAndJoinMeeting')
               }}</span>
@@ -115,28 +115,28 @@
           </div>
 
           <!-- 加入现有会议表单 -->
-          <div v-show="activeTab === 'join'" class="flex flex-col gap-5">
-            <div class="flex flex-col gap-3">
+          <div v-show="activeTab === 'join'" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
               <label for="meetingId" class="font-semibold text-black dark:text-white text-sm">
                 {{ t('tools.webRtcMeeting.entry.meetingId') }}
               </label>
               <input id="meetingId" v-model="meetingId"
                 :placeholder="t('tools.webRtcMeeting.entry.meetingIdPlaceholder')"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all text-sm"
                 @keyup.enter="handleJoin" />
             </div>
 
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
               <label for="joinPassword" class="font-semibold text-black dark:text-white text-sm">
                 房间密码 (如需要)
               </label>
               <input id="joinPassword" v-model="joinPassword" type="password" placeholder="输入房间密码"
-                class="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all text-sm"
                 @keyup.enter="handleJoin" />
             </div>
 
             <button :disabled="isJoinDisabled" @click="handleJoin"
-              class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+              class="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm">
               <span>{{ t('tools.webRtcMeeting.entry.joinMeeting') }}</span>
               <ArrowRightIcon class="h-4 w-4" />
             </button>
@@ -153,7 +153,7 @@
             </ul>
           </div>
           <button @click="handleLogin"
-            class="w-full py-3 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all">
+            class="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all text-sm">
             {{ t('tools.webRtcMeeting.entry.login') }}
           </button>
         </div>
@@ -253,7 +253,7 @@
         <!-- 标题区域 -->
         <div class="text-center mb-4 sm:mb-6">
           <div
-            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors">
+            class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-600 mb-3 sm:mb-4 transition-colors">
             <ArrowRightIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-black dark:text-white">
@@ -267,13 +267,13 @@
         <!-- 按钮区域 -->
         <div class="flex gap-2">
           <button @click="confirmLogout"
-            class="flex-1 py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm">
+            class="flex-1 py-2 px-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-all flex items-center justify-center gap-1.5 order-2 sm:order-1 text-sm">
             <ArrowRightIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutConfirm') }}</span>
             <span class="sm:hidden">退出</span>
           </button>
           <button @click="cancelLogout"
-            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5">
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-1.5">
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.entry.logoutCancel') }}</span>
             <span class="sm:hidden">取消</span>
           </button>

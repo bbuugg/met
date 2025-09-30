@@ -18,7 +18,7 @@
           <!-- 头像 -->
           <div class="flex-shrink-0">
             <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center text-base font-semibold overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors"
+              class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-semibold overflow-hidden border border-gray-200 dark:border-gray-700 transition-colors"
               :class="message.senderId === clientId
                 ? 'bg-black dark:bg-white text-white dark:text-black'
                 : 'bg-gray-100 dark:bg-gray-800 text-black dark:text-white'
@@ -40,7 +40,7 @@
 
             <!-- 消息气泡 -->
             <div
-              class="relative w-fit max-w-full px-4 py-3 rounded-lg break-words shadow-sm transition-colors text-sm leading-relaxed"
+              class="relative w-fit max-w-full px-3 py-2 rounded-lg break-words shadow-sm transition-colors text-sm leading-relaxed"
               :class="[
                 message.senderId === clientId
                   ? 'bg-black dark:bg-white text-white dark:text-black'
@@ -61,7 +61,7 @@
                     <span class="text-xs whitespace-nowrap flex-shrink-0">({{ formatFileSize(message.fileSize || 0)
                     }})</span>
                     <button @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+                      class="ml-2 px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
                     </button>
@@ -79,7 +79,7 @@
                     <span class="text-xs whitespace-nowrap flex-shrink-0">({{ formatFileSize(message.fileSize || 0)
                     }})</span>
                     <button @click="downloadFile(message.fileUrl, message.fileName)"
-                      class="ml-2 px-2 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+                      class="ml-2 px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded text-xs flex items-center flex-shrink-0 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
                       <ArrowDownTrayIcon class="h-3 w-3 mr-1" />
                       <span>{{ t('tools.webRtcMeeting.chat.download') }}</span>
                     </button>
@@ -108,7 +108,7 @@
 
         <div v-if="chatMessages.length === 0"
           class="flex flex-col items-center justify-center h-full text-gray-600 dark:text-gray-400 text-center">
-          <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4">
+          <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center mb-4">
             <ChatBubbleLeftRightIcon class="h-8 w-8" />
           </div>
           <h3 class="font-medium text-black dark:text-white mb-2">开始对话</h3>
@@ -118,7 +118,7 @@
 
       <!-- Unread messages indicator -->
       <div v-if="unreadMessageCount > 0" @click="scrollToBottomAndMarkRead"
-        class="flex items-center justify-center p-3 bg-black dark:bg-white text-white dark:text-black text-sm cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-0.5 active:translate-y-0">
+        class="flex items-center justify-center p-2 bg-black dark:bg-white text-white dark:text-black text-sm cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-0.5 active:translate-y-0">
         <span class="flex items-center gap-2">
           <div class="w-2 h-2 rounded-full animate-pulse"></div>
           <span class="font-medium">{{ unreadMessageCount }} 条新消息</span>
@@ -126,17 +126,17 @@
         </span>
       </div>
     </div>
-    <div class="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-800">
+    <div class="flex gap-2 p-3 border-t border-gray-200 dark:border-gray-800">
       <input ref="fileInputRef" type="file" multiple @change="handleFileSelect" class="hidden" />
       <button @click="() => fileInputRef?.click()"
-        class="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+        class="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
         :title="t('tools.webRtcMeeting.chat.sendFile')">
         <PaperClipIcon class="h-4 w-4 text-black dark:text-white" />
       </button>
       <input v-model="newMessage" :placeholder="t('tools.webRtcMeeting.chat.placeholder')" @keyup.enter="sendMessage"
-        class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent focus:outline-none px-4 py-2 transition-all placeholder-gray-500 dark:placeholder-gray-400" />
+        class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent focus:outline-none px-3 py-2 transition-all placeholder-gray-500 dark:placeholder-gray-400 text-sm" />
       <button @click="sendMessage" :disabled="!newMessage.trim()"
-        class="w-10 h-10 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:translate-y-0"
+        class="w-9 h-9 rounded-lg bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 flex items-center justify-center shadow-sm transform hover:scale-105 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:translate-y-0"
         :title="t('tools.webRtcMeeting.chat.send')">
         <PaperAirplaneIcon class="h-4 w-4" />
       </button>

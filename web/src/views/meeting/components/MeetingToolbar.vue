@@ -1,6 +1,6 @@
 <template>
   <div
-    class="px-6 py-4 flex justify-between items-center bg-white dark:bg-gray-800 transition-colors"
+    class="px-4 py-3 flex justify-between items-center bg-white dark:bg-gray-800 transition-colors"
   >
     <!-- 左侧：会议信息 -->
     <div class="flex items-center gap-3">
@@ -26,7 +26,7 @@
       <!-- Theme Switch Button -->
       <button
         @click="toggleTheme"
-        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+        class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
         :title="currentTheme === 'light' ? 'Switch to Dark Theme' : '切换到亮色主题'"
       >
         <MoonIcon v-if="currentTheme === 'light'" class="h-4 w-4" />
@@ -36,7 +36,7 @@
       <!-- Language Switch Button -->
       <button
         @click="toggleLanguage"
-        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
+        class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 font-medium text-sm flex items-center justify-center shadow-sm transition-all"
         :title="currentLanguage === 'en-US' ? 'Switch to Chinese' : '切换到英文'"
       >
         <span>{{ currentLanguage === 'en-US' ? '中' : 'EN' }}</span>
@@ -46,7 +46,7 @@
       <button
         v-if="isRoomAdmin"
         @click="showRoomManagement"
-        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+        class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
         title="房间管理"
       >
         <CogIcon class="h-4 w-4" />
@@ -55,7 +55,7 @@
       <!-- Share Button -->
       <button
         @click="showShareModal"
-        class="w-10 h-10 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
+        class="w-9 h-9 rounded-lg bg-white dark:bg-black border border-gray-200 dark:border-gray-800 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-center shadow-sm transition-all"
         :title="t('tools.webRtcMeeting.meeting.share')"
       >
         <ShareIcon class="h-4 w-4" />
@@ -70,7 +70,7 @@
     @click="closeModal"
   >
     <div
-      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden"
       @click.stop
     >
       <!-- 模态框内容 -->
@@ -78,7 +78,7 @@
         <!-- 标题区域 -->
         <div class="text-center mb-4 sm:mb-6">
           <div
-            class="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black dark:bg-white mb-3 sm:mb-4 transition-colors"
+            class="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black dark:bg-white mb-3 sm:mb-4 transition-colors"
           >
             <LinkIcon class="h-5 w-5 sm:h-6 sm:w-6 text-white dark:text-black" />
           </div>
@@ -113,7 +113,7 @@
         <div class="flex gap-2">
           <button
             @click="copyLink"
-            class="flex-1 py-2.5 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"
+            class="flex-1 py-2 px-3 bg-black dark:bg-white text-white dark:text-black font-medium rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center justify-center gap-2 order-2 sm:order-1 text-sm"
           >
             <LinkIcon class="h-3.5 w-3.5" />
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.copyLink') }}</span>
@@ -121,7 +121,7 @@
           </button>
           <button
             @click="closeModal"
-            class="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-2"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 text-black dark:text-white font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 transition-all order-1 sm:order-2 text-sm flex items-center justify-center gap-2"
           >
             <span class="hidden sm:inline">{{ t('tools.webRtcMeeting.meeting.close') }}</span>
             <span class="sm:hidden">关闭</span>

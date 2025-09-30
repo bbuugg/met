@@ -25,7 +25,7 @@
         <div class="w-48 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <nav class="p-4 space-y-2">
             <button @click="activeTab = 'basic'" :class="[
-              'w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
               activeTab === 'basic'
                 ? 'bg-black dark:bg-white text-white dark:text-black'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -34,7 +34,7 @@
               基本信息
             </button>
             <button @click="activeTab = 'members'" :class="[
-              'w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
               activeTab === 'members'
                 ? 'bg-black dark:bg-white text-white dark:text-black'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -58,7 +58,7 @@
                       房间名称
                     </label>
                     <input v-model="roomName" type="text"
-                      class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all text-sm"
+                      class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all text-sm"
                       placeholder="输入房间名称" />
                   </div>
                   <div>
@@ -66,7 +66,7 @@
                       房间密码
                     </label>
                     <input v-model="roomPassword" type="password"
-                      class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all text-sm"
+                      class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all text-sm"
                       placeholder="设置房间密码，留空则无密码" />
                   </div>
                 </div>
@@ -75,7 +75,7 @@
               <!-- 保存按钮 -->
               <div class="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button @click="updateRoomInfo" :disabled="updating"
-                  class="px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="px-5 py-2 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                   <CheckIcon v-if="!updating" class="h-4 w-4" />
                   <div v-else
                     class="w-4 h-4 border-2 border-white dark:border-black border-t-transparent rounded-full animate-spin">
@@ -92,10 +92,10 @@
 
                 <div class="space-y-3">
                   <div v-for="member in members" :key="member.userId"
-                    class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <div class="flex items-center gap-3 min-w-0 flex-1">
                       <div
-                        class="w-10 h-10 rounded-full bg-black dark:bg-white flex items-center justify-center flex-shrink-0">
+                        class="w-9 h-9 rounded-full bg-black dark:bg-white flex items-center justify-center flex-shrink-0">
                         <span class="text-white dark:text-black text-sm font-medium">
                           {{ member.userName.charAt(0).toUpperCase() }}
                         </span>
@@ -118,13 +118,13 @@
                       </div>
                     </div>
 
-                    <div class="flex gap-2 ml-3" v-if="member.role !== Role.Master">
+                    <div class="flex gap-1.5 ml-3" v-if="member.role !== Role.Master">
                       <button @click="kickUser(member.userId)"
-                        class="px-3 py-1.5 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        class="px-2.5 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                         踢出
                       </button>
                       <button @click="blockUser(member.userId)" :disabled="member.blocked"
-                        class="px-3 py-1.5 text-xs font-medium bg-black dark:bg-white text-white dark:text-black rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        class="px-2.5 py-1 text-xs font-medium bg-black dark:bg-white text-white dark:text-black rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         {{ member.blocked ? '已拉黑' : '拉黑' }}
                       </button>
                     </div>
