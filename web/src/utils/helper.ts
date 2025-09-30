@@ -22,6 +22,10 @@ export function login(redirectURI: string = '') {
   window.location.href = `${apiUrl}/login?redirect_uri=${encodeURIComponent(redirectURI || window.location.origin)}`
 }
 
+export function getUserCenterUrl() {
+  return `${apiUrl}/user/center?redirect_uri=${encodeURIComponent(window.location.href)}`
+}
+
 export async function getMediaDevices() {
   const videoDevices = []
   const audioDevices = []

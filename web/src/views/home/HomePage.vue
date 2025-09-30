@@ -2,7 +2,7 @@
   <!-- User Info and Controls -->
   <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
     <!-- User Info (only show when logged in) -->
-    <div v-if="userStore.info.uuid"
+    <a :href="getUserCenterUrl()" v-if="userStore.info.uuid"
       class="flex items-center gap-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2 shadow-sm">
       <!-- User Avatar -->
       <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
@@ -18,7 +18,7 @@
         :title="t('tools.webRtcMeeting.entry.logout')">
         {{ t('tools.webRtcMeeting.entry.logout') }}
       </button>
-    </div>
+    </a>
   </div>
 
   <!-- Control Buttons -->
@@ -65,24 +65,20 @@
         <template v-if="userStore.info.uuid">
           <!-- Tab 切换按钮 -->
           <div class="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-1 mb-6">
-            <button
-              @click="activeTab = 'create'"
-              :class="[
-                'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
-                activeTab === 'create'
-                  ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-              ]">
+            <button @click="activeTab = 'create'" :class="[
+              'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
+              activeTab === 'create'
+                ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+            ]">
               创建会议
             </button>
-            <button
-              @click="activeTab = 'join'"
-              :class="[
-                'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
-                activeTab === 'join'
-                  ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-              ]">
+            <button @click="activeTab = 'join'" :class="[
+              'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all',
+              activeTab === 'join'
+                ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+                : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+            ]">
               加入会议
             </button>
           </div>
@@ -179,8 +175,8 @@
         </h3>
         <button @click="showMeetingList = !showMeetingList"
           class="p-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors" :title="showMeetingList
-              ? t('tools.webRtcMeeting.entry.collapse')
-              : t('tools.webRtcMeeting.entry.expand')
+            ? t('tools.webRtcMeeting.entry.collapse')
+            : t('tools.webRtcMeeting.entry.expand')
             ">
           <svg class="h-4 w-4 text-gray-500 dark:text-gray-400 transition-transform duration-200"
             :class="{ 'rotate-180': !showMeetingList }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -301,6 +297,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { handleAvatarError } from '@/utils/helper'
 import { createRoom, getRoomList, deleteRoom, joinRoom as joinRoomAPI } from '@/api'
 import type { RoomListItem } from '@/types/room'
+import { getUserCenterUrl } from '@/utils/helper'
 
 const router = useRouter()
 const route = useRoute()
@@ -575,6 +572,7 @@ const deleteRoomHandler = async (roomId: string) => {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -585,6 +583,7 @@ const deleteRoomHandler = async (roomId: string) => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -595,6 +594,7 @@ const deleteRoomHandler = async (roomId: string) => {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

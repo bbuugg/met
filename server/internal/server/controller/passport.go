@@ -3,9 +3,6 @@ package controller
 import (
 	"context"
 	"errors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"meeting/internal/model/entity"
 	"meeting/internal/server/constants"
 	"meeting/pkg/api"
@@ -13,6 +10,10 @@ import (
 	"meeting/pkg/database"
 	"meeting/pkg/passport"
 	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type authHandler struct{}
@@ -91,6 +92,15 @@ func (a *authHandler) Logout(ctx *gin.Context) {
 	_ = session.Save()
 
 	ctx.Redirect(http.StatusFound, passport.Logout(r))
+}
+
+func (a *authHandler) UserCenter(ctx *gin.Context) {
+	redirectURI := "/"
+	if r := ctx.Query("redirect_uri"); r != "" {
+		redirectURI = r
+	}
+
+	ctx.Redirect(http.StatusFound, passport.UserCenter(redirectURI))
 }
 
 func (a *authHandler) Info(ctx *gin.Context) {

@@ -3,12 +3,13 @@ package passport
 import (
 	"context"
 	"encoding/json"
-	"golang.org/x/oauth2"
 	"io"
 	"meeting/pkg/api"
 	"meeting/pkg/config"
 	"net/http"
 	"time"
+
+	"golang.org/x/oauth2"
 )
 
 type UserInfo struct {
@@ -65,4 +66,8 @@ func GetUserInfo(token *oauth2.Token) (*UserInfo, error) {
 
 func Logout(redirectURI string) string {
 	return config.GetConfig().Passport.URL + "/logout?redirect_uri=" + redirectURI
+}
+
+func UserCenter(redirectURI string) string {
+	return config.GetConfig().Passport.URL + "/user/center?redirect_uri=" + redirectURI
 }

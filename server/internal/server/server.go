@@ -47,6 +47,7 @@ func NewServer() *Server {
 	p.Use(middleware.Authentication())
 	{
 		p.GET("/api/info", controller.AuthHandler.Info)
+		p.GET("/api/user/center", controller.AuthHandler.UserCenter)
 		p.GET("/api/signature", s.webrtcServer.GenerateSignature)
 		p.GET("/api/room/:id", s.webrtcServer.GetRoomInfo)
 		p.GET("/api/rooms", s.webrtcServer.GetRoomList)            // 添加获取房间列表接口
