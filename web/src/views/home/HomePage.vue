@@ -53,9 +53,9 @@
       class="w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm relative z-10">
       <div class="flex flex-col gap-4 p-6">
         <div class="flex justify-center">
-          <img class="h-16" src="/images/logo.png" alt="" />
+          <img class="h-12" src="/images/logo.png" alt="" />
         </div>
-        <p class="text-center text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+        <p class="text-center text-gray-600 dark:text-gray-400 mb-6 leading-relaxed text-sm">
           {{
             userStore.info.uuid
               ? t('tools.webRtcMeeting.subtitle')
