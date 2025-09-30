@@ -13,7 +13,7 @@
         {{ userStore.info.name }}
       </span>
       <!-- Logout Button -->
-      <button @click="showLogoutConfirm"
+      <button @click.stop="showLogoutConfirm"
         class="text-sm text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
         :title="t('tools.webRtcMeeting.entry.logout')">
         {{ t('tools.webRtcMeeting.entry.logout') }}
