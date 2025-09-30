@@ -3,7 +3,7 @@
   <div class="fixed top-6 right-6 z-50 flex items-center gap-3">
     <!-- User Info (only show when logged in) -->
     <a :href="getUserCenterUrl()" v-if="userStore.info.uuid"
-      class="flex items-center gap-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2 shadow-sm">
+      class="cursor-pointer flex items-center gap-3 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-2 shadow-sm">
       <!-- User Avatar -->
       <img referrerpolicy="no-referrer" :src="userStore.info.avatar" :alt="userStore.info.name"
         class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
@@ -50,7 +50,7 @@
 
     <!-- 居中的用户信息输入区域 -->
     <div
-      class="w-full max-w-md bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10">
+      class="w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg relative z-10">
       <div class="flex flex-col gap-4 p-8">
         <div class="flex justify-center">
           <img class="h-16" src="/images/logo.png" alt="" />
@@ -162,7 +162,7 @@
 
     <!-- 会议列表浮动面板 - 右下角 -->
     <div v-if="userStore.info.uuid && roomList.length > 0"
-      class="fixed bottom-20 right-6 z-40 w-72 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg transition-all duration-300"
+      class="fixed bottom-20 right-6 z-40 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg transition-all duration-300"
       :class="{ 'h-auto': showMeetingList, '': !showMeetingList }">
       <!-- 标题栏 -->
       <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">

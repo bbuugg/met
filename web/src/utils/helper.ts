@@ -23,7 +23,7 @@ export function login(redirectURI: string = '') {
 }
 
 export function getUserCenterUrl() {
-  return `${apiUrl}/user/center?redirect_uri=${encodeURIComponent(window.location.href)}`
+  return `${apiUrl}/api/user/center?redirect_uri=${encodeURIComponent(window.location.href)}`
 }
 
 export async function getMediaDevices() {
