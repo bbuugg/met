@@ -1,5 +1,5 @@
 <template>
-  <div class="z-50 fixed top-6 w-full flex justify-between items-center px-6">
+  <div class="fixed top-6 w-full flex justify-between items-center px-6">
     <div class="flex gap-3">
       <!-- Theme Switch Button -->
       <button @click="toggleTheme"
