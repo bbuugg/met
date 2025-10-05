@@ -18,6 +18,7 @@ export const useMeetingStore = defineStore('meeting', () => {
     const currentUser = ref<Peer | null>(null)
     const roomId = ref('')
     const roomName = ref('')
+    const roomPassword = ref('')
     const clientId = ref('')
 
     // Additional state for HomeView.vue.bak compatibility
@@ -45,6 +46,7 @@ export const useMeetingStore = defineStore('meeting', () => {
         isJoining.value = true
         roomId.value = signedData.roomId
         roomName.value = signedData.roomName
+        roomPassword.value = signedData.roomPassword || ''
         clientId.value = signedData.userId
         // 设置是否为房间管理员 (role: 1 = master, 2 = user)
         isHost.value = signedData.role === Role.Master
@@ -495,6 +497,8 @@ export const useMeetingStore = defineStore('meeting', () => {
         currentUser.value = null
         webrtcService.value = null
         roomId.value = ''
+        roomName.value = ''
+        roomPassword.value = ''
         clientId.value = ''
 
         // 重置额外状态
@@ -521,6 +525,7 @@ export const useMeetingStore = defineStore('meeting', () => {
         currentUser,
         roomId,
         roomName,
+        roomPassword,
         clientId,
         webrtcService, // 导出webrtcService
 

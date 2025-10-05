@@ -29,10 +29,11 @@ type SignatureRequest struct {
 // SignatureResponse represents the response structure for generating signatures
 type SignatureResponse struct {
 	SignatureRequest
-	Name      string `json:"name" form:"name"`
-	Avatar    string `json:"avatar" form:"avatar"`
-	RoomName  string `json:"roomName" form:"roomName"`
-	Signature string `json:"signature" form:"signature"`
+	Name         string `json:"name" form:"name"`
+	Avatar       string `json:"avatar" form:"avatar"`
+	RoomName     string `json:"roomName" form:"roomName"`
+	RoomPassword string `json:"roomPassword" form:"roomPassword"`
+	Signature    string `json:"signature" form:"signature"`
 }
 
 // GenerateSignature generates a signature for joining a room

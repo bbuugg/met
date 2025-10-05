@@ -92,19 +92,50 @@
           </p>
         </div>
 
-        <!-- 链接区域 -->
-        <div class="mb-4 sm:mb-6">
-          <label class="font-semibold text-black dark:text-white text-xs sm:text-sm mb-2 block">{{
-            t('tools.webRtcMeeting.meeting.meetingLink')
-          }}</label>
-          <div
-            class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
-          >
-            <div class="flex items-center gap-2">
-              <LinkIcon class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+        <!-- 房间信息区域 -->
+        <div class="mb-4 sm:mb-6 space-y-3">
+          <!-- 房间ID -->
+          <div>
+            <label class="font-semibold text-black dark:text-white text-xs sm:text-sm mb-2 block">
+              房间ID
+            </label>
+            <div
+              class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+            >
               <span class="font-medium text-black dark:text-white text-xs sm:text-sm">{{
-                meetingLink
+                roomId
               }}</span>
+            </div>
+          </div>
+
+          <!-- 房间密码（如果有） -->
+          <div v-if="roomPassword">
+            <label class="font-semibold text-black dark:text-white text-xs sm:text-sm mb-2 block">
+              房间密码
+            </label>
+            <div
+              class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+            >
+              <span class="font-medium text-black dark:text-white text-xs sm:text-sm">{{
+                roomPassword
+              }}</span>
+            </div>
+          </div>
+
+          <!-- 链接 -->
+          <div>
+            <label class="font-semibold text-black dark:text-white text-xs sm:text-sm mb-2 block">{{
+              t('tools.webRtcMeeting.meeting.meetingLink')
+            }}</label>
+            <div
+              class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
+            >
+              <div class="flex items-center gap-2">
+                <LinkIcon class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                <span class="font-medium text-black dark:text-white text-xs sm:text-sm break-all">{{
+                  meetingLink
+                }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -155,6 +186,7 @@ const meetingStore = useMeetingStore()
 const shareModalVisible = ref(false)
 const roomManagementVisible = ref(false)
 const roomId = computed(() => meetingStore.roomId)
+const roomPassword = computed(() => meetingStore.roomPassword)
 
 // Reactive variable to track current language
 const currentLanguage = computed(() => locale.value)
@@ -232,8 +264,17 @@ function handleRoomUpdated() {
 }
 
 function copyLink() {
+  // 构建包含房间信息的文本
+  let copyText = `邀请你加入房间\n房间ID：${roomId.value}\n`
+  
+  if (roomPassword.value) {
+    copyText += `房间密码：${roomPassword.value}\n`
+  }
+  
+  copyText += `\n也可直接打开链接${roomPassword.value ? '输入密码' : ''}进入房间：\n${meetingLink.value}`
+
   navigator.clipboard
-    .writeText(meetingLink.value)
+    .writeText(copyText)
     .then(() => {
       toast.success(t('tools.webRtcMeeting.meeting.copySuccess'))
       // 复制成功后自动关闭模态框

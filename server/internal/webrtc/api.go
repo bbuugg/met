@@ -270,6 +270,10 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 	sign.RoomName = room.Name
 	sign.Name = user.Name
 	sign.Avatar = user.Avatar
+	// 只有房间管理员才能获取房间密码
+	if role == entity.RoleMaster {
+		sign.RoomPassword = room.Password
+	}
 
 	c.JSON(http.StatusOK, api.Okay(api.WithData(sign)))
 }
