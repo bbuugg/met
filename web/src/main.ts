@@ -23,7 +23,6 @@ import * as Sentry from '@sentry/vue'
 //   }
 // }
 
-
 console.log(adapter.browserDetails.browser)
 
 const app = createApp(App)

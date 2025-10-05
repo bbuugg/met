@@ -16,7 +16,17 @@ class ToastManager {
   private ensureContainer() {
     if (!this.container) {
       this.container = document.createElement('div')
-      this.container.className = 'fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none'
+      this.container.id = 'toast-container'
+      this.container.style.cssText = `
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        pointer-events: none;
+      `
       document.body.appendChild(this.container)
     }
     return this.container
@@ -54,28 +64,92 @@ class ToastManager {
     const styles = this.getToastStyles(type)
 
     const toast = document.createElement('div')
-    toast.className = `
-      ${styles.bg} ${styles.border}
-      border-l-4 rounded-lg shadow-lg p-4 min-w-[300px] max-w-md
-      flex items-start gap-3
-      pointer-events-auto
-      transform transition-all duration-300 ease-out
-      translate-x-[400px] opacity-0
-    `.trim().replace(/\s+/g, ' ')
+    
+    // Use inline styles for critical positioning and animation
+    toast.style.cssText = `
+      pointer-events: auto;
+      min-width: 300px;
+      max-width: 28rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border-left: 4px solid;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      transform: translateX(400px);
+      opacity: 0;
+      transition: all 0.3s ease-out;
+    `
 
-    const iconColor = type === 'success' ? 'text-green-600 dark:text-green-400' :
-                      type === 'error' ? 'text-red-600 dark:text-red-400' :
-                      type === 'info' ? 'text-blue-600 dark:text-blue-400' :
-                      'text-yellow-600 dark:text-yellow-400'
+    // Apply type-specific colors
+    const isDark = document.documentElement.classList.contains('dark')
+    const colorMap = {
+      success: {
+        bg: isDark ? 'rgba(6, 78, 59, 0.2)' : 'rgba(240, 253, 244, 1)',
+        border: '#10b981',
+        text: isDark ? '#34d399' : '#059669',
+        iconBg: isDark ? '#34d399' : '#059669'
+      },
+      error: {
+        bg: isDark ? 'rgba(127, 29, 29, 0.2)' : 'rgba(254, 242, 242, 1)',
+        border: '#ef4444',
+        text: isDark ? '#f87171' : '#dc2626',
+        iconBg: isDark ? '#f87171' : '#dc2626'
+      },
+      info: {
+        bg: isDark ? 'rgba(30, 58, 138, 0.2)' : 'rgba(239, 246, 255, 1)',
+        border: '#3b82f6',
+        text: isDark ? '#60a5fa' : '#2563eb',
+        iconBg: isDark ? '#60a5fa' : '#2563eb'
+      },
+      warning: {
+        bg: isDark ? 'rgba(120, 53, 15, 0.2)' : 'rgba(254, 252, 232, 1)',
+        border: '#f59e0b',
+        text: isDark ? '#fbbf24' : '#d97706',
+        iconBg: isDark ? '#fbbf24' : '#d97706'
+      }
+    }
+
+    const colors = colorMap[type]
+    toast.style.backgroundColor = colors.bg
+    toast.style.borderLeftColor = colors.border
 
     toast.innerHTML = `
-      <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center font-bold ${iconColor}">
+      <div style="
+        flex-shrink: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: ${colors.iconBg};
+        font-size: 1rem;
+      ">
         ${styles.icon}
       </div>
-      <div class="flex-1 text-sm text-gray-800 dark:text-gray-200 break-words">
+      <div style="
+        flex: 1;
+        font-size: 0.875rem;
+        color: ${isDark ? '#e5e7eb' : '#1f2937'};
+        word-break: break-word;
+        line-height: 1.5;
+      ">
         ${this.escapeHtml(message)}
       </div>
-      <button class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ml-2">
+      <button style="
+        flex-shrink: 0;
+        color: ${isDark ? '#9ca3af' : '#6b7280'};
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 0.5rem;
+        font-size: 1rem;
+        line-height: 1;
+        transition: color 0.2s;
+      " onmouseover="this.style.color='${isDark ? '#d1d5db' : '#374151'}'" onmouseout="this.style.color='${isDark ? '#9ca3af' : '#6b7280'}'">
         ✕
       </button>
     `
