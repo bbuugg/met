@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+type Role uint8
+
 // RoomUser 房间用户关联表
 type RoomUser struct {
 	Id        uint           `gorm:"primarykey" json:"-"`
@@ -22,23 +24,24 @@ type RoomUser struct {
 	User *User `gorm:"foreignKey:UserId" json:"user,omitempty"`
 }
 
-type Role uint8
-
 const (
-	RoleMaster Role = iota + 1
+	RoleHost Role = iota + 1
 	RoleUser
+	RoleAll = math.MaxUint8
 )
 
-const RoleAll Role = math.MaxUint8
-
 // TableName 指定表名
-func (RoomUser) TableName() string {
+func (ru *RoomUser) TableName() string {
 	return "room_users"
 }
 
-// IsAdmin 判断是否为管理员
-func (ru *RoomUser) IsAdmin() bool {
-	return ru.Role == RoleMaster
+// IsHost 判断是否为房主
+func (ru *RoomUser) IsHost() bool {
+	return ru.HasRole(RoleHost)
+}
+
+func (ru *RoomUser) HasRole(role Role) bool {
+	return (ru.Role & role) != 0
 }
 
 // IsBlocked 判断是否被拉黑

@@ -144,7 +144,7 @@ func (s *Server) CreateRoom(c *gin.Context) {
 		roomUser := entity.RoomUser{
 			RoomId:  room.Id,
 			UserId:  user.Id,
-			Role:    entity.RoleMaster,
+			Role:    entity.RoleHost,
 			Blocked: false,
 		}
 		if err := database.DB(c).Create(&roomUser).Error; err != nil {
@@ -249,8 +249,8 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 	var roomUser entity.RoomUser
 	var role = entity.RoleUser
 	if err := database.DB(c).Where("room_id = ? AND user_id = ?", room.Id, user.Id).First(&roomUser).Error; err == nil {
-		if roomUser.IsAdmin() {
-			role = entity.RoleMaster
+		if roomUser.IsHost() {
+			role = entity.RoleHost
 		}
 		// 检查用户是否被拉黑
 		if roomUser.IsBlocked() {
@@ -270,8 +270,8 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 	sign.RoomName = room.Name
 	sign.Name = user.Name
 	sign.Avatar = user.Avatar
-	// 只有房间管理员才能获取房间密码
-	if role == entity.RoleMaster {
+	// 只有房主才能获取密码
+	if (role & entity.RoleHost) != 0 {
 		sign.RoomPassword = room.Password
 	}
 
@@ -352,7 +352,7 @@ func (s *Server) UpdateRoom(c *gin.Context) {
 		return
 	}
 
-	if !roomUser.IsAdmin() {
+	if !roomUser.IsHost() {
 		c.JSON(http.StatusForbidden, api.Fail(api.WithMessage("Only room admin can update room")))
 		return
 	}
@@ -401,7 +401,7 @@ func (s *Server) KickUser(c *gin.Context) {
 		return
 	}
 
-	if !adminRoomUser.IsAdmin() {
+	if !adminRoomUser.IsHost() {
 		c.JSON(http.StatusForbidden, api.Fail(api.WithMessage("Only room admin can kick users")))
 		return
 	}
@@ -464,7 +464,7 @@ func (s *Server) BlockUser(c *gin.Context) {
 		return
 	}
 
-	if !adminRoomUser.IsAdmin() {
+	if !adminRoomUser.IsHost() {
 		c.JSON(http.StatusForbidden, api.Fail(api.WithMessage("Only room admin can block users")))
 		return
 	}
@@ -489,7 +489,7 @@ func (s *Server) BlockUser(c *gin.Context) {
 		targetRoomUser = entity.RoomUser{
 			RoomId:  room.Id,
 			UserId:  req.UserId,
-			Role:    entity.RoleMaster,
+			Role:    entity.RoleHost,
 			Blocked: true,
 		}
 		if err := database.DB(c).Create(&targetRoomUser).Error; err != nil {
@@ -537,7 +537,7 @@ func (s *Server) GetRoomMembers(c *gin.Context) {
 		return
 	}
 
-	if !adminRoomUser.IsAdmin() {
+	if !adminRoomUser.IsHost() {
 		c.JSON(http.StatusForbidden, api.Fail(api.WithMessage("Only room admin can view members")))
 		return
 	}
