@@ -34,7 +34,7 @@ func (c *Client) handlePing() {
 }
 
 func (c *Client) handleChat(message *Message) {
-	c.room.broadcast <- message
+	c.room.Broadcast(message)
 }
 
 func (c *Client) handleAllClients(message *Message) {

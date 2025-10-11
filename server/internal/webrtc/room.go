@@ -62,6 +62,10 @@ func (r *Room) KickAllUser() {
 	}
 }
 
+func (r *Room) Broadcast(message *Message) {
+	r.broadcast <- message
+}
+
 // Run starts the room's main loop
 func (r *Room) Run() {
 	ticker := time.NewTicker(10 * time.Second)
