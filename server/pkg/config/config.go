@@ -22,8 +22,8 @@ type TomlConfig struct {
 		DSN string
 	}
 	Session struct {
-		Samesite     string
-		SamesiteMode http.SameSite
+		SameSite     string
+		SameSiteMode http.SameSite
 		Secure       bool
 	}
 	Passport struct {
@@ -39,16 +39,12 @@ type TomlConfig struct {
 
 func InitializeConfig(filepath string) {
 	configOnce.Do(func() {
-		initializeConfig(filepath)
+		if _, err := toml.DecodeFile(filepath, &globalConfig); err != nil && !errors.Is(err, os.ErrNotExist) {
+			panic(err)
+		}
+
+		initializeWithDefaults()
 	})
-}
-
-func initializeConfig(filepath string) {
-	if _, err := toml.DecodeFile(filepath, &globalConfig); err != nil && !errors.Is(err, os.ErrNotExist) {
-		panic(err)
-	}
-
-	initializeWithDefaults()
 }
 
 func initializeWithDefaults() {
@@ -58,15 +54,15 @@ func initializeWithDefaults() {
 	if globalConfig.Mysql.DSN == "" {
 		globalConfig.Mysql.DSN = "root:root@tcp(127.0.0.1:3306)/met?charset=utf8mb4&parseTime=True&loc=Local"
 	}
-	switch strings.ToLower(globalConfig.Session.Samesite) {
+	switch strings.ToLower(globalConfig.Session.SameSite) {
 	case "lax":
-		globalConfig.Session.SamesiteMode = http.SameSiteLaxMode
+		globalConfig.Session.SameSiteMode = http.SameSiteLaxMode
 	case "strict":
-		globalConfig.Session.SamesiteMode = http.SameSiteStrictMode
+		globalConfig.Session.SameSiteMode = http.SameSiteStrictMode
 	case "none":
-		globalConfig.Session.SamesiteMode = http.SameSiteNoneMode
+		globalConfig.Session.SameSiteMode = http.SameSiteNoneMode
 	default:
-		globalConfig.Session.SamesiteMode = http.SameSiteDefaultMode
+		globalConfig.Session.SameSiteMode = http.SameSiteDefaultMode
 	}
 }
 

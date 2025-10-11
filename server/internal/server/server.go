@@ -32,7 +32,7 @@ func NewServer() *Server {
 
 	store := cookie.NewStore([]byte("secret"))
 	// store.Options(sessions.Options{
-	// 	SameSite: config.GetConfig().Session.SamesiteMode,
+	// 	SameSite: config.GetConfig().Session.SameSiteMode,
 	// 	Secure:   config.GetConfig().Session.Secure,
 	// })
 	r.Use(sessions.Sessions("session", store))

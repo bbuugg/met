@@ -12,8 +12,8 @@ func UserFromCtx(ctx *gin.Context) *entity.User {
 		return nil
 	}
 
-	if user, ok := user.(*entity.User); ok && user != nil {
-		return user
+	if ue, ok := user.(*entity.User); ok && ue != nil {
+		return ue
 	}
 
 	return nil
