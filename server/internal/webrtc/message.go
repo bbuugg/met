@@ -13,6 +13,7 @@ const (
 	MessageTypePong        MessageType = "pong"
 	MessageTypeJoin        MessageType = "join"
 	MessageTypeLeave       MessageType = "leave"
+	MessageTypeChat        MessageType = "chat"
 	MessageTypeAllClients  MessageType = "all-clients" // 客户端id列表
 	MessageTypeWebRTCEvent MessageType = "webrtc-event"
 	MessageTypeKick        MessageType = "kick" // 被踢了

@@ -17,6 +17,8 @@ func (c *Client) handleMessage(message *Message) {
 		c.handlePing()
 	case MessageTypeAllClients:
 		c.handleAllClients(message)
+	case MessageTypeChat:
+		c.handleChat(message)
 	case MessageTypeWebRTCEvent:
 		c.handleWebRTCEvent(message)
 	default:
@@ -29,6 +31,10 @@ func (c *Client) handlePing() {
 		return
 	}
 	c.Send(c.newMessage(MessageTypePong, nil, nil))
+}
+
+func (c *Client) handleChat(message *Message) {
+	c.room.broadcast <- message
 }
 
 func (c *Client) handleAllClients(message *Message) {
