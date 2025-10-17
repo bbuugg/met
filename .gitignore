@@ -1,0 +1,8 @@
+.idea
+.vscode
+.DS_Store
+config.toml
+storage/logs/app.log
+public/upload
+node_modules
+*.pid

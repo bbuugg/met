@@ -1,0 +1,15 @@
+[Mysql]
+DSN = "root:123456@tcp(127.0.0.1:3305)/met?charset=utf8mb4&parseTime=True&loc=Local"
+
+[Session]
+Samesite = "lax"
+Secure = true
+
+[Passport]
+URL = "https://www.codeemo.cn"
+ClientId = "9aef0e68-6fdf-430f-811a-21da4195588d"
+ClientSecret = ""
+RedirectURI = "http://localhost:5173/login/callback"
+ResponseType = "code"
+Scope = ["base_info"]
+GrantType = "authorization_code"

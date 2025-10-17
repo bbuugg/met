@@ -1,0 +1,6 @@
+{
+  "name": "met",
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}
