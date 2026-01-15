@@ -2,14 +2,15 @@ package middleware
 
 import (
 	"errors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"meeting/internal/constants"
 	"meeting/internal/model/entity"
-	"meeting/internal/server/constants"
 	"meeting/pkg/api"
 	"meeting/pkg/database"
 	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func Authentication() gin.HandlerFunc {

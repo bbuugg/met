@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
+	"meeting/internal/constants"
 	"meeting/internal/model/entity"
-	"meeting/internal/server/constants"
+
+	"github.com/gin-gonic/gin"
 )
 
 func UserFromCtx(ctx *gin.Context) *entity.User {

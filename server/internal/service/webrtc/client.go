@@ -63,8 +63,8 @@ type Client struct {
 	lastMessageTime time.Time
 }
 
-// newClient creates a new client with a specific entity.Role
-func newClient(conn *websocket.Conn, user *User) *Client {
+// NewClient creates a new client with a specific entity.Role
+func NewClient(conn *websocket.Conn, user *User) *Client {
 	return &Client{
 		User:            user,
 		conn:            conn,
@@ -117,8 +117,8 @@ func (c *Client) newMessage(t MessageType, data any, receiver Receiver) *Message
 	}
 }
 
-// readPump pumps messages from the websocket connection to the room.
-func (c *Client) readPump() {
+// ReadPump pumps messages from the websocket connection to the room.
+func (c *Client) ReadPump() {
 	defer func() {
 		if c.room != nil && c.conn != nil {
 			c.room.UnregisterClient(c)
@@ -153,8 +153,8 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the room to the websocket connection.
-func (c *Client) writePump() {
+// WritePump pumps messages from the room to the websocket connection.
+func (c *Client) WritePump() {
 	if c.conn == nil {
 		return
 	}
