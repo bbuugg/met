@@ -109,7 +109,7 @@ make
 ```
 
 构建后服务端二进制文件在`bin`目录下，后端应用需要配置`server/config.toml`
-，修改数据库连接，由于未开发登录页面，所以使用同意授权登录，通过配置passport实现，相关配置需要前往[CodeEMO](https://www.codeemo.cn/login?redirect_uri=https%3A%2F%2Fwww.codeemo.cn%2Fuser%2Fcenter)
+，修改数据库连接，由于未开发登录页面，所以使用统一授权登录，相关配置需要前往[CodeEMO](https://www.codeemo.cn/login?redirect_uri=https%3A%2F%2Fwww.codeemo.cn%2Fuser%2Fcenter)
 申请
 
 ### 登录 （使用第三方授权登录或者邮箱验证码登录自动注册）
