@@ -3,10 +3,10 @@ package controller
 import (
 	"context"
 	"errors"
+	"meeting/internal/constants"
 	"meeting/internal/model/entity"
-	"meeting/internal/server/constants"
+	"meeting/internal/utility/auth"
 	"meeting/pkg/api"
-	"meeting/pkg/auth"
 	"meeting/pkg/database"
 	"meeting/pkg/passport"
 	"net/http"

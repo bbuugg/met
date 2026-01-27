@@ -1,12 +1,12 @@
 all: build
 
 build:
-	go build -o ./bin/webrtc-signal ./cmd
+	go build -o ./bin/main .
 
 dev:
-	go run ./cmd
+	go run . serve
 
 clean:
-	rm -rf ./bin/webrtc-signal
+	rm -rf ./bin/main
 
 .PHONY: build clean all

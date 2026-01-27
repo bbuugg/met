@@ -85,7 +85,7 @@ function startBackend() {
     log(`Starting backend server..., cwd: ${__dirname}`, colors.fgMagenta);
 
     // Use go run cmd/main.go to start the backend
-    backendProcess = spawn("go", ["run", "./cmd"], {
+    backendProcess = spawn("go", ["run", ".", "serve"], {
         cwd: `${__dirname}/server`,
         stdio: ["pipe", "pipe", "pipe"],
         shell: true,

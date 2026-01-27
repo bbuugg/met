@@ -1,10 +1,12 @@
-package webrtc
+package controller
 
 import (
 	"context"
+	"log"
 	"meeting/internal/model/entity"
+	"meeting/internal/service/webrtc"
+	"meeting/internal/utility/auth"
 	"meeting/pkg/api"
-	"meeting/pkg/auth"
 	"meeting/pkg/database"
 	"net/http"
 	"sort"
@@ -12,18 +14,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
-
-// RoomInfo represents the information of a room for monitoring
-type RoomInfo struct {
-	Id          string    `json:"id"`
-	Name        string    `json:"name"`
-	ClientCount int       `json:"clientCount"`
-	StartTime   time.Time `json:"startTime"`
-	MaxOnline   int       `json:"maxOnline"`
-	LastActive  time.Time `json:"lastActive"`
-	Clients     []*Client `json:"clients"`
-}
 
 // CreateRoomRequest represents the request structure for creating a room
 type CreateRoomRequest struct {
@@ -74,7 +66,47 @@ type RoomMemberInfo struct {
 	Blocked  bool   `json:"blocked"`
 }
 
-func (s *Server) GetRoomInfo(c *gin.Context) {
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  102400,
+	WriteBufferSize: 102400,
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow connections from any origin
+	},
+}
+
+func HandleWebSocket(c *gin.Context) {
+	var req webrtc.SignatureResponse
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage(err.Error())))
+		return
+	}
+
+	if err := webrtc.ValidateSignature(req); err != nil {
+		c.JSON(http.StatusUnauthorized, api.Fail(api.WithMessage(err.Error())))
+		return
+	}
+
+	r := webrtc.WsServer.StartRoom(req.RoomId)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Create client with Role and add to room
+	client := webrtc.NewClient(conn, &webrtc.User{
+		Id:     req.UserId,
+		Name:   req.Name,
+		Avatar: req.Avatar,
+		Role:   req.Role,
+	})
+	r.RegisterClient(client)
+
+	// Start client message handling
+	go client.ReadPump()
+	go client.WritePump()
+}
+
+func GetRoomInfo(c *gin.Context) {
 	id := c.Param("id")
 	var room entity.Room
 	if database.DB(context.Background()).Where("uuid=?", id).Find(&room); room.Id == 0 {
@@ -86,7 +118,7 @@ func (s *Server) GetRoomInfo(c *gin.Context) {
 }
 
 // GetRoomList returns the list of rooms created by the current user
-func (s *Server) GetRoomList(c *gin.Context) {
+func GetRoomList(c *gin.Context) {
 	user := auth.MustGetUserFromCtx(c)
 
 	var rooms = make([]entity.Room, 0)
@@ -121,7 +153,7 @@ func (s *Server) GetRoomList(c *gin.Context) {
 }
 
 // CreateRoom creates a new room
-func (s *Server) CreateRoom(c *gin.Context) {
+func CreateRoom(c *gin.Context) {
 	var req CreateRoomRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage(err.Error())))
@@ -162,7 +194,7 @@ func (s *Server) CreateRoom(c *gin.Context) {
 }
 
 // DeleteRoom deletes a room by its UUID
-func (s *Server) DeleteRoom(c *gin.Context) {
+func DeleteRoom(c *gin.Context) {
 	uuid := c.Param("id")
 	user := auth.MustGetUserFromCtx(c)
 
@@ -181,58 +213,32 @@ func (s *Server) DeleteRoom(c *gin.Context) {
 }
 
 // GetMonitoringData returns the monitoring data of all rooms
-func (s *Server) GetMonitoringData(c *gin.Context) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	// 收集所有房间ID用于IN查询
-	roomIds := make([]string, 0, len(s.rooms))
-	for _, room := range s.rooms {
-		roomIds = append(roomIds, room.Id)
-	}
-
+func GetMonitoringData(c *gin.Context) {
+	rooms := webrtc.WsServer.GetRooms()
 	// 使用IN查询一次性获取所有房间信息
 	var roomEntities []entity.Room
-	if len(roomIds) > 0 {
+	if len(rooms) > 0 {
+		var roomIds = make([]string, 0)
+		for _, v := range rooms {
+			roomIds = append(roomIds, v.Id)
+		}
 		database.DB(context.Background()).Where("uuid IN ?", roomIds).Find(&roomEntities)
 	}
-
 	// 创建房间ID到房间名称的映射
 	roomNameMap := make(map[string]string)
 	for _, roomEntity := range roomEntities {
 		roomNameMap[roomEntity.Uuid] = roomEntity.Name
 	}
 
-	var rooms = make([]RoomInfo, 0)
-	for _, room := range s.rooms {
-		room.mu.RLock()
-		clientCount := len(room.clients)
-		var clients = make([]*Client, 0)
-		for _, client := range room.clients {
-			clients = append(clients, client)
-		}
-		room.mu.RUnlock()
-
-		rooms = append(rooms, RoomInfo{
-			Id:          room.Id,
-			Name:        roomNameMap[room.Id],
-			ClientCount: clientCount,
-			StartTime:   room.StartTime,
-			MaxOnline:   room.MaxOnline,
-			LastActive:  room.lastAlive,
-			Clients:     clients,
-		})
-	}
-
-	sort.Slice(rooms, func(i, j int) bool {
+	sort.Slice(roomEntities, func(i, j int) bool {
 		return rooms[i].StartTime.Before(rooms[j].StartTime)
 	})
 
 	c.JSON(http.StatusOK, api.Okay(api.WithData(rooms)))
 }
 
-func (s *Server) GenerateSignature(c *gin.Context) {
-	var req SignatureRequest
+func GenerateSignature(c *gin.Context) {
+	var req webrtc.SignatureRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, api.Fail(api.WithMessage(err.Error())))
 		return
@@ -261,7 +267,7 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 
 	req.Role = role
 	req.Timestamp = time.Now().UnixMilli()
-	sign, err := GenerateSignature(req)
+	sign, err := webrtc.GenerateSignature(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, api.Fail(api.WithMessage(err.Error())))
 		return
@@ -279,7 +285,7 @@ func (s *Server) GenerateSignature(c *gin.Context) {
 }
 
 // JoinRoom handles joining a room with password verification
-func (s *Server) JoinRoom(c *gin.Context) {
+func JoinRoom(c *gin.Context) {
 	roomUuid := c.Param("id")
 	var req JoinRoomRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -328,7 +334,7 @@ func (s *Server) JoinRoom(c *gin.Context) {
 }
 
 // UpdateRoom updates room information (admin only)
-func (s *Server) UpdateRoom(c *gin.Context) {
+func UpdateRoom(c *gin.Context) {
 	roomUuid := c.Param("id")
 	var req UpdateRoomRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -377,7 +383,7 @@ func (s *Server) UpdateRoom(c *gin.Context) {
 }
 
 // KickUser kicks a user from the room (admin only)
-func (s *Server) KickUser(c *gin.Context) {
+func KickUser(c *gin.Context) {
 	roomUuid := c.Param("id")
 	var req KickUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -426,10 +432,10 @@ func (s *Server) KickUser(c *gin.Context) {
 	}
 
 	// 如果用户在线，发送踢出消息
-	if activeRoom := s.FindRoom(room.Uuid); activeRoom != nil {
+	if activeRoom := webrtc.WsServer.FindRoom(room.Uuid); activeRoom != nil {
 		if client := activeRoom.FindClient(targetUser.Uuid); client != nil {
-			client.Send(&Message{
-				Type: MessageTypeKick,
+			client.Send(&webrtc.Message{
+				Type: webrtc.MessageTypeKick,
 				From: nil,
 				Data: "You have been kicked from the room",
 			})
@@ -440,7 +446,7 @@ func (s *Server) KickUser(c *gin.Context) {
 }
 
 // BlockUser blocks a user from the room (admin only)
-func (s *Server) BlockUser(c *gin.Context) {
+func BlockUser(c *gin.Context) {
 	roomUuid := c.Param("id")
 	var req BlockUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -505,10 +511,10 @@ func (s *Server) BlockUser(c *gin.Context) {
 	}
 
 	// 如果用户在线，踢出并发送拉黑消息
-	if activeRoom := s.FindRoom(room.Uuid); activeRoom != nil {
+	if activeRoom := webrtc.WsServer.FindRoom(room.Uuid); activeRoom != nil {
 		if client := activeRoom.FindClient(targetUser.Uuid); client != nil {
-			client.Send(&Message{
-				Type: MessageTypeKick,
+			client.Send(&webrtc.Message{
+				Type: webrtc.MessageTypeKick,
 				From: nil,
 				Data: "You have been blocked from the room",
 			})
@@ -519,7 +525,7 @@ func (s *Server) BlockUser(c *gin.Context) {
 }
 
 // GetRoomMembers gets the list of room members (admin only)
-func (s *Server) GetRoomMembers(c *gin.Context) {
+func GetRoomMembers(c *gin.Context) {
 	roomUuid := c.Param("id")
 	user := auth.MustGetUserFromCtx(c)
 
