@@ -49,7 +49,7 @@ func Exchange(ctx context.Context, code string) (*oauth2.Token, error) {
 func GetUserInfo(token *oauth2.Token) (*UserInfo, error) {
 	c := config.GetConfig()
 	// todo 处理接口请求失败的报错
-	req, _ := http.NewRequest(http.MethodGet, c.Passport.URL+"/api/v1/user/profile", nil)
+	req, _ := http.NewRequest(http.MethodGet, c.Passport.URL+"/oauth/user/info", nil)
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	res, err := http.DefaultClient.Do(req)
