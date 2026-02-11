@@ -100,6 +100,8 @@ realm=turn.codeemo.cn #开放端口，修改成你自己的域名
 - 安全性：建议使用 TLS/DTLS 加密连接，以提高安全性。
 - 端口范围：根据实际需求调整 min-port 和 max-port 的值，确保有足够的端口供客户端使用。
 
+测试你的turn服务：https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+
 ### 构建
 
 使用下方命令构建前后端应用
