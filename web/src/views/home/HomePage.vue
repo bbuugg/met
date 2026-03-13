@@ -109,7 +109,7 @@
               class="w-full py-2 px-4 bg-black dark:bg-white text-white dark:text-black font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm">
               <span v-if="!isCreating">{{
                 t('tools.webRtcMeeting.entry.createAndJoinMeeting')
-              }}</span>
+                }}</span>
               <span v-else>{{ t('tools.webRtcMeeting.entry.creating') }}</span>
               <ArrowRightIcon v-if="!isCreating" class="h-4 w-4" />
             </button>
@@ -152,7 +152,8 @@
             <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
               <li class="font-mono">
                 {{ t('tools.webRtcMeeting.entry.loginTip') }}<br>
-                {{ t('tools.webRtcMeeting.entry.testEmail') }}：bug@bug.com {{ t('tools.webRtcMeeting.entry.password') }}：bug@bug.com
+                {{ t('tools.webRtcMeeting.entry.testEmail') }}：bug@bug.com {{ t('tools.webRtcMeeting.entry.password')
+                }}：bug@bug.com
               </li>
             </ul>
           </div>
@@ -232,16 +233,24 @@
 
     <!-- Footer -->
     <div class="fixed bottom-6 left-6 flex items-center gap-6 text-sm">
-      <router-link v-if="userStore.info.uuid" to="/monitoring"
+      <router-link v-if="userStore.info?.uuid" to="/monitoring"
         class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors">
         {{ t('tools.webRtcMeeting.entry.systemMonitoring') }}
       </router-link>
-      <span class="text-gray-400 dark:text-gray-600">|</span>
-      <a class="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white font-medium transition-colors"
-        href="https://qm.qq.com/q/ayOVUpwjde">QQ群:1064753745</a>
-      <span class="text-gray-400 dark:text-gray-600">|</span>
+      <span v-if="userStore.info?.uuid" class="text-gray-400 dark:text-gray-600">|</span>
       <span class="text-gray-500 dark:text-gray-400">
         {{ t('tools.webRtcMeeting.entry.copyright', { year: new Date().getFullYear() }) }}
+      </span>
+      <span class="text-gray-400 dark:text-gray-600">|</span>
+      <span class="relative group cursor-default text-gray-500 dark:text-gray-400 font-medium">
+        微信群
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 pb-8 hidden group-hover:block z-50">
+          <div
+            class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-1 py-6 shadow-lg w-56 h-auto">
+            <img src="https://www.codeemo.cn/wechat-qrcode" referrerpolicy="no-referrer" alt="微信群"
+              class="w-full h-full object-contain" />
+          </div>
+        </div>
       </span>
     </div>
   </div>
